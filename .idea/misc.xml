@@ -3,10 +3,13 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Kapil/AndroidStudioProject/Test/app/src/main/res/drawable/textview_vg.xml" value="0.246" />
         <entry key="..\:/Kapil/AndroidStudioProject/Test/app/src/main/res/layout-land/activity_main.xml" value="0.20326278659611993" />
         <entry key="..\:/Kapil/AndroidStudioProject/Test/app/src/main/res/layout-sw600dp/activity_main.xml" value="0.18" />
         <entry key="..\:/Kapil/AndroidStudioProject/Test/app/src/main/res/layout/activity_main.xml" value="0.2" />
+        <entry key="..\:/Kapil/AndroidStudioProject/Test/app/src/main/res/layout/activity_main2.xml" value="0.2" />
         <entry key="..\:/Kapil/AndroidStudioProject/Test/app/src/main/res/layout/custom_adapter.xml" value="0.10540429042904291" />
+        <entry key="..\:/Kapil/AndroidStudioProject/Test/app/src/main/res/layout/df.xml" value="0.1" />
         <entry key="..\:/Kapil/AndroidStudioProject/Test/app/src/main/res/layout/layout.xml" value="0.1" />
       </map>
     </option>

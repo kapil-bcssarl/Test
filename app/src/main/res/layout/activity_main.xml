@@ -31,32 +31,8 @@
         app:layout_constraintStart_toEndOf="@id/btn1"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/btn3"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
-        android:gravity="center_horizontal"
-        android:padding="16dp"
-        android:text="Tab View 1"
-        tools:ignore="MissingConstraints" />
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cl1"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        tools:ignore="MissingConstraints">
 
-        <ImageView
-            android:id="@+id/iv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@mipmap/ic_launcher"
-            tools:ignore="MissingConstraints" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:ignore="MissingConstraints" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <include
+        android:id="@+id/included"
+        layout="@layout/df" />
 </androidx.constraintlayout.widget.ConstraintLayout>
