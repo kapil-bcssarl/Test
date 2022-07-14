@@ -7,7 +7,6 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
@@ -19,12 +18,11 @@ import android.util.Log
 import android.view.*
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import android.widget.AutoCompleteTextView
 import android.widget.ProgressBar
 import android.widget.SearchView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -33,9 +31,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
+import com.borakay.tennisproadminapplicationnodesignchange.ModelFactory.CustomerRacketModelFactory
 import com.borakay.tennisproadminapplicationnodesignchange.R
 import com.borakay.tennisproadminapplicationnodesignchange.databinding.CustomerRacketFragmentBinding
 import com.borakay.tennisproadminapplicationnodesignchange.model_pojoclass.*
+import com.borakay.tennisproadminapplicationnodesignchange.repository.fragment.CustomerRacketSleeveSizeRepository
+import com.borakay.tennisproadminapplicationnodesignchange.retrofit.ApiHelper
 import com.borakay.tennisproadminapplicationnodesignchange.retrofit.RetrofitClient
 import com.borakay.tennisproadminapplicationnodesignchange.staticvaluesfolder.*
 import com.borakay.tennisproadminapplicationnodesignchange.view.MainActivity.Companion.navController
@@ -49,6 +50,8 @@ import com.borakay.tennisproadminapplicationnodesignchange.view.fragments.QRscan
 import com.borakay.tennisproadminapplicationnodesignchange.view.fragments.QRscannerNewOrderFragment.Companion.customerRacketList
 import com.borakay.tennisproadminapplicationnodesignchange.view.fragments.QRscannerNewOrderFragment.Companion.selectedCustomerRacketDetailForNewOrder
 import com.borakay.tennisproadminapplicationnodesignchange.viewmodel.fragments.CustomerRacketViewModel
+import com.borakay.tennisproadminapplicationnodesignchange.viewmodel.fragments.CustomerRacketsViewModel
+import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.add_other_details_dialog_layout.*
 import kotlinx.android.synthetic.main.customer_racket_fragment.*
@@ -78,6 +81,7 @@ class CustomerRacketFragment : Fragment() {
     lateinit var adapterPurchaseYear: YearListAdapter
     lateinit var adapterState: StateListAdapter
     private lateinit var viewModel: CustomerRacketViewModel
+    private lateinit var customerRacketViewModel: CustomerRacketsViewModel
     private lateinit var v: View
     lateinit var binding: CustomerRacketFragmentBinding
 
@@ -86,10 +90,12 @@ class CustomerRacketFragment : Fragment() {
     private lateinit var otherDialog: Dialog
 
     private var cameraButtonNo = 0
-    private val layoutList = arrayListOf<ConstraintLayout>()
+    private val layoutList = arrayListOf<TextInputLayout>()
     private var cardList = arrayListOf<CardView>()
     private var racketSearchPageNo: Int? = 1
     private var racketSearchLoading: Boolean? = false
+    private var tilList = ArrayList<TextInputLayout?>()
+    private var flag: Boolean = false
 
     private val onRacketSearchResultListItemClickListener = View.OnClickListener {
         val racketList = racketSearchList.find { item -> item == it.tag }
@@ -233,16 +239,39 @@ class CustomerRacketFragment : Fragment() {
 
     private val onMarkListItemClickListener = View.OnClickListener {
         val dialogDetails = racketMarkList.find { item -> item == it.tag }
-        changeAllTextBoxColor()
-        cardViewMark.visibility = View.GONE
+//        changeAllTextBoxColor()
+//        cardViewMark.visibility = View.GONE
 
         selectedCustomerRacketDetailForNewOrder.customerRacketMark = dialogDetails?.Brand
-        tv_mark.text = dialogDetails?.Brand
+        binding.atlCustomerRacketMark?.setText(dialogDetails?.Brand)
+        binding.tilCustomerRacketMark?.clearFocus()
+        binding.tilCustomerRacketMark?.isErrorEnabled = false
+//        binding.tilCustomerRacketMark?.boxStrokeColor =
+//            setColor(requireContext(), R.color.gray)
 
-        tv_range.text = null
-        tv_model.text = null
-        tv_version.text = null
-        tv_weight.text = null
+        binding.recyclerViewMark.visibility = GONE
+        binding.tilCustomerRacketMark?.clearFocus()
+
+//        if (binding.atlCustomerRacketRange?.text.toString() == resources.getString(R.string.range))
+//            binding.atlCustomerRacketRange?.setText(resources.getString(R.string.range))
+//        else
+//            binding.atlCustomerRacketRange?.setText("")
+//
+//        if (binding.atlCustomerRacketModel?.text.toString() == resources.getString(R.string.model))
+//            binding.atlCustomerRacketModel?.setText(resources.getString(R.string.model))
+//        else
+//            binding.atlCustomerRacketModel?.setText("")
+//
+//        if (binding.atlCustomerRacketVersion?.text.toString() == resources.getString(R.string.version))
+//            binding.atlCustomerRacketVersion?.setText(resources.getString(R.string.version))
+//        else
+//            binding.atlCustomerRacketVersion?.setText("")
+//
+//        if (binding.atlCustomerRacketWeight?.text.toString() == resources.getString(R.string.weight))
+//            binding.atlCustomerRacketWeight?.setText(resources.getString(R.string.weight))
+//        else
+//            binding.atlCustomerRacketWeight?.setText("")
+
         selectedCustomerRacketDetailForNewOrder.customerRacketMarkId = -1
         selectedCustomerRacketDetailForNewOrder.customerRacketRangeId = -1
         selectedCustomerRacketDetailForNewOrder.customerRacketRange = null
@@ -258,7 +287,7 @@ class CustomerRacketFragment : Fragment() {
                 requireContext(),
                 otherDialog,
                 getString(R.string.mark),
-                tv_mark
+                binding.atlCustomerRacketMark
             )
             selectedCustomerRacketDetailForNewOrder.customerRacketMark = dialogDetails.Brand
         }
@@ -267,16 +296,33 @@ class CustomerRacketFragment : Fragment() {
 
     private val onRangeListItemClickListener = View.OnClickListener {
         val dialogDetails = racketRangeList.find { item -> item == it.tag }
-        changeAllTextBoxColor()
-        cardViewRange.visibility = View.GONE
-        setTextBorderGray(requireContext(), layout_range)
+//        changeAllTextBoxColor()
+//        cardViewRange.visibility = View.GONE
+//        setTextBorderGray(requireContext(), layout_range)
+        binding.recyclerViewRange.visibility = GONE
+        binding.tilCustomerRacketRange?.clearFocus()
+        binding.tilCustomerRacketRange?.isErrorEnabled = false
 
-        tv_range.text = dialogDetails?.Range
+        binding.atlCustomerRacketRange?.setText(dialogDetails?.Range)
+
         selectedCustomerRacketDetailForNewOrder.customerRacketRange = dialogDetails?.Range
 
-        tv_model.text = null
-        tv_version.text = null
-        tv_weight.text = null
+//        if (binding.atlCustomerRacketModel?.text.toString() == resources.getString(R.string.model))
+//            binding.atlCustomerRacketModel?.setText(resources.getString(R.string.model))
+//        else
+//            binding.atlCustomerRacketModel?.setText("")
+//
+//        if (binding.atlCustomerRacketVersion?.text.toString() == resources.getString(R.string.version))
+//            binding.atlCustomerRacketVersion?.setText(resources.getString(R.string.version))
+//        else
+//            binding.atlCustomerRacketVersion?.setText("")
+//
+//        if (binding.atlCustomerRacketWeight?.text.toString() == resources.getString(R.string.weight))
+//            binding.atlCustomerRacketWeight?.setText(resources.getString(R.string.weight))
+//        else
+//            binding.atlCustomerRacketWeight?.setText("")
+
+
         selectedCustomerRacketDetailForNewOrder.customerRacketRangeId = -1
         selectedCustomerRacketDetailForNewOrder.customerRacketModeleId = -1
         selectedCustomerRacketDetailForNewOrder.customerRacketModele = null
@@ -289,7 +335,7 @@ class CustomerRacketFragment : Fragment() {
                 requireContext(),
                 otherDialog,
                 getString(R.string.range),
-                tv_range
+                binding.atlCustomerRacketRange
             )
             selectedCustomerRacketDetailForNewOrder.customerRacketRange = dialogDetails.Range
         }
@@ -298,16 +344,28 @@ class CustomerRacketFragment : Fragment() {
 
     private val onModelListItemClickListener = View.OnClickListener {
         val dialogDetails = racketModelList.find { item -> item == it.tag }
-        changeAllTextBoxColor()
-        cardViewModel.visibility = GONE
-        setTextBorderGray(requireContext(), layout_model)
+//        changeAllTextBoxColor()
+//        cardViewModel.visibility = GONE
+//        setTextBorderGray(requireContext(), layout_model)
+        binding.recyclerViewModel.visibility = GONE
+        binding.tilCustomerRacketModel?.clearFocus()
 
         selectedCustomerRacketDetailForNewOrder.customerRacketModeleId = -1
         selectedCustomerRacketDetailForNewOrder.customerRacketModele = dialogDetails?.Model
-        tv_model.text = dialogDetails?.Model
 
-        tv_version.text = null
-        tv_weight.text = null
+        binding.tilCustomerRacketModel?.hint = resources.getString(R.string.model)
+        binding.atlCustomerRacketModel?.setText(dialogDetails?.Model)
+
+        if (binding.atlCustomerRacketVersion?.text.toString() == resources.getString(R.string.version))
+            binding.atlCustomerRacketVersion?.setText(resources.getString(R.string.version))
+        else
+            binding.atlCustomerRacketVersion?.setText("")
+
+        if (binding.atlCustomerRacketWeight?.text.toString() == resources.getString(R.string.weight))
+            binding.atlCustomerRacketWeight?.setText(resources.getString(R.string.weight))
+        else
+            binding.atlCustomerRacketWeight?.setText("")
+
         selectedCustomerRacketDetailForNewOrder.customerRacketVersion = null
         selectedCustomerRacketDetailForNewOrder.customerRacketWeightId = -1
         selectedCustomerRacketDetailForNewOrder.customerRacketWeight = null
@@ -317,7 +375,7 @@ class CustomerRacketFragment : Fragment() {
                 requireContext(),
                 otherDialog,
                 getString(R.string.model),
-                tv_model
+                binding.atlCustomerRacketModel
             )
             selectedCustomerRacketDetailForNewOrder.customerRacketModele = dialogDetails.Model
             clearImageRecord()
@@ -335,14 +393,20 @@ class CustomerRacketFragment : Fragment() {
 
     private val onVersionListItemClickListener = View.OnClickListener {
         val dialogDetails = racketVersionList.find { item -> item == it.tag }
-        changeAllTextBoxColor()
-        cardViewVersion.visibility = GONE
-        setTextBorderGray(requireContext(), layout_version)
+//        changeAllTextBoxColor()
+//        cardViewVersion.visibility = GONE
+//        setTextBorderGray(requireContext(), layout_version)
+        binding.recyclerViewVersion.visibility = GONE
+        binding.tilCustomerRacketVersion?.clearFocus()
 
         selectedCustomerRacketDetailForNewOrder.customerRacketVersion = dialogDetails?.Version
-        tv_version.text = dialogDetails?.Version
+        binding.atlCustomerRacketVersion?.setText(dialogDetails?.Version)
 
-        tv_weight.text = null
+        if (binding.atlCustomerRacketWeight?.text.toString() == resources.getString(R.string.weight))
+            binding.atlCustomerRacketWeight?.setText(resources.getString(R.string.weight))
+        else
+            binding.atlCustomerRacketWeight?.setText("")
+
         selectedCustomerRacketDetailForNewOrder.customerRacketWeightId = -1
         selectedCustomerRacketDetailForNewOrder.customerRacketWeight = null
 
@@ -351,7 +415,7 @@ class CustomerRacketFragment : Fragment() {
                 requireContext(),
                 otherDialog,
                 getString(R.string.version),
-                tv_version
+                binding.atlCustomerRacketVersion
             )
             clearImageRecord()
         } else {
@@ -368,45 +432,36 @@ class CustomerRacketFragment : Fragment() {
 
     private val onWeightListItemClickListener = View.OnClickListener {
         val dialogDetails = racketWeightList.find { item -> item == it.tag }
-        cardViewWeight.visibility = View.GONE
+//        cardViewWeight.visibility = View.GONE
+
+        binding.recyclerViewWeight.visibility = GONE
+        binding.tilCustomerRacketWeight?.clearFocus()
 
         selectedCustomerRacketDetailForNewOrder.customerRacketWeightId = dialogDetails?.ID
-        tv_weight.text = dialogDetails?.Weight.toString()
-
         selectedCustomerRacketDetailForNewOrder.customerRacketWeight =
-            if (dialogDetails?.Weight != null) {
-                if (dialogDetails.Weight.toString().isNotEmpty()) {
-                    if (dialogDetails.Weight!! > 0) {
-                        dialogDetails.Weight.toString()
-                    } else
-                        null
-                } else
-                    null
-            } else
-                null
+            if (dialogDetails?.ID == 0)
+                getString(R.string.other)
+            else {
+                /*TODO
+                * was using to display the null value
+                * */
+//                if (dialogDetails?.Weight != null)
+                dialogDetails?.Weight.toString() + " GR"
+//                else
+//                    null
+            }
 
-        if (dialogDetails?.Weight != null) {
-            if (dialogDetails.Weight.toString().isNotEmpty()) {
-                if (dialogDetails.Weight!! > 0)
-                    tv_weight.text = dialogDetails.Weight.toString() + " GR"
-                else
-                    tv_weight.text = null
-            } else
-                tv_weight.text = null
-        } else
-            tv_weight.text = null
+        binding.atlCustomerRacketWeight?.setText(
+            selectedCustomerRacketDetailForNewOrder.customerRacketWeight
+        )
 
-        if (dialogDetails?.Weight == -1)
-            tv_weight.text = getString(R.string.other)
-
-        if (tv_weight.text.toString() == getString(R.string.other)) {
+        if (binding.atlCustomerRacketWeight?.text.toString() == getString(R.string.other)) {
             showDialogForWeightDetails(
                 requireContext(),
                 otherDialog,
                 getString(R.string.weight).plus(" (GR)"),
-                tv_weight
+                binding.atlCustomerRacketWeight
             )
-            selectedCustomerRacketDetailForNewOrder.customerRacketWeight = null
             clearImageRecord()
         } else {
             var imageDialogVariable = RacketDetail_Pojo(
@@ -438,11 +493,12 @@ class CustomerRacketFragment : Fragment() {
 
     private val onSleeveSizeListItemClickListener = View.OnClickListener {
         val dialogDetails = racketSleeveSizeList.find { item -> item == it.tag }
-        changeAllTextBoxColor()
-        cardViewSleeveSize.visibility = View.GONE
-        setTextBorderGray(requireContext(), layout_sleeve_size)
+//        changeAllTextBoxColor()
+//        setTextBorderGray(requireContext(), layout_sleeve_size)
+        binding.recyclerViewSleeveSize.visibility = GONE
+        binding.tilCustomerRacketSleeveSize?.hint = resources.getString(R.string.sleeve_size)
 
-        tv_sleeve_size.text = dialogDetails?.SleeveSize
+        binding.atlCustomerRacketSleeveSize?.setText(dialogDetails?.SleeveSize)
         selectedCustomerRacketDetailForNewOrder.customerRacketSleeveSizeId =
             dialogDetails?.SleeveSizeID
         selectedCustomerRacketDetailForNewOrder.customerRacketSleeveSize = dialogDetails?.SleeveSize
@@ -452,7 +508,7 @@ class CustomerRacketFragment : Fragment() {
                 requireContext(),
                 otherDialog,
                 getString(R.string.sleeve_size),
-                tv_sleeve_size
+                binding.atlCustomerRacketSleeveSize
             )
             selectedCustomerRacketDetailForNewOrder.customerRacketSleeveSize =
                 dialogDetails.SleeveSize
@@ -461,18 +517,22 @@ class CustomerRacketFragment : Fragment() {
 
     private val onYearListItemClickListener = View.OnClickListener {
         val dialogDetails = racketPurchasedYearList.find { item -> item == it.tag }
-        changeAllTextBoxColor()
-        cardViewYear.visibility = View.GONE
-        tv_year.text = dialogDetails?.YearName
+//        changeAllTextBoxColor()
+//        cardViewYear.visibility = View.GONE
+        binding.atlCustomerRacketYear?.setText(dialogDetails?.YearName)
         selectedCustomerRacketDetailForNewOrder.customerRacketPurachsedYear =
             dialogDetails?.YearName
     }
 
     private val onStateListItemClickListener = View.OnClickListener {
         val dialogDetails = racketStateList.find { item -> item == it.tag }
-        changeAllTextBoxColor()
-        cardViewState.visibility = View.GONE
-        tv_state.text = dialogDetails?.Status
+//        changeAllTextBoxColor()
+//        cardViewState.visibility = View.GONE
+        binding.tilCustomerRacketState?.clearFocus()
+        binding.tilCustomerRacketState?.hint = resources.getString(R.string.state)
+        binding.recyclerViewState.visibility = GONE
+        binding.atlCustomerRacketState?.setText(dialogDetails?.Status)
+
         selectedCustomerRacketDetailForNewOrder.customerRacketStateId =
             dialogDetails?.RacketStatusID
         selectedCustomerRacketDetailForNewOrder.customerRacketState = dialogDetails?.Status
@@ -673,6 +733,10 @@ class CustomerRacketFragment : Fragment() {
 
         try {
             viewModel = ViewModelProvider(this).get(CustomerRacketViewModel::class.java)
+            customerRacketViewModel = ViewModelProvider(
+                this,
+                CustomerRacketModelFactory(ApiHelper(RetrofitClient.apiInterface))
+            )[CustomerRacketsViewModel::class.java]
 
             activity?.tv_toolbar_title?.text = getString(R.string.what_is_your_racket_model)
 
@@ -742,6 +806,11 @@ class CustomerRacketFragment : Fragment() {
             }
             init(customerRacketImageList)
 
+            if (!flag) {
+                flag = true
+                addAllTIL()
+            }
+
 //            For brand selection click listener
             adapterBrand = MarkListAdapter(racketMarkList, onMarkListItemClickListener)
             binding.recyclerViewMark.layoutManager = LinearLayoutManager(requireContext())
@@ -755,8 +824,13 @@ class CustomerRacketFragment : Fragment() {
                 if (binding.recyclerViewMark.visibility == GONE) {
                     getRacketBrandList()
                     binding.recyclerViewMark.visibility = VISIBLE
-                } else
+                    binding.tilCustomerRacketMark?.clearFocus()
+//                    binding.tilCustomerRacketMark?.boxStrokeColor =
+//                        setColor(requireContext(), R.color.gray)
+                } else {
                     binding.recyclerViewMark.visibility = GONE
+                    binding.tilCustomerRacketMark?.clearFocus()
+                }
             }
 
 //            For Range selection click listener
@@ -764,24 +838,196 @@ class CustomerRacketFragment : Fragment() {
             recyclerViewRange.layoutManager = LinearLayoutManager(requireContext())
             recyclerViewRange.adapter = adapterRange
 
+            binding.tilCustomerRacketRange?.setEndIconOnClickListener {
+                binding.atlCustomerRacketRange?.performClick()
+            }
+
             binding.atlCustomerRacketRange?.setOnClickListener {
                 if (binding.recyclerViewRange.visibility == GONE) {
-                    if (binding.atlCustomerRacketMark?.text?.isNotEmpty() == true &&
-                        binding.atlCustomerRacketMark?.text?.toString() != getString(R.string.mark)
-                    ) {
+                    if (binding.atlCustomerRacketMark?.text?.toString()?.isNotEmpty() == true) {
                         getRangeList()
+//                        binding.tilCustomerRacketRange?.boxStrokeColor =
+//                            setColor(requireContext(), R.color.gray)
+                        binding.tilCustomerRacketRange?.clearFocus()
                         binding.recyclerViewRange.visibility = VISIBLE
                     } else {
-                        binding.tilCustomerRacketMark?.boxStrokeColor =
-                            ContextCompat.getColor(
-                                requireContext(),
-                                R.color.red
-                            )
-                        binding.tilCustomerRacketMark?.requestFocus()
-                        binding.tilCustomerRacketRange?.clearFocus()
+                        setErrorTIL(binding.tilCustomerRacketMark)
+//                        binding.tilCustomerRacketMark?.requestFocus()
+//                        binding.tilCustomerRacketMark?.error = "_"
+//                        binding.atlCustomerRacketMark?.requestFocus()
+//                        binding.tilCustomerRacketMark?.clearFocus()
+//                        addErrorTIL(binding.tilCustomerRacketMark!!)
+
+//                        setErrorDropdownColor(requireContext(), binding.tilCustomerRacketMark!!)
+//
+//                        binding.tilCustomerRacketRange?.clearFocus()
+//                        binding.tilCustomerRacketMark?.requestFocus()
                     }
-                } else
+                } else {
                     binding.recyclerViewRange.visibility = GONE
+                    binding.tilCustomerRacketRange?.clearFocus()
+                }
+            }
+
+//            For model selection click listener
+            adapterModel = RacketModelListAdapter(racketModelList, onModelListItemClickListener)
+            recyclerViewModel.layoutManager = LinearLayoutManager(context)
+            recyclerViewModel.adapter = adapterModel
+
+            binding.tilCustomerRacketModel?.setEndIconOnClickListener {
+                binding.atlCustomerRacketModel?.performClick()
+            }
+
+            binding.atlCustomerRacketModel?.setOnClickListener {
+                if (binding.recyclerViewModel.visibility == GONE) {
+                    if (binding.atlCustomerRacketRange?.text?.toString()?.isNotEmpty() == true) {
+                        getModelListRacketList()
+                        binding.tilCustomerRacketModel?.clearFocus()
+                        binding.recyclerViewModel.visibility = VISIBLE
+                    } else {
+                        setErrorTIL(binding.tilCustomerRacketRange)
+//                        binding.tilCustomerRacketRange?.requestFocus()
+//                        binding.tilCustomerRacketRange?.error = "_"
+//                        binding.atlCustomerRacketRange?.requestFocus()
+//                        binding.tilCustomerRacketRange?.clearFocus()
+//                        addErrorTIL(binding.tilCustomerRacketRange!!)
+//                        setErrorDropdownColor(requireContext(), binding.tilCustomerRacketRange!!)
+//
+//                        binding.tilCustomerRacketModel?.clearFocus()
+//                        binding.tilCustomerRacketRange?.requestFocus()
+                    }
+                } else {
+                    binding.recyclerViewModel.visibility = GONE
+                    binding.tilCustomerRacketModel?.clearFocus()
+                }
+            }
+
+//            For Version selection click listener
+            adapterVersion = VersionListAdapter(racketVersionList, onVersionListItemClickListener)
+            recyclerViewVersion.layoutManager = LinearLayoutManager(requireContext())
+            recyclerViewVersion.adapter = adapterVersion
+
+            binding.atlCustomerRacketVersion?.setOnClickListener {
+                if (binding.recyclerViewVersion.visibility == GONE) {
+                    if (binding.atlCustomerRacketModel?.text?.toString()?.isNotEmpty() == true) {
+                        getVersionList()
+                        binding.tilCustomerRacketVersion?.clearFocus()
+                        binding.recyclerViewVersion.visibility = VISIBLE
+                    } else {
+                        setErrorTIL(binding.tilCustomerRacketModel)
+                        binding.tilCustomerRacketModel?.requestFocus()
+//                        addErrorTIL(binding.tilCustomerRacketRange!!)
+//                        setErrorDropdownColor(requireContext(), binding.tilCustomerRacketRange!!)
+//
+//                        binding.tilCustomerRacketModel?.clearFocus()
+//                        binding.tilCustomerRacketRange?.requestFocus()
+                    }
+                } else {
+                    binding.recyclerViewVersion.visibility = GONE
+                    binding.tilCustomerRacketVersion?.clearFocus()
+                }
+            }
+
+//            For Weight selection click listener
+            adapterWeight =
+                WeightListAdapter(requireContext(), racketWeightList, onWeightListItemClickListener)
+            recyclerViewWeight.layoutManager = LinearLayoutManager(requireContext())
+            recyclerViewWeight.adapter = adapterWeight
+
+            binding.atlCustomerRacketWeight?.setOnClickListener {
+                if (binding.recyclerViewWeight.visibility == GONE) {
+                    if (binding.atlCustomerRacketVersion?.text?.toString()?.isNotEmpty() == true) {
+                        getWeightList()
+                        binding.tilCustomerRacketWeight?.clearFocus()
+                        binding.recyclerViewWeight.visibility = VISIBLE
+                    } else {
+                        setErrorTIL(binding.tilCustomerRacketVersion)
+                        binding.tilCustomerRacketVersion?.isErrorEnabled = false
+//                        binding.tilCustomerRacketVersion?.requestFocus()
+//                        addErrorTIL(binding.tilCustomerRacketRange!!)
+//                        setErrorDropdownColor(requireContext(), binding.tilCustomerRacketRange!!)
+//
+//                        binding.tilCustomerRacketModel?.clearFocus()
+//                        binding.tilCustomerRacketRange?.requestFocus()
+                    }
+                } else {
+                    binding.recyclerViewWeight.visibility = GONE
+                    binding.tilCustomerRacketWeight?.clearFocus()
+                }
+            }
+
+//            For sleeve size selection click listener
+            adapterSleeveSize =
+                SleeveSizeListAdapter(racketSleeveSizeList, onSleeveSizeListItemClickListener)
+            recyclerViewSleeveSize.layoutManager = LinearLayoutManager(requireContext())
+            recyclerViewSleeveSize.adapter = adapterSleeveSize
+
+            binding.atlCustomerRacketSleeveSize?.setOnClickListener {
+                if (binding.recyclerViewSleeveSize.visibility == GONE) {
+                    binding.recyclerViewSleeveSize.visibility = VISIBLE
+                    binding.tilCustomerRacketSleeveSize?.clearFocus()
+                    getSleeveSizeList()
+                } else
+                    binding.recyclerViewSleeveSize.visibility = GONE
+            }
+
+//            for state selection click listener
+            adapterState = StateListAdapter(racketStateList, onStateListItemClickListener)
+            recyclerViewState.layoutManager = LinearLayoutManager(requireContext())
+            recyclerViewState.adapter = adapterState
+
+            binding.atlCustomerRacketState?.setOnClickListener {
+                if (binding.recyclerViewState.visibility == GONE) {
+                    binding.recyclerViewState.visibility = VISIBLE
+                    binding.tilCustomerRacketState?.clearFocus()
+                    getRacketStateList()
+                } else {
+                    binding.recyclerViewState.visibility = GONE
+                    binding.tilCustomerRacketState?.clearFocus()
+                }
+            }
+
+            racketPurchasedYearList.clear()
+            var cal = Calendar.getInstance()
+            while (cal.get(Calendar.YEAR) >= 2010) {
+                racketPurchasedYearList.add(
+                    RacketPurchasedYear_Pojo(
+                        cal.get(Calendar.YEAR).toString()
+                    )
+                )
+                cal.add(Calendar.YEAR, -1)
+            }
+            racketPurchasedYearList.add(
+                RacketPurchasedYear_Pojo(
+                    requireContext().resources.getString(
+                        R.string.not_listed
+                    )
+                )
+            )
+            adapterPurchaseYear =
+                YearListAdapter(racketPurchasedYearList, onYearListItemClickListener)
+            binding.recyclerViewYear.layoutManager = LinearLayoutManager(requireContext())
+            binding.recyclerViewYear.adapter = adapterPurchaseYear
+
+            binding.atlCustomerRacketYear?.setOnClickListener {
+                if (binding.recyclerViewYear.visibility == GONE) {
+                    binding.recyclerViewYear.visibility = VISIBLE
+                } else
+                    binding.recyclerViewYear.visibility = GONE
+            }
+
+            binding.btnRacketInfoClearAll.setOnClickListener {
+                toastMessage(requireContext(), "Hello")
+                binding.tilCustomerRacketMark?.clearFocus()
+                binding.tilCustomerRacketRange?.clearFocus()
+                binding.tilCustomerRacketModel?.clearFocus()
+                binding.tilCustomerRacketVersion?.clearFocus()
+                binding.tilCustomerRacketWeight?.clearFocus()
+                binding.tilCustomerRacketSleeveSize?.clearFocus()
+                binding.tilCustomerRacketState?.clearFocus()
+                binding.tilCustomerRacketYear?.clearFocus()
+
+                binding.atlCustomerRacketYear?.text = null
             }
 
             tv_mark.text = selectedCustomerRacketDetailForNewOrder.customerRacketMark
@@ -920,34 +1166,7 @@ class CustomerRacketFragment : Fragment() {
                     recyclerViewAllVisibility()
             }
 
-            racketPurchasedYearList.clear()
-            var cal = Calendar.getInstance()
-            while (cal.get(Calendar.YEAR) >= 2010) {
-                racketPurchasedYearList.add(
-                    RacketPurchasedYear_Pojo(
-                        cal.get(Calendar.YEAR).toString()
-                    )
-                )
-                cal.add(Calendar.YEAR, -1)
-            }
-            racketPurchasedYearList.add(
-                RacketPurchasedYear_Pojo(
-                    requireContext().resources.getString(
-                        R.string.not_listed
-                    )
-                )
-            )
-            adapterPurchaseYear =
-                YearListAdapter(racketPurchasedYearList, onYearListItemClickListener)
-            recyclerViewYear.layoutManager = LinearLayoutManager(requireContext())
-            recyclerViewYear.adapter = adapterPurchaseYear
 
-            layout_year.setOnClickListener {
-                if (cardViewYear.visibility == GONE) {
-                    setCardVisibility(cardViewYear)
-                } else
-                    recyclerViewAllVisibility()
-            }
 
             adapterState = StateListAdapter(racketStateList, onStateListItemClickListener)
             recyclerViewState.layoutManager = LinearLayoutManager(requireContext())
@@ -1294,7 +1513,7 @@ class CustomerRacketFragment : Fragment() {
                 getPreference(requireContext(), "shopId").toInt(),
                 RacketListBody(
                     2,
-                    null, null, tv_mark.text.toString(), null, null,
+                    null, null, binding.atlCustomerRacketMark?.text.toString(), null, null,
                     null, null, 2
                 )
             )
@@ -1348,8 +1567,14 @@ class CustomerRacketFragment : Fragment() {
                 getPreference(requireContext(), "shopId").toInt(),
                 RacketListBody(
                     2,
-                    null, null, tv_mark.text.toString(), tv_range.text.toString(),
-                    null, null, null, 3
+                    null,
+                    null,
+                    binding.atlCustomerRacketMark?.text.toString(),
+                    binding.atlCustomerRacketRange?.text.toString(),
+                    null,
+                    null,
+                    null,
+                    3
                 )
             ).enqueue(object : Callback<List<Model>> {
                 override fun onFailure(call: Call<List<Model>>, t: Throwable) {
@@ -1401,8 +1626,14 @@ class CustomerRacketFragment : Fragment() {
                 getPreference(requireContext(), "shopId").toInt(),
                 RacketListBody(
                     2,
-                    null, null, tv_mark.text.toString(), tv_range.text.toString(),
-                    tv_model.text.toString(), null, null, 4
+                    null,
+                    null,
+                    binding.atlCustomerRacketMark?.text.toString(),
+                    binding.atlCustomerRacketRange?.text.toString(),
+                    binding.atlCustomerRacketModel?.text.toString(),
+                    null,
+                    null,
+                    4
                 )
             ).enqueue(object : Callback<List<RacketVersion>> {
                 override fun onFailure(call: Call<List<RacketVersion>>, t: Throwable) {
@@ -1454,8 +1685,13 @@ class CustomerRacketFragment : Fragment() {
                 getPreference(requireContext(), "shopId").toInt(),
                 RacketListBody(
                     2,
-                    null, null, tv_mark.text.toString(), tv_range.text.toString(),
-                    tv_model.text.toString(), tv_version.text.toString(), null, 5
+                    null,
+                    null,
+                    binding.atlCustomerRacketMark?.text.toString(),
+                    binding.atlCustomerRacketRange?.text.toString(),
+                    binding.atlCustomerRacketModel?.text.toString(),
+                    binding.atlCustomerRacketVersion?.text.toString(),
+                    null, 5
                 )
             ).enqueue(object : Callback<List<RacketWeightList>> {
                 override fun onFailure(call: Call<List<RacketWeightList>>, t: Throwable) {
@@ -1487,7 +1723,7 @@ class CustomerRacketFragment : Fragment() {
                                     null,
                                     null,
                                     null,
-                                    -1
+                                    null
                                 )
                             )
                             adapterWeight.notifyDataSetChanged()
@@ -1502,6 +1738,79 @@ class CustomerRacketFragment : Fragment() {
                 getString(R.string.no_internet_connection),
                 Toast.LENGTH_LONG
             ).show()
+    }
+
+    fun getSleeveSizeList() {
+        if (racketSleeveSizeList.size < 1) {
+            if (checkInternetConnection(requireContext())) {
+                customerRacketViewModel.getSleeveSizeValues(
+                    getPreference(requireContext(), "shopTokenId"),
+                    getPreference(requireContext(), "shopId").toInt()
+                ).observe(viewLifecycleOwner) {
+                    when (it.status) {
+                        Status.LOADING -> {
+                        }
+                        Status.ERROR -> {
+                            getSleeveSizeList()
+                        }
+                        Status.SUCCESS -> {
+                            if (it.data != null) {
+                                racketSleeveSizeList.clear()
+                                racketSleeveSizeList.addAll(it.data as Collection<RacketSleeveSize_Pojo>)
+
+                                try {
+                                    if (sv_customer_racket_scrollview.visibility == GONE)
+                                        sv_customer_racket_scrollview.visibility = View.VISIBLE
+                                } catch (e: Exception) {
+                                    Log.d("TAG", "onResponse: $e")
+                                }
+
+                                adapterSleeveSize.notifyDataSetChanged()
+                            }
+                        }
+                    }
+                }
+            } else
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.no_internet_connection),
+                    Toast.LENGTH_LONG
+                ).show()
+        } else {
+            adapterSleeveSize.notifyDataSetChanged()
+        }
+    }
+
+    fun getRacketStateList() {
+        if (racketStateList.size < 1) {
+            if (checkInternetConnection(requireContext())) {
+                viewModel.getRacketStateList(
+                    getPreference(requireContext(), "shopTokenId"),
+                    getPreference(requireContext(), "shopId")
+                )
+                    ?.observe(viewLifecycleOwner) {
+                        if (it != null) {
+                            racketStateList.clear()
+                            racketStateList.addAll(it)
+
+                            try {
+                                if (sv_customer_racket_scrollview.visibility == GONE)
+                                    sv_customer_racket_scrollview.visibility = View.VISIBLE
+                            } catch (e: Exception) {
+                                Log.d("TAG", "onResponse: $e")
+                            }
+                            adapterState.notifyDataSetChanged()
+                        }
+                    }
+            } else
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.no_internet_connection),
+                    Toast.LENGTH_LONG
+                ).show()
+        } else {
+            adapterState.notifyDataSetChanged()
+        }
     }
 
     private fun openCamera() {
@@ -1609,14 +1918,14 @@ class CustomerRacketFragment : Fragment() {
     }
 
     private fun addAllLayoutsInList() {
-        layoutList.add(layout_mark)
-        layoutList.add(layout_model)
-        layoutList.add(layout_version)
-        layoutList.add(layout_range)
-        layoutList.add(layout_sleeve_size)
-        layoutList.add(layout_weight)
-        layoutList.add(layout_year)
-        layoutList.add(layout_state)
+        layoutList.add(binding.tilCustomerRacketMark!!)
+        layoutList.add(binding.tilCustomerRacketRange!!)
+        layoutList.add(binding.tilCustomerRacketModel!!)
+        layoutList.add(binding.tilCustomerRacketVersion!!)
+        layoutList.add(binding.tilCustomerRacketWeight!!)
+        layoutList.add(binding.tilCustomerRacketSleeveSize!!)
+        layoutList.add(binding.tilCustomerRacketState!!)
+        layoutList.add(binding.tilCustomerRacketYear!!)
     }
 
     private fun addCardToList() {
@@ -1740,20 +2049,28 @@ class CustomerRacketFragment : Fragment() {
 
     private fun changeAllTextBoxColor() {
         for (i in 0 until layoutList.size) {
-            setTextBorderGray(requireContext(), layoutList[i])
+//            setTextBorderGray(requireContext(), layoutList[i])
         }
     }
 
     private fun setClearAllFields() {
-        tv_mark.text = null
-        tv_range.text = null
-        tv_model.text = null
-        tv_version.text = null
-        tv_sleeve_size.text = null
-        tv_weight.text = null
-        radio_do_not_know.isChecked = true
-        tv_year.text = null
-        tv_state.text = null
+        binding.tilCustomerRacketMark?.clearFocus()
+        binding.tilCustomerRacketRange?.clearFocus()
+        binding.tilCustomerRacketModel?.clearFocus()
+        binding.tilCustomerRacketVersion?.clearFocus()
+        binding.tilCustomerRacketWeight?.clearFocus()
+        binding.tilCustomerRacketSleeveSize?.clearFocus()
+        binding.tilCustomerRacketState?.clearFocus()
+        binding.tilCustomerRacketYear?.clearFocus()
+//        tv_mark.text = null
+//        tv_range.text = null
+//        tv_model.text = null
+//        tv_version.text = null
+//        tv_sleeve_size.text = null
+//        tv_weight.text = null
+//        radio_do_not_know.isChecked = true
+//        tv_year.text = null
+//        tv_state.text = null
 
         selectedCustomerRacketDetailForNewOrder = selectedCustomerRacketPojo()
 
@@ -1772,13 +2089,47 @@ class CustomerRacketFragment : Fragment() {
         menu.clear()
     }
 
+    private fun addAllTIL() {
+        tilList.add(binding.tilCustomerRacketMark)
+        tilList.add(binding.tilCustomerRacketRange)
+        tilList.add(binding.tilCustomerRacketModel)
+        tilList.add(binding.tilCustomerRacketVersion)
+        tilList.add(binding.tilCustomerRacketWeight)
+    }
+
+    private fun setErrorTIL(textInputLayout: TextInputLayout?) {
+        for (i in 0 until tilList.size) {
+            if (tilList[i] == textInputLayout) {
+//                TODO Have to think about how to what to right in `if` clause
+                if (tilList[i]?.isErrorEnabled == true) {
+                    tilList[i]?.error = "_"
+                    tilList[i]?.requestFocus()
+                    tilList[i]?.clearFocus()
+//                    tilList[i]?.let {
+//                        setErrorDropdownColor(requireContext(), it)
+//                        it?.error = "_"
+//                        it?.requestFocus()
+//                        it?.clearFocus()
+//                    }
+                } else {
+                    tilList[i]?.clearFocus()
+                    tilList[i]?.isErrorEnabled = false
+                }
+            } else {
+                tilList[i]?.clearFocus()
+            }
+        }
+    }
+
     private fun getModelImageList() {
         if (checkInternetConnection(requireContext())) {
             progressDialogCustomerRacketDetail.show()
             RetrofitClient.apiInterface.getRacketModelImageList(
                 getPreference(requireContext(), "shopTokenId"),
-                getPreference(requireContext(), "shopId").toInt(), tv_mark.text.toString(),
-                tv_range.text.toString(), tv_model.text.toString()
+                getPreference(requireContext(), "shopId").toInt(),
+                binding.atlCustomerRacketMark?.text.toString(),
+                binding.atlCustomerRacketRange?.text.toString(),
+                binding.atlCustomerRacketModel?.text.toString()
             )
                 .enqueue(object : Callback<List<racketImageList>> {
                     override fun onFailure(call: Call<List<racketImageList>>, t: Throwable) {
@@ -1906,8 +2257,11 @@ class CustomerRacketFragment : Fragment() {
             progressDialogCustomerRacketDetail.show()
             RetrofitClient.apiInterface.getRacketModelImageList(
                 getPreference(requireContext(), "shopTokenId"),
-                getPreference(requireContext(), "shopId").toInt(), tv_mark.text.toString(),
-                tv_range.text.toString(), tv_model.text.toString(), tv_version.text.toString()
+                getPreference(requireContext(), "shopId").toInt(),
+                binding.atlCustomerRacketMark?.text.toString(),
+                binding.atlCustomerRacketRange?.text.toString(),
+                binding.atlCustomerRacketModel?.text.toString(),
+                binding.atlCustomerRacketVersion?.text.toString()
             )
                 .enqueue(object : Callback<List<racketImageList>> {
                     override fun onFailure(call: Call<List<racketImageList>>, t: Throwable) {
@@ -2035,7 +2389,7 @@ private fun showDialogForOtherMarkDetails(
     context: Context,
     dialog: Dialog,
     title: String,
-    textView: TextView
+    textView: AutoCompleteTextView?
 ) {
     dialog.setContentView(R.layout.add_other_details_dialog_layout)
     dialog.window?.decorView?.setBackgroundResource(android.R.color.transparent)
@@ -2079,7 +2433,7 @@ private fun showDialogForOtherMarkDetails(
             if (foundIn) {
                 toastMessage(context, context.getString(R.string.mark_already_found))
             } else {
-                textView.text = dialog.et_other_text.text.toString()
+                textView?.setText(dialog.et_other_text.text.toString())
                 selectedCustomerRacketDetailForNewOrder.customerRacketMark =
                     dialog.et_other_text.text.toString()
                 dialog.dismiss()
@@ -2096,7 +2450,7 @@ private fun showDialogForOtherModelDetails(
     context: Context,
     dialog: Dialog,
     title: String,
-    textView: TextView
+    textView: AutoCompleteTextView?
 ) {
     dialog.setContentView(R.layout.add_other_details_dialog_layout)
     dialog.window?.decorView?.setBackgroundResource(android.R.color.transparent)
@@ -2140,7 +2494,7 @@ private fun showDialogForOtherModelDetails(
             if (foundIn) {
                 toastMessage(context, context.getString(R.string.already_found))
             } else {
-                textView.text = dialog.et_other_text.text.toString()
+                textView?.setText(dialog.et_other_text.text.toString())
                 selectedCustomerRacketDetailForNewOrder.customerRacketModele =
                     dialog.et_other_text.text.toString()
                 dialog.dismiss()
@@ -2157,7 +2511,7 @@ private fun showDialogForOtherVersionDetails(
     context: Context,
     dialog: Dialog,
     title: String,
-    textView: TextView
+    textView: AutoCompleteTextView?
 ) {
     dialog.setContentView(R.layout.add_other_details_dialog_layout)
     dialog.window?.decorView?.setBackgroundResource(android.R.color.transparent)
@@ -2201,7 +2555,7 @@ private fun showDialogForOtherVersionDetails(
             if (foundIn) {
                 toastMessage(context, context.getString(R.string.already_found))
             } else {
-                textView.text = dialog.et_other_text.text.toString()
+                textView?.setText(dialog.et_other_text.text.toString())
                 selectedCustomerRacketDetailForNewOrder.customerRacketVersion =
                     dialog.et_other_text.text.toString()
                 dialog.dismiss()
@@ -2218,7 +2572,7 @@ private fun showDialogForOtherRangeDetails(
     context: Context,
     dialog: Dialog,
     title: String,
-    textView: TextView
+    textView: AutoCompleteTextView?
 ) {
     dialog.setContentView(R.layout.add_other_details_dialog_layout)
     dialog.window?.decorView?.setBackgroundResource(android.R.color.transparent)
@@ -2262,7 +2616,7 @@ private fun showDialogForOtherRangeDetails(
             if (foundIn) {
                 toastMessage(context, context.getString(R.string.mark_already_found))
             } else {
-                textView.text = dialog.et_other_text.text.toString()
+                textView?.setText(dialog.et_other_text.text.toString())
                 selectedCustomerRacketDetailForNewOrder.customerRacketRange =
                     dialog.et_other_text.text.toString()
                 dialog.dismiss()
@@ -2279,7 +2633,7 @@ private fun showDialogForOtherSleeveSizeDetails(
     context: Context,
     dialog: Dialog,
     title: String,
-    textView: TextView
+    textView: AutoCompleteTextView?
 ) {
     dialog.setContentView(R.layout.add_other_details_dialog_layout)
     dialog.window?.decorView?.setBackgroundResource(android.R.color.transparent)
@@ -2323,7 +2677,7 @@ private fun showDialogForOtherSleeveSizeDetails(
             if (foundIn) {
                 toastMessage(context, context.getString(R.string.already_found))
             } else {
-                textView.text = dialog.et_other_text.text.toString()
+                textView?.setText(dialog.et_other_text.text.toString())
                 selectedCustomerRacketDetailForNewOrder.customerRacketSleeveSize =
                     dialog.et_other_text.text.toString()
                 dialog.dismiss()
@@ -2340,7 +2694,7 @@ private fun showDialogForWeightDetails(
     context: Context,
     dialog: Dialog,
     title: String,
-    textView: TextView
+    textView: AutoCompleteTextView?
 ) {
     dialog.setContentView(R.layout.add_other_details_dialog_layout)
     dialog.window?.decorView?.setBackgroundResource(android.R.color.transparent)
@@ -2389,7 +2743,7 @@ private fun showDialogForWeightDetails(
             if (foundIn) {
                 toastMessage(context, context.getString(R.string.already_found))
             } else {
-                textView.text = dialog.et_other_text.text.toString().plus(" GR")
+                textView?.setText(dialog.et_other_text.text.toString().plus(" GR"))
                 selectedCustomerRacketDetailForNewOrder.customerRacketWeight =
                     dialog.et_other_text.text.toString()
                 dialog.dismiss()
