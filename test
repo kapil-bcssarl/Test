@@ -1,1556 +1,929 @@
 package com.borakay.tennisproadminapplicationnodesignchange.view.fragments
 
-import android.app.Activity
-import android.app.Dialog
+import android.app.AlertDialog
+import android.app.DatePickerDialog
 import android.app.ProgressDialog
-import android.content.ContentValues
 import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.net.Uri
+import android.content.DialogInterface
+import android.graphics.Typeface
 import android.os.Bundle
-import android.provider.MediaStore
-import android.text.Editable
-import android.text.InputType
-import android.text.TextWatcher
 import android.util.Log
 import android.view.*
-import android.view.View.GONE
-import android.view.View.VISIBLE
-import android.widget.AutoCompleteTextView
-import android.widget.ProgressBar
-import android.widget.SearchView
+import android.view.View.*
+import android.widget.FrameLayout
+import android.widget.NumberPicker
+import android.widget.TextView
 import android.widget.Toast
-import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager.widget.ViewPager
-import com.borakay.tennisproadminapplicationnodesignchange.ModelFactory.CustomerRacketModelFactory
+import com.borakay.tennisproadminapplicationnodesignchange.ModelFactory.ShopTimingAndHolidayFragmentModelFactory
 import com.borakay.tennisproadminapplicationnodesignchange.R
-import com.borakay.tennisproadminapplicationnodesignchange.databinding.CustomerRacketFragmentBinding
+import com.borakay.tennisproadminapplicationnodesignchange.databinding.ShopTimingHolidayFragmentBinding
 import com.borakay.tennisproadminapplicationnodesignchange.model_pojoclass.*
-import com.borakay.tennisproadminapplicationnodesignchange.repository.fragment.CustomerRacketSleeveSizeRepository
 import com.borakay.tennisproadminapplicationnodesignchange.retrofit.ApiHelper
 import com.borakay.tennisproadminapplicationnodesignchange.retrofit.RetrofitClient
 import com.borakay.tennisproadminapplicationnodesignchange.staticvaluesfolder.*
-import com.borakay.tennisproadminapplicationnodesignchange.view.MainActivity.Companion.navController
-import com.borakay.tennisproadminapplicationnodesignchange.view.adapters.*
-import com.borakay.tennisproadminapplicationnodesignchange.view.fragments.QRscannerNewOrderFragment.Companion.customerRacketImageFromWeb
-import com.borakay.tennisproadminapplicationnodesignchange.view.fragments.QRscannerNewOrderFragment.Companion.customerRacketImageList
-import com.borakay.tennisproadminapplicationnodesignchange.view.fragments.QRscannerNewOrderFragment.Companion.customerRacketImageSet
-import com.borakay.tennisproadminapplicationnodesignchange.view.fragments.QRscannerNewOrderFragment.Companion.customerRacketImageToBeAdded
-import com.borakay.tennisproadminapplicationnodesignchange.view.fragments.QRscannerNewOrderFragment.Companion.customerRacketImageUri
-import com.borakay.tennisproadminapplicationnodesignchange.view.fragments.QRscannerNewOrderFragment.Companion.customerRacketImageUrl
-import com.borakay.tennisproadminapplicationnodesignchange.view.fragments.QRscannerNewOrderFragment.Companion.customerRacketList
-import com.borakay.tennisproadminapplicationnodesignchange.view.fragments.QRscannerNewOrderFragment.Companion.selectedCustomerRacketDetailForNewOrder
-import com.borakay.tennisproadminapplicationnodesignchange.viewmodel.fragments.CustomerRacketViewModel
-import com.borakay.tennisproadminapplicationnodesignchange.viewmodel.fragments.CustomerRacketsViewModel
-import com.google.android.material.textfield.TextInputLayout
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.add_other_details_dialog_layout.*
-import kotlinx.android.synthetic.main.customer_racket_fragment.*
+import com.borakay.tennisproadminapplicationnodesignchange.view.MainActivity
+import com.borakay.tennisproadminapplicationnodesignchange.view.adapters.HolidayManagementAdapter
+import com.borakay.tennisproadminapplicationnodesignchange.viewmodel.fragments.ShopTimingAndHoliday_New_ViewModel
+import com.borakay.tennisproadminapplicationnodesignchange.viewmodel.fragments.ShopTimingHolidayViewModel
+import kotlinx.android.synthetic.main.shop_timing_holiday_fragment.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.io.ByteArrayOutputStream
+import java.text.DateFormatSymbols
 import java.util.*
+import kotlin.collections.ArrayList
 
-class CustomerRacketFragment : Fragment() {
+class ShopTimingHolidayFragment : Fragment() {
 
     companion object {
-        fun newInstance() = CustomerRacketFragment()
-        lateinit var pbRacketDetailLoader: ProgressBar
-        lateinit var recyclerViewRacket_Search_Result: RecyclerView
-        lateinit var searchView_RacketDetails: SearchView
-        var racketSearchDetailsAdapter: RacketSearchDetailsAdapter? = null
+        fun newInstance() = ShopTimingHolidayFragment()
+        lateinit var holidayAdapter: HolidayManagementAdapter
+        lateinit var viewModelShopTimingNHoliday: ShopTimingHolidayViewModel
+        var holidayListing = arrayListOf<HolidayList_Pojo>()
+        lateinit var skipDateListing: DaySkip_Pojo
+
+        lateinit var progressDialogShopTimingHoliday_1: ProgressDialog
+        lateinit var progressDialogShopTimingHoliday_2: ProgressDialog
     }
 
-    lateinit var adapterBrand: MarkListAdapter
-    lateinit var adapterRange: RangeListAdapter
-    lateinit var adapterModel: RacketModelListAdapter
-    lateinit var adapterVersion: VersionListAdapter
-    lateinit var adapterWeight: WeightListAdapter
-    lateinit var progressDialogCustomerRacketDetail: ProgressDialog
-    lateinit var adapterSleeveSize: SleeveSizeListAdapter
-    lateinit var adapterPurchaseYear: YearListAdapter
-    lateinit var adapterState: StateListAdapter
-    private lateinit var viewModel: CustomerRacketViewModel
-    private lateinit var customerRacketViewModel: CustomerRacketsViewModel
-    private lateinit var v: View
-    lateinit var binding: CustomerRacketFragmentBinding
-
-    private val PERMISSION_CODE = 1000
-    private val IMAGE_CAPTURE_CODE = 1001
-    private lateinit var otherDialog: Dialog
-
-    private var cameraButtonNo = 0
-    private val layoutList = arrayListOf<TextInputLayout>()
-    private var cardList = arrayListOf<CardView>()
-    private var racketSearchPageNo: Int? = 1
-    private var racketSearchLoading: Boolean? = false
-    private var tilList = ArrayList<TextInputLayout?>()
-    private var flag: Boolean = false
-
-    private val onRacketSearchResultListItemClickListener = View.OnClickListener {
-        val racketList = racketSearchList.find { item -> item == it.tag }
-
-        recyclerViewAllVisibility()
-        searchViewRacketDetails.setQuery("", true)
-        changeAllTextBoxColor()
-
-        tv_mark.text = racketList?.Brand
-        tv_range.text = racketList?.Range
-        tv_model.text = racketList?.Modele
-        tv_version.text = racketList?.Version
-        if (racketList?.Weight != null) {
-            if (racketList.Weight.toString().isNotEmpty()) {
-                if (racketList.Weight!! > 0)
-                    tv_weight.text = racketList.Weight.toString() + " GR"
-                else
-                    tv_weight.text = null
-            } else
-                tv_weight.text = null
-        } else
-            tv_weight.text = null
-
-        selectedCustomerRacketDetailForNewOrder.customerRacketMarkId = racketList?.RacketMasterID
-        selectedCustomerRacketDetailForNewOrder.customerRacketMark = racketList?.Brand
-        selectedCustomerRacketDetailForNewOrder.customerRacketRangeId = racketList?.RacketMasterID
-        selectedCustomerRacketDetailForNewOrder.customerRacketRange = racketList?.Range
-        selectedCustomerRacketDetailForNewOrder.customerRacketModeleId = racketList?.RacketMasterID
-        selectedCustomerRacketDetailForNewOrder.customerRacketModele = racketList?.Modele
-        selectedCustomerRacketDetailForNewOrder.customerRacketVersion = racketList?.Version
-        selectedCustomerRacketDetailForNewOrder.customerRacketWeightId = racketList?.RacketMasterID
-        selectedCustomerRacketDetailForNewOrder.customerRacketWeight =
-            if (racketList?.Weight != null) {
-                if (racketList.Weight.toString().isNotEmpty()) {
-                    if (racketList.Weight!! > 0)
-                        racketList.Weight.toString()
-                    else
-                        null
-                } else
-                    null
-            } else
-                null
-
-        displayRacketImageInScroll(racketList)
-    }
-
-    private fun displayRacketImageInScroll(racketList: RacketDetail_Pojo?) {
-        customerRacketImageToBeAdded.clear()
-        customerRacketImageUrl.clear()
-        customerRacketImageFromWeb.clear()
-        customerRacketImageUri.clear()
-        customerRacketImageSet.clear()
-
-        customerRacketImageToBeAdded.add(false)
-        customerRacketImageUrl.add(if (racketList?.RacketImage_1 != null) racketList.RacketImage_1 else addCameraImage)
-        customerRacketImageFromWeb.add(racketList?.RacketImage_1 != null)
-        customerRacketImageUri.add(null)
-        customerRacketImageSet.add(racketList?.RacketImage_1 != null)
-
-        customerRacketImageToBeAdded.add(false)
-        customerRacketImageUrl.add(if (racketList?.RacketImage_2 != null) racketList.RacketImage_2 else addCameraImage)
-        customerRacketImageFromWeb.add(racketList?.RacketImage_2 != null)
-        customerRacketImageUri.add(null)
-        customerRacketImageSet.add(racketList?.RacketImage_2 != null)
-
-        customerRacketImageToBeAdded.add(false)
-        customerRacketImageUrl.add(if (racketList?.RacketImage_3 != null) racketList.RacketImage_3 else addCameraImage)
-        customerRacketImageFromWeb.add(racketList?.RacketImage_3 != null)
-        customerRacketImageUri.add(null)
-        customerRacketImageSet.add(racketList?.RacketImage_3 != null)
-
-        customerRacketImageToBeAdded.add(false)
-        customerRacketImageUrl.add(if (racketList?.RacketImage_4 != null) racketList.RacketImage_4 else addCameraImage)
-        customerRacketImageFromWeb.add(racketList?.RacketImage_4 != null)
-        customerRacketImageUri.add(null)
-        customerRacketImageSet.add(racketList?.RacketImage_4 != null)
-
-        customerRacketImageToBeAdded.add(false)
-        customerRacketImageUrl.add(if (racketList?.RacketImage_5 != null) racketList.RacketImage_5 else addCameraImage)
-        customerRacketImageFromWeb.add(racketList?.RacketImage_5 != null)
-        customerRacketImageUri.add(null)
-        customerRacketImageSet.add(racketList?.RacketImage_5 != null)
-
-        customerRacketImageToBeAdded.add(false)
-        customerRacketImageUrl.add(if (racketList?.RacketImage_6 != null) racketList.RacketImage_6 else addCameraImage)
-        customerRacketImageFromWeb.add(racketList?.RacketImage_6 != null)
-        customerRacketImageUri.add(null)
-        customerRacketImageSet.add(racketList?.RacketImage_6 != null)
-
-        customerRacketImageList.clear()
-        customerRacketImageList.add(
-            RAcketImageList_Pojo(
-                customerRacketImageFromWeb[0],
-                customerRacketImageUrl[0],
-                null,
-                null
-            )
-        )
-        customerRacketImageList.add(
-            RAcketImageList_Pojo(
-                customerRacketImageFromWeb[1],
-                customerRacketImageUrl[1],
-                null,
-                null
-            )
-        )
-        customerRacketImageList.add(
-            RAcketImageList_Pojo(
-                customerRacketImageFromWeb[2],
-                customerRacketImageUrl[2],
-                null,
-                null
-            )
-        )
-        customerRacketImageList.add(
-            RAcketImageList_Pojo(
-                customerRacketImageFromWeb[3],
-                customerRacketImageUrl[3],
-                null,
-                null
-            )
-        )
-        customerRacketImageList.add(
-            RAcketImageList_Pojo(
-                customerRacketImageFromWeb[4],
-                customerRacketImageUrl[4],
-                null,
-                null
-            )
-        )
-        customerRacketImageList.add(
-            RAcketImageList_Pojo(
-                customerRacketImageFromWeb[5],
-                customerRacketImageUrl[5],
-                null,
-                null
-            )
-        )
-        init(customerRacketImageList)
-    }
-
-    private val onMarkListItemClickListener = View.OnClickListener {
-        val dialogDetails = racketMarkList.find { item -> item == it.tag }
-//        changeAllTextBoxColor()
-//        cardViewMark.visibility = View.GONE
-
-        selectedCustomerRacketDetailForNewOrder.customerRacketMark = dialogDetails?.Brand
-        binding.atlCustomerRacketMark?.setText(dialogDetails?.Brand)
-        binding.tilCustomerRacketMark?.clearFocus()
-        binding.tilCustomerRacketMark?.isErrorEnabled = false
-//        binding.tilCustomerRacketMark?.boxStrokeColor =
-//            setColor(requireContext(), R.color.gray)
-
-        binding.recyclerViewMark.visibility = GONE
-        binding.tilCustomerRacketMark?.clearFocus()
-
-//        if (binding.atlCustomerRacketRange?.text.toString() == resources.getString(R.string.range))
-//            binding.atlCustomerRacketRange?.setText(resources.getString(R.string.range))
-//        else
-//            binding.atlCustomerRacketRange?.setText("")
-//
-//        if (binding.atlCustomerRacketModel?.text.toString() == resources.getString(R.string.model))
-//            binding.atlCustomerRacketModel?.setText(resources.getString(R.string.model))
-//        else
-//            binding.atlCustomerRacketModel?.setText("")
-//
-//        if (binding.atlCustomerRacketVersion?.text.toString() == resources.getString(R.string.version))
-//            binding.atlCustomerRacketVersion?.setText(resources.getString(R.string.version))
-//        else
-//            binding.atlCustomerRacketVersion?.setText("")
-//
-//        if (binding.atlCustomerRacketWeight?.text.toString() == resources.getString(R.string.weight))
-//            binding.atlCustomerRacketWeight?.setText(resources.getString(R.string.weight))
-//        else
-//            binding.atlCustomerRacketWeight?.setText("")
-
-        selectedCustomerRacketDetailForNewOrder.customerRacketMarkId = -1
-        selectedCustomerRacketDetailForNewOrder.customerRacketRangeId = -1
-        selectedCustomerRacketDetailForNewOrder.customerRacketRange = null
-        selectedCustomerRacketDetailForNewOrder.customerRacketModeleId = -1
-        selectedCustomerRacketDetailForNewOrder.customerRacketModele = null
-        selectedCustomerRacketDetailForNewOrder.customerRacketVersion = null
-        selectedCustomerRacketDetailForNewOrder.customerRacketWeightId = -1
-        selectedCustomerRacketDetailForNewOrder.customerRacketWeight = null
-
-        if (dialogDetails?.Brand == getString(R.string.other)) {
-            selectedCustomerRacketDetailForNewOrder.customerRacketMarkId = 0
-            showDialogForOtherMarkDetails(
-                requireContext(),
-                otherDialog,
-                getString(R.string.mark),
-                binding.atlCustomerRacketMark
-            )
-            selectedCustomerRacketDetailForNewOrder.customerRacketMark = dialogDetails.Brand
-        }
-        clearImageRecord()
-    }
-
-    private val onRangeListItemClickListener = View.OnClickListener {
-        val dialogDetails = racketRangeList.find { item -> item == it.tag }
-//        changeAllTextBoxColor()
-//        cardViewRange.visibility = View.GONE
-//        setTextBorderGray(requireContext(), layout_range)
-        binding.recyclerViewRange.visibility = GONE
-        binding.tilCustomerRacketRange?.clearFocus()
-        binding.tilCustomerRacketRange?.isErrorEnabled = false
-
-        binding.atlCustomerRacketRange?.setText(dialogDetails?.Range)
-
-        selectedCustomerRacketDetailForNewOrder.customerRacketRange = dialogDetails?.Range
-
-//        if (binding.atlCustomerRacketModel?.text.toString() == resources.getString(R.string.model))
-//            binding.atlCustomerRacketModel?.setText(resources.getString(R.string.model))
-//        else
-//            binding.atlCustomerRacketModel?.setText("")
-//
-//        if (binding.atlCustomerRacketVersion?.text.toString() == resources.getString(R.string.version))
-//            binding.atlCustomerRacketVersion?.setText(resources.getString(R.string.version))
-//        else
-//            binding.atlCustomerRacketVersion?.setText("")
-//
-//        if (binding.atlCustomerRacketWeight?.text.toString() == resources.getString(R.string.weight))
-//            binding.atlCustomerRacketWeight?.setText(resources.getString(R.string.weight))
-//        else
-//            binding.atlCustomerRacketWeight?.setText("")
-
-
-        selectedCustomerRacketDetailForNewOrder.customerRacketRangeId = -1
-        selectedCustomerRacketDetailForNewOrder.customerRacketModeleId = -1
-        selectedCustomerRacketDetailForNewOrder.customerRacketModele = null
-        selectedCustomerRacketDetailForNewOrder.customerRacketVersion = null
-        selectedCustomerRacketDetailForNewOrder.customerRacketWeightId = -1
-        selectedCustomerRacketDetailForNewOrder.customerRacketWeight = null
-
-        if (dialogDetails?.Range == getString(R.string.other)) {
-            showDialogForOtherRangeDetails(
-                requireContext(),
-                otherDialog,
-                getString(R.string.range),
-                binding.atlCustomerRacketRange
-            )
-            selectedCustomerRacketDetailForNewOrder.customerRacketRange = dialogDetails.Range
-        }
-        clearImageRecord()
-    }
-
-    private val onModelListItemClickListener = View.OnClickListener {
-        val dialogDetails = racketModelList.find { item -> item == it.tag }
-//        changeAllTextBoxColor()
-//        cardViewModel.visibility = GONE
-//        setTextBorderGray(requireContext(), layout_model)
-        binding.recyclerViewModel.visibility = GONE
-        binding.tilCustomerRacketModel?.clearFocus()
-
-        selectedCustomerRacketDetailForNewOrder.customerRacketModeleId = -1
-        selectedCustomerRacketDetailForNewOrder.customerRacketModele = dialogDetails?.Model
-
-        binding.tilCustomerRacketModel?.hint = resources.getString(R.string.model)
-        binding.atlCustomerRacketModel?.setText(dialogDetails?.Model)
-
-        if (binding.atlCustomerRacketVersion?.text.toString() == resources.getString(R.string.version))
-            binding.atlCustomerRacketVersion?.setText(resources.getString(R.string.version))
-        else
-            binding.atlCustomerRacketVersion?.setText("")
-
-        if (binding.atlCustomerRacketWeight?.text.toString() == resources.getString(R.string.weight))
-            binding.atlCustomerRacketWeight?.setText(resources.getString(R.string.weight))
-        else
-            binding.atlCustomerRacketWeight?.setText("")
-
-        selectedCustomerRacketDetailForNewOrder.customerRacketVersion = null
-        selectedCustomerRacketDetailForNewOrder.customerRacketWeightId = -1
-        selectedCustomerRacketDetailForNewOrder.customerRacketWeight = null
-
-        if (dialogDetails?.Model == getString(R.string.other)) {
-            showDialogForOtherModelDetails(
-                requireContext(),
-                otherDialog,
-                getString(R.string.model),
-                binding.atlCustomerRacketModel
-            )
-            selectedCustomerRacketDetailForNewOrder.customerRacketModele = dialogDetails.Model
-            clearImageRecord()
-        } else {
-            if (checkInternetConnection(requireContext()))
-                getModelImageList()
-            else
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.no_internet_connection),
-                    Toast.LENGTH_LONG
-                ).show()
-        }
-    }
-
-    private val onVersionListItemClickListener = View.OnClickListener {
-        val dialogDetails = racketVersionList.find { item -> item == it.tag }
-//        changeAllTextBoxColor()
-//        cardViewVersion.visibility = GONE
-//        setTextBorderGray(requireContext(), layout_version)
-        binding.recyclerViewVersion.visibility = GONE
-        binding.tilCustomerRacketVersion?.clearFocus()
-
-        selectedCustomerRacketDetailForNewOrder.customerRacketVersion = dialogDetails?.Version
-        binding.atlCustomerRacketVersion?.setText(dialogDetails?.Version)
-
-        if (binding.atlCustomerRacketWeight?.text.toString() == resources.getString(R.string.weight))
-            binding.atlCustomerRacketWeight?.setText(resources.getString(R.string.weight))
-        else
-            binding.atlCustomerRacketWeight?.setText("")
-
-        selectedCustomerRacketDetailForNewOrder.customerRacketWeightId = -1
-        selectedCustomerRacketDetailForNewOrder.customerRacketWeight = null
-
-        if (dialogDetails?.Version == getString(R.string.other)) {
-            showDialogForOtherVersionDetails(
-                requireContext(),
-                otherDialog,
-                getString(R.string.version),
-                binding.atlCustomerRacketVersion
-            )
-            clearImageRecord()
-        } else {
-            if (checkInternetConnection(requireContext()))
-                getModelImageList2()
-            else
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.no_internet_connection),
-                    Toast.LENGTH_LONG
-                ).show()
-        }
-    }
-
-    private val onWeightListItemClickListener = View.OnClickListener {
-        val dialogDetails = racketWeightList.find { item -> item == it.tag }
-//        cardViewWeight.visibility = View.GONE
-
-        binding.recyclerViewWeight.visibility = GONE
-        binding.tilCustomerRacketWeight?.clearFocus()
-
-        selectedCustomerRacketDetailForNewOrder.customerRacketWeightId = dialogDetails?.ID
-        selectedCustomerRacketDetailForNewOrder.customerRacketWeight =
-            if (dialogDetails?.ID == 0)
-                getString(R.string.other)
-            else {
-                /*TODO
-                * was using to display the null value
-                * */
-//                if (dialogDetails?.Weight != null)
-                dialogDetails?.Weight.toString() + " GR"
-//                else
-//                    null
-            }
-
-        binding.atlCustomerRacketWeight?.setText(
-            selectedCustomerRacketDetailForNewOrder.customerRacketWeight
-        )
-
-        if (binding.atlCustomerRacketWeight?.text.toString() == getString(R.string.other)) {
-            showDialogForWeightDetails(
-                requireContext(),
-                otherDialog,
-                getString(R.string.weight).plus(" (GR)"),
-                binding.atlCustomerRacketWeight
-            )
-            clearImageRecord()
-        } else {
-            var imageDialogVariable = RacketDetail_Pojo(
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                dialogDetails?.RacketImage_1,
-                dialogDetails?.RacketImage_2,
-                dialogDetails?.RacketImage_3,
-                dialogDetails?.RacketImage_4,
-                dialogDetails?.RacketImage_5,
-                dialogDetails?.RacketImage_6,
-                dialogDetails?.ID,
-                null,
-                null,
-                null,
-                null,
-                null,
-                dialogDetails?.Weight
-            )
-            displayRacketImageInScroll(imageDialogVariable)
-        }
-    }
-
-    private val onSleeveSizeListItemClickListener = View.OnClickListener {
-        val dialogDetails = racketSleeveSizeList.find { item -> item == it.tag }
-//        changeAllTextBoxColor()
-//        setTextBorderGray(requireContext(), layout_sleeve_size)
-        binding.recyclerViewSleeveSize.visibility = GONE
-        binding.tilCustomerRacketSleeveSize?.hint = resources.getString(R.string.sleeve_size)
-
-        binding.atlCustomerRacketSleeveSize?.setText(dialogDetails?.SleeveSize)
-        selectedCustomerRacketDetailForNewOrder.customerRacketSleeveSizeId =
-            dialogDetails?.SleeveSizeID
-        selectedCustomerRacketDetailForNewOrder.customerRacketSleeveSize = dialogDetails?.SleeveSize
-
-        if (dialogDetails?.SleeveSize == getString(R.string.other)) {
-            showDialogForOtherSleeveSizeDetails(
-                requireContext(),
-                otherDialog,
-                getString(R.string.sleeve_size),
-                binding.atlCustomerRacketSleeveSize
-            )
-            selectedCustomerRacketDetailForNewOrder.customerRacketSleeveSize =
-                dialogDetails.SleeveSize
-        }
-    }
-
-    private val onYearListItemClickListener = View.OnClickListener {
-        val dialogDetails = racketPurchasedYearList.find { item -> item == it.tag }
-//        changeAllTextBoxColor()
-//        cardViewYear.visibility = View.GONE
-        binding.atlCustomerRacketYear?.setText(dialogDetails?.YearName)
-        selectedCustomerRacketDetailForNewOrder.customerRacketPurachsedYear =
-            dialogDetails?.YearName
-    }
-
-    private val onStateListItemClickListener = View.OnClickListener {
-        val dialogDetails = racketStateList.find { item -> item == it.tag }
-//        changeAllTextBoxColor()
-//        cardViewState.visibility = View.GONE
-        binding.tilCustomerRacketState?.clearFocus()
-        binding.tilCustomerRacketState?.hint = resources.getString(R.string.state)
-        binding.recyclerViewState.visibility = GONE
-        binding.atlCustomerRacketState?.setText(dialogDetails?.Status)
-
-        selectedCustomerRacketDetailForNewOrder.customerRacketStateId =
-            dialogDetails?.RacketStatusID
-        selectedCustomerRacketDetailForNewOrder.customerRacketState = dialogDetails?.Status
-    }
-
-    private val onDBRacketItemListClickListener = View.OnClickListener {
-        val dbList = customerRacketList.find { item -> item == it.tag }
-
-        changeAllTextBoxColor()
-        recyclerViewAllVisibility()
-        searchViewRacketDetails.setQuery("", true)
-
-        tv_mark.text = dbList?.Brand
-        tv_range.text = dbList?.Range
-        tv_model.text = dbList?.Modele
-        tv_version.text = dbList?.Version
-        tv_sleeve_size.text = dbList?.SleeveSize
-        tv_year.text = dbList?.PurchaseYear
-        tv_state.text = dbList?.NewStatus ?: dbList?.Status
-        if (dbList?.Weight != null) {
-            if (dbList.Weight.toString().isNotEmpty()) {
-                if (dbList.Weight!! > 0)
-                    tv_weight.text = dbList.Weight.toString() + " GR"
-                else
-                    tv_weight.text = null
-            } else
-                tv_weight.text = null
-        } else
-            tv_weight.text = null
-
-        selectedCustomerRacketDetailForNewOrder.customerRacketId = dbList?.CustomerRacketID ?: null
-        selectedCustomerRacketDetailForNewOrder.customerRacketMarkId = dbList?.RacketMasterID
-        selectedCustomerRacketDetailForNewOrder.customerRacketMark = dbList?.Brand
-        selectedCustomerRacketDetailForNewOrder.customerRacketRangeId = dbList?.RacketMasterID
-        selectedCustomerRacketDetailForNewOrder.customerRacketRange = dbList?.Range
-        selectedCustomerRacketDetailForNewOrder.customerRacketModeleId = dbList?.RacketMasterID
-        selectedCustomerRacketDetailForNewOrder.customerRacketModele = dbList?.Modele
-        selectedCustomerRacketDetailForNewOrder.customerRacketVersion = dbList?.Version
-        selectedCustomerRacketDetailForNewOrder.customerRacketWeightId = dbList?.RacketMasterID
-        selectedCustomerRacketDetailForNewOrder.customerRacketWeight = if (dbList?.Weight != null) {
-            if (dbList.Weight.toString().isNotEmpty()) {
-                if (dbList.Weight!! > 0)
-                    dbList.Weight.toString()
-                else
-                    null
-            } else
-                null
-        } else
-            null
-
-        selectedCustomerRacketDetailForNewOrder.customerRacketSleeveSizeId = dbList?.SleeveSizeID
-        selectedCustomerRacketDetailForNewOrder.customerRacketSleeveSize = dbList?.SleeveSize
-        selectedCustomerRacketDetailForNewOrder.customerRacketPurachsedYear = dbList?.PurchaseYear
-        selectedCustomerRacketDetailForNewOrder.customerRacketStateId =
-            (dbList?.NewStatusID ?: (dbList?.StatusID ?: null))
-        selectedCustomerRacketDetailForNewOrder.customerRacketState =
-            dbList?.NewStatus ?: dbList?.Status
-        selectedCustomerRacketDetailForNewOrder.customerRacketStoreBought =
-            dbList?.IsShopPurchased ?: 6
-
-        when (dbList?.IsShopPurchased ?: 6) {
-            4 -> {
-                radio_yes.isChecked = true
-            }
-            5 -> {
-                radio_no.isChecked = true
-            }
-            6 -> {
-                radio_do_not_know.isChecked = true
-            }
-        }
-
-        customerRacketImageToBeAdded.clear()
-        customerRacketImageUrl.clear()
-        customerRacketImageFromWeb.clear()
-        customerRacketImageUri.clear()
-        customerRacketImageSet.clear()
-
-        customerRacketImageToBeAdded.add(false)
-        customerRacketImageUrl.add(if (dbList?.ImagePath_1 != null) dbList.ImagePath_1 else addCameraImage)
-        customerRacketImageFromWeb.add(dbList?.ImagePath_1 != null)
-        customerRacketImageUri.add(null)
-        customerRacketImageSet.add(dbList?.ImagePath_1 != null)
-
-        customerRacketImageToBeAdded.add(false)
-        customerRacketImageUrl.add(if (dbList?.ImagePath_2 != null) dbList.ImagePath_2 else addCameraImage)
-        customerRacketImageFromWeb.add(dbList?.ImagePath_2 != null)
-        customerRacketImageUri.add(null)
-        customerRacketImageSet.add(dbList?.ImagePath_2 != null)
-
-        customerRacketImageToBeAdded.add(false)
-        customerRacketImageUrl.add(if (dbList?.ImagePath_3 != null) dbList.ImagePath_3 else addCameraImage)
-        customerRacketImageFromWeb.add(dbList?.ImagePath_3 != null)
-        customerRacketImageUri.add(null)
-        customerRacketImageSet.add(dbList?.ImagePath_3 != null)
-
-        customerRacketImageToBeAdded.add(false)
-        customerRacketImageUrl.add(if (dbList?.ImagePath_4 != null) dbList.ImagePath_4 else addCameraImage)
-        customerRacketImageFromWeb.add(dbList?.ImagePath_4 != null)
-        customerRacketImageUri.add(null)
-        customerRacketImageSet.add(dbList?.ImagePath_4 != null)
-
-        customerRacketImageToBeAdded.add(false)
-        customerRacketImageUrl.add(if (dbList?.ImagePath_5 != null) dbList.ImagePath_5 else addCameraImage)
-        customerRacketImageFromWeb.add(dbList?.ImagePath_5 != null)
-        customerRacketImageUri.add(null)
-        customerRacketImageSet.add(dbList?.RacketImage_5 != null)
-
-        customerRacketImageToBeAdded.add(false)
-        customerRacketImageUrl.add(if (dbList?.ImagePath_6 != null) dbList.ImagePath_6 else addCameraImage)
-        customerRacketImageFromWeb.add(dbList?.ImagePath_6 != null)
-        customerRacketImageUri.add(null)
-        customerRacketImageSet.add(dbList?.ImagePath_6 != null)
-
-        customerRacketImageList.clear()
-        customerRacketImageList.add(
-            RAcketImageList_Pojo(
-                customerRacketImageFromWeb[0],
-                customerRacketImageUrl[0],
-                null,
-                null
-            )
-        )
-        customerRacketImageList.add(
-            RAcketImageList_Pojo(
-                customerRacketImageFromWeb[1],
-                customerRacketImageUrl[1],
-                null,
-                null
-            )
-        )
-        customerRacketImageList.add(
-            RAcketImageList_Pojo(
-                customerRacketImageFromWeb[2],
-                customerRacketImageUrl[2],
-                null,
-                null
-            )
-        )
-        customerRacketImageList.add(
-            RAcketImageList_Pojo(
-                customerRacketImageFromWeb[3],
-                customerRacketImageUrl[3],
-                null,
-                null
-            )
-        )
-        customerRacketImageList.add(
-            RAcketImageList_Pojo(
-                customerRacketImageFromWeb[4],
-                customerRacketImageUrl[4],
-                null,
-                null
-            )
-        )
-        customerRacketImageList.add(
-            RAcketImageList_Pojo(
-                customerRacketImageFromWeb[5],
-                customerRacketImageUrl[5],
-                null,
-                null
-            )
-        )
-        init(customerRacketImageList)
-    }
+    var shopTimingList = arrayListOf<ShopTimingList_Pojo>()
+    var timingList = arrayOf(
+        "06.00", "06.30", "07.00", "07.30", "08.00", "08.30", "09.00", "09.30", "10.00", "10.30",
+        "11.00", "11.30", "12.00", "12.30", "13.00", "13.30", "14.00", "14.30", "15.00",
+        "15.30", "16.00", "16.30", "17.00", "17.30", "18.00", "18.30", "19.00", "19.30",
+        "20.00", "20.30", "21.00", "21.30", "22.00", "22.30", "23.00", "23.30"
+    )
+    var StandardDayList = arrayOf("0", "1", "2", "3", "4", "5", "6", "7")
+    var ExpressDayList = arrayOf("0", "1", "2")
+
+    var holidayDate: String? = null
+    lateinit var racketStateChangeUpdateBody: RacketStateChangeUpdateBody
+
+    private lateinit var viewModelNew: ShopTimingAndHoliday_New_ViewModel
+    lateinit var binding: ShopTimingHolidayFragmentBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        try {
-            binding = CustomerRacketFragmentBinding.bind(
-                inflater.inflate(
-                    R.layout.customer_racket_fragment,
-                    container,
-                    false
-                )
+        return try {
+            binding = ShopTimingHolidayFragmentBinding.bind(
+                inflater.inflate(R.layout.shop_timing_holiday_fragment, container, false)
             )
-
-            pbRacketDetailLoader = v.findViewById(R.id.pb_racket_detail_loader)
-            recyclerViewRacket_Search_Result = v.findViewById(R.id.recyclerViewRacketSearchResult)
-            searchView_RacketDetails = v.findViewById(R.id.searchViewRacketDetails)
-
-            val fm: FragmentManager? = fragmentManager
-
-            for (entry in 0 until fm!!.getBackStackEntryCount()) {
-                Log.i("TAG", "Found fragment: " + fm.getBackStackEntryAt(entry).name)
-            }
-
+            binding.root
         } catch (e: Exception) {
             Log.d("TAG", "onCreateView: $e")
+            null
         }
-        return binding.root
+    }
+
+    private fun setupViewModel() {
+        try {
+            viewModelNew = ViewModelProviders.of(
+                requireActivity(),
+                ShopTimingAndHolidayFragmentModelFactory(ApiHelper(RetrofitClient.apiInterface))
+            ).get(ShopTimingAndHoliday_New_ViewModel::class.java)
+
+        } catch (e: Exception) {
+            Log.d("TAG", "onActivityCreated: $e")
+        }
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
         try {
-            viewModel = ViewModelProvider(this).get(CustomerRacketViewModel::class.java)
-            customerRacketViewModel = ViewModelProvider(
-                this,
-                CustomerRacketModelFactory(ApiHelper(RetrofitClient.apiInterface))
-            )[CustomerRacketsViewModel::class.java]
+            setupViewModel()
 
-            activity?.tv_toolbar_title?.text = getString(R.string.what_is_your_racket_model)
+            viewModelShopTimingNHoliday =
+                ViewModelProvider(this)[ShopTimingHolidayViewModel::class.java]
 
-            otherDialog = Dialog(requireContext())
+            MainActivity.activityMainBinding.tvMainActivityToolbarTitle.text =
+                getString(R.string.shop_time_title)
+            MainActivity.activityMainBinding.tbMainActivityToolbar.elevation = 0f
 
-            progressDialogCustomerRacketDetail = ProgressDialog(requireContext())
-            progressDialogCustomerRacketDetail.setMessage(getString(R.string.loading))
-            progressDialogCustomerRacketDetail.setCancelable(false)
+            progressDialogShopTimingHoliday_1 = ProgressDialog(requireContext())
+            progressDialogShopTimingHoliday_1.setMessage(getString(R.string.loading))
+            progressDialogShopTimingHoliday_1.setCancelable(false)
 
-            cardList.clear()
-            addCardToList()
-            layoutList.clear()
-            addAllLayoutsInList()
+            progressDialogShopTimingHoliday_2 = ProgressDialog(requireContext())
+            progressDialogShopTimingHoliday_2.setMessage(getString(R.string.loading))
+            progressDialogShopTimingHoliday_2.setCancelable(false)
 
-            if (racketloaded)
-                pb_racket_detail_loader.visibility = GONE
-
-            if (customerRacketImageList.size == 0) {
-                customerRacketImageList.add(
-                    RAcketImageList_Pojo(
-                        customerRacketImageFromWeb[0],
-                        addCameraImage,
-                        null,
-                        null
-                    )
+            binding.ivHoliday.setOnClickListener {
+                binding.view1.background = ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.text_view_yellow_square_border_focused
                 )
-                customerRacketImageList.add(
-                    RAcketImageList_Pojo(
-                        customerRacketImageFromWeb[1],
-                        addCameraImage,
-                        null,
-                        null
-                    )
-                )
-                customerRacketImageList.add(
-                    RAcketImageList_Pojo(
-                        customerRacketImageFromWeb[2],
-                        addCameraImage,
-                        null,
-                        null
-                    )
-                )
-                customerRacketImageList.add(
-                    RAcketImageList_Pojo(
-                        customerRacketImageFromWeb[3],
-                        addCameraImage,
-                        null,
-                        null
-                    )
-                )
-                customerRacketImageList.add(
-                    RAcketImageList_Pojo(
-                        customerRacketImageFromWeb[4],
-                        addCameraImage,
-                        null,
-                        null
-                    )
-                )
-                customerRacketImageList.add(
-                    RAcketImageList_Pojo(
-                        customerRacketImageFromWeb[5],
-                        addCameraImage,
-                        null,
-                        null
-                    )
-                )
-            }
-            init(customerRacketImageList)
+                binding.holidayTv?.typeface = Typeface.DEFAULT_BOLD
 
-            if (!flag) {
-                flag = true
-                addAllTIL()
+                binding.view2.background = ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.text_view_yellow_square_border
+                )
+                binding.holidayTv?.typeface = Typeface.DEFAULT
+
+                binding.view3.background = ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.text_view_yellow_square_border
+                )
+                binding.holidayTv?.typeface = Typeface.DEFAULT
+
+                binding.viewHoliday.visibility = VISIBLE
+                binding.groupHolidays.visibility = VISIBLE
+                binding.tvShopTimingAddHoliday.visibility = GONE
+                binding.viewTiming.visibility = GONE
+                binding.viewConfig.visibility = GONE
+                binding.cvShopTimingCard?.visibility = GONE
+                binding.groupOthers.visibility = GONE
+                MainActivity.activityMainBinding.tvMainActivityToolbarTitle.text =
+                    getString(R.string.shop_time_title)
+                binding.evHolidayList.visibility = GONE
+                binding.tvNoHoliday.visibility = GONE
             }
 
-//            For brand selection click listener
-            adapterBrand = MarkListAdapter(racketMarkList, onMarkListItemClickListener)
-            binding.recyclerViewMark.layoutManager = LinearLayoutManager(requireContext())
-            binding.recyclerViewMark.adapter = adapterBrand
+            binding.ivTiming?.setOnClickListener {
+                binding.view1.background = ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.text_view_yellow_square_border
+                )
+                binding.holidayTv?.typeface = Typeface.DEFAULT
 
-            binding.tilCustomerRacketMark?.setEndIconOnClickListener {
-                binding.atlCustomerRacketMark?.performClick()
+                binding.view2.background = ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.text_view_yellow_square_border_focused
+                )
+                binding.holidayTv?.typeface = Typeface.DEFAULT_BOLD
+
+                binding.view3.background = ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.text_view_yellow_square_border
+                )
+                binding.holidayTv?.typeface = Typeface.DEFAULT
+
+                binding.viewTiming.visibility = VISIBLE
+                binding.tvShopTimingAddHoliday.visibility = VISIBLE
+                binding.tvShopTimingAddHoliday.setOnClickListener {
+                    binding.cvShopTimingCard?.visibility = VISIBLE
+                    binding.vShopTimingDimBackground?.visibility = VISIBLE
+                    binding.tvShopTimingAddHoliday.visibility = INVISIBLE
+                }
+
+                binding.closeCard?.setOnClickListener {
+                    binding.tilHolidayTitle.isErrorEnabled = false
+                    binding.tilHolidayDate.isErrorEnabled = false
+                    binding.atlHolidayTitle.text = null
+                    binding.atlHolidayDate.text = null
+                    hideSoftKeyboard(requireActivity())
+
+                    binding.vShopTimingDimBackground?.visibility = GONE
+                    binding.cvShopTimingCard?.visibility = GONE
+                    binding.tvShopTimingAddHoliday.visibility = VISIBLE
+                }
+
+                binding.viewHoliday.visibility = GONE
+                binding.viewConfig.visibility = GONE
+                binding.groupOthers.visibility = GONE
+                binding.groupHolidays.visibility = GONE
+                MainActivity.activityMainBinding.tvMainActivityToolbarTitle.text =
+                    getString(R.string.holiday_title_1)
+                callShopHolidayListing(
+                    getPreference(requireContext(), "shopTokenId"),
+                    getPreference(requireContext(), "shopId").toInt()
+                )
             }
 
-            binding.atlCustomerRacketMark?.setOnClickListener {
-                if (binding.recyclerViewMark.visibility == GONE) {
-                    getRacketBrandList()
-                    binding.recyclerViewMark.visibility = VISIBLE
-                    binding.tilCustomerRacketMark?.clearFocus()
-//                    binding.tilCustomerRacketMark?.boxStrokeColor =
-//                        setColor(requireContext(), R.color.gray)
+            binding.ivConfig.setOnClickListener {
+                binding.view1.background = ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.text_view_yellow_square_border
+                )
+                binding.holidayTv?.typeface = Typeface.DEFAULT
+
+                binding.view2.background = ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.text_view_yellow_square_border
+                )
+                binding.holidayTv?.typeface = Typeface.DEFAULT
+
+                binding.view3.background = ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.text_view_yellow_square_border_focused
+                )
+                binding.holidayTv?.typeface = Typeface.DEFAULT_BOLD
+
+                binding.viewConfig.visibility = VISIBLE
+                binding.groupOthers.visibility = VISIBLE
+                binding.viewHoliday.visibility = GONE
+                binding.tvShopTimingAddHoliday.visibility = GONE
+                binding.viewTiming.visibility = GONE
+                binding.groupHolidays.visibility = GONE
+                binding.cvShopTimingCard?.visibility = GONE
+                MainActivity.activityMainBinding.tvMainActivityToolbarTitle.text =
+                    getString(R.string.other)
+                binding.evHolidayList.visibility = GONE
+                binding.tvNoHoliday.visibility = GONE
+            }
+
+            binding.checkboxSunday.setOnCheckedChangeListener { buttonView, isChecked ->
+                if (isChecked) {
+                    binding.atlShopTimingOpenTimeSunday.text = "10.00"
+                    binding.atlShopTimingCloseTimeSunday.text = "19.00"
                 } else {
-                    binding.recyclerViewMark.visibility = GONE
-                    binding.tilCustomerRacketMark?.clearFocus()
+                    binding.atlShopTimingOpenTimeSunday.setText("00.00")
+                    binding.atlShopTimingCloseTimeSunday.setText("00.00")
+                }
+            }
+            binding.checkboxMonday.setOnCheckedChangeListener { buttonView, isChecked ->
+                if (isChecked) {
+                    binding.atlShopTimingOpenTimeMonday.setText("10.00")
+                    binding.atlShopTimingCloseTimeMonday.setText("19.00")
+                } else {
+                    binding.atlShopTimingOpenTimeMonday.setText("00.00")
+                    binding.atlShopTimingCloseTimeMonday.setText("00.00")
+                }
+            }
+            binding.checkboxTuesday.setOnCheckedChangeListener { buttonView, isChecked ->
+                if (isChecked) {
+                    binding.atlShopTimingOpenTimeTuesday.setText("10.00")
+                    binding.atlShopTimingCloseTimeTuesday.setText("19.00")
+                } else {
+                    binding.atlShopTimingOpenTimeTuesday.setText("00.00")
+                    binding.atlShopTimingCloseTimeTuesday.setText("00.00")
+                }
+            }
+            binding.checkboxWednesday.setOnCheckedChangeListener { buttonView, isChecked ->
+                if (isChecked) {
+                    binding.atlShopTimingOpenTimeWednesday.setText("10.00")
+                    binding.atlShopTimingCloseTimeWednesday.setText("19.00")
+                } else {
+                    binding.atlShopTimingOpenTimeWednesday.setText("00.00")
+                    binding.atlShopTimingCloseTimeWednesday.setText("00.00")
+                }
+            }
+            binding.checkboxThursday.setOnCheckedChangeListener { buttonView, isChecked ->
+                if (isChecked) {
+                    binding.atlShopTimingOpenTimeThursday.setText("10.00")
+                    binding.atlShopTimingCloseTimeThursday.setText("19.00")
+                } else {
+                    binding.atlShopTimingOpenTimeThursday.setText("00.00")
+                    binding.atlShopTimingCloseTimeThursday.setText("00.00")
+                }
+            }
+            binding.checkboxFriday.setOnCheckedChangeListener { buttonView, isChecked ->
+                if (isChecked) {
+                    binding.atlShopTimingOpenTimeFriday.setText("10.00")
+                    binding.atlShopTimingCloseTimeFriday.setText("19.00")
+                } else {
+                    binding.atlShopTimingOpenTimeFriday.setText("00.00")
+                    binding.atlShopTimingCloseTimeFriday.setText("00.00")
+                }
+            }
+            binding.checkboxSaturday.setOnCheckedChangeListener { buttonView, isChecked ->
+                if (isChecked) {
+                    binding.atlShopTimingOpenTimeSaturday.setText("10.00")
+                    binding.atlShopTimingCloseTimeSaturday.setText("19.00")
+                } else {
+                    binding.atlShopTimingOpenTimeSaturday.setText("00.00")
+                    binding.atlShopTimingCloseTimeSaturday.setText("00.00")
                 }
             }
 
-//            For Range selection click listener
-            adapterRange = RangeListAdapter(racketRangeList, onRangeListItemClickListener)
-            recyclerViewRange.layoutManager = LinearLayoutManager(requireContext())
-            recyclerViewRange.adapter = adapterRange
-
-            binding.tilCustomerRacketRange?.setEndIconOnClickListener {
-                binding.atlCustomerRacketRange?.performClick()
+            binding.atlShopTimingOpenTimeSunday.setOnClickListener {
+                openDialogForTiming(
+                    resources.getString(
+                        R.string.opening_time,
+                        resources.getString(R.string.weekday_sunday)
+                    ), binding.atlShopTimingOpenTimeSunday
+                )
             }
 
-            binding.atlCustomerRacketRange?.setOnClickListener {
-                if (binding.recyclerViewRange.visibility == GONE) {
-                    if (binding.atlCustomerRacketMark?.text?.toString()?.isNotEmpty() == true) {
-                        getRangeList()
-//                        binding.tilCustomerRacketRange?.boxStrokeColor =
-//                            setColor(requireContext(), R.color.gray)
-                        binding.tilCustomerRacketRange?.clearFocus()
-                        binding.recyclerViewRange.visibility = VISIBLE
-                    } else {
-                        setErrorTIL(binding.tilCustomerRacketMark)
-//                        binding.tilCustomerRacketMark?.requestFocus()
-//                        binding.tilCustomerRacketMark?.error = "_"
-//                        binding.atlCustomerRacketMark?.requestFocus()
-//                        binding.tilCustomerRacketMark?.clearFocus()
-//                        addErrorTIL(binding.tilCustomerRacketMark!!)
+            binding.atlShopTimingOpenTimeMonday.setOnClickListener {
+                openDialogForTiming(
+                    resources.getString(
+                        R.string.opening_time,
+                        resources.getString(R.string.weekday_monday)
+                    ), binding.atlShopTimingOpenTimeMonday
+                )
+            }
 
-//                        setErrorDropdownColor(requireContext(), binding.tilCustomerRacketMark!!)
-//
-//                        binding.tilCustomerRacketRange?.clearFocus()
-//                        binding.tilCustomerRacketMark?.requestFocus()
+            binding.atlShopTimingOpenTimeTuesday.setOnClickListener {
+                openDialogForTiming(
+                    resources.getString(
+                        R.string.opening_time,
+                        resources.getString(R.string.weekday_tuesday)
+                    ), binding.atlShopTimingOpenTimeTuesday
+                )
+            }
+
+            binding.atlShopTimingOpenTimeWednesday.setOnClickListener {
+                openDialogForTiming(
+                    resources.getString(
+                        R.string.opening_time,
+                        resources.getString(R.string.weekday_wednesday)
+                    ), binding.atlShopTimingOpenTimeWednesday
+                )
+            }
+
+            binding.atlShopTimingOpenTimeThursday.setOnClickListener {
+                openDialogForTiming(
+                    resources.getString(
+                        R.string.opening_time,
+                        resources.getString(R.string.weekday_thursday)
+                    ), binding.atlShopTimingOpenTimeThursday
+                )
+            }
+
+            binding.atlShopTimingOpenTimeFriday.setOnClickListener {
+                openDialogForTiming(
+                    resources.getString(
+                        R.string.opening_time,
+                        resources.getString(R.string.weekday_friday)
+                    ), binding.atlShopTimingOpenTimeFriday
+                )
+            }
+
+            binding.atlShopTimingOpenTimeSaturday.setOnClickListener {
+                openDialogForTiming(
+                    resources.getString(
+                        R.string.opening_time,
+                        resources.getString(R.string.weekday_saturday)
+                    ), binding.atlShopTimingOpenTimeSaturday
+                )
+            }
+
+            binding.atlShopTimingCloseTimeSunday.setOnClickListener {
+                openDialogForTiming(
+                    resources.getString(
+                        R.string.closing_time,
+                        resources.getString(R.string.weekday_sunday)
+                    ), binding.atlShopTimingCloseTimeSunday
+                )
+            }
+
+            binding.atlShopTimingCloseTimeMonday.setOnClickListener {
+                openDialogForTiming(
+                    resources.getString(
+                        R.string.closing_time,
+                        resources.getString(R.string.weekday_monday)
+                    ), binding.atlShopTimingCloseTimeMonday
+                )
+            }
+
+            binding.atlShopTimingCloseTimeTuesday.setOnClickListener {
+                openDialogForTiming(
+                    resources.getString(
+                        R.string.closing_time,
+                        resources.getString(R.string.weekday_tuesday)
+                    ), binding.atlShopTimingCloseTimeTuesday
+                )
+            }
+
+            binding.atlShopTimingCloseTimeWednesday.setOnClickListener {
+                openDialogForTiming(
+                    resources.getString(
+                        R.string.closing_time,
+                        resources.getString(R.string.weekday_wednesday)
+                    ), binding.atlShopTimingCloseTimeWednesday
+                )
+            }
+
+            binding.atlShopTimingCloseTimeThursday.setOnClickListener {
+                openDialogForTiming(
+                    resources.getString(
+                        R.string.closing_time,
+                        resources.getString(R.string.weekday_thursday)
+                    ), binding.atlShopTimingCloseTimeThursday
+                )
+            }
+
+            binding.atlShopTimingOpenTimeFriday.setOnClickListener {
+                openDialogForTiming(
+                    resources.getString(
+                        R.string.closing_time,
+                        resources.getString(R.string.weekday_friday)
+                    ), binding.atlShopTimingOpenTimeFriday
+                )
+            }
+
+            binding.atlShopTimingCloseTimeSaturday.setOnClickListener {
+                openDialogForTiming(
+                    resources.getString(
+                        R.string.closing_time,
+                        resources.getString(R.string.weekday_saturday)
+                    ), binding.atlShopTimingCloseTimeSaturday
+                )
+            }
+
+            binding.tilStandardDelivery.setEndIconOnClickListener {
+                binding.atlStandardDelivery.performClick()
+            }
+
+            binding.atlStandardDelivery.setOnClickListener {
+                binding.atlStandardDelivery.clearFocus()
+                val picker = NumberPicker(context)
+                picker.minValue = 0
+                picker.maxValue = StandardDayList.size - 1
+                picker.displayedValues = StandardDayList
+                picker.value = StandardDayList.indexOf(binding.atlStandardDelivery.text.toString())
+                picker.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
+                val layout = FrameLayout(requireContext())
+                layout.addView(
+                    picker, FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.WRAP_CONTENT,
+                        FrameLayout.LayoutParams.WRAP_CONTENT,
+                        Gravity.CENTER
+                    )
+                )
+
+                AlertDialog.Builder(context)
+                    .setView(layout)
+                    .setTitle(getString(R.string.select_days))
+                    .setPositiveButton(
+                        android.R.string.ok
+                    ) { _: DialogInterface?, i: Int ->
+                        binding.atlStandardDelivery.setText(StandardDayList[picker.value])
                     }
-                } else {
-                    binding.recyclerViewRange.visibility = GONE
-                    binding.tilCustomerRacketRange?.clearFocus()
-                }
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show()
             }
 
-//            For model selection click listener
-            adapterModel = RacketModelListAdapter(racketModelList, onModelListItemClickListener)
-            recyclerViewModel.layoutManager = LinearLayoutManager(context)
-            recyclerViewModel.adapter = adapterModel
-
-            binding.tilCustomerRacketModel?.setEndIconOnClickListener {
-                binding.atlCustomerRacketModel?.performClick()
+            binding.tilExpressDelivery.setEndIconOnClickListener {
+                binding.atlExpressDelivery.performClick()
             }
 
-            binding.atlCustomerRacketModel?.setOnClickListener {
-                if (binding.recyclerViewModel.visibility == GONE) {
-                    if (binding.atlCustomerRacketRange?.text?.toString()?.isNotEmpty() == true) {
-                        getModelListRacketList()
-                        binding.tilCustomerRacketModel?.clearFocus()
-                        binding.recyclerViewModel.visibility = VISIBLE
-                    } else {
-                        setErrorTIL(binding.tilCustomerRacketRange)
-//                        binding.tilCustomerRacketRange?.requestFocus()
-//                        binding.tilCustomerRacketRange?.error = "_"
-//                        binding.atlCustomerRacketRange?.requestFocus()
-//                        binding.tilCustomerRacketRange?.clearFocus()
-//                        addErrorTIL(binding.tilCustomerRacketRange!!)
-//                        setErrorDropdownColor(requireContext(), binding.tilCustomerRacketRange!!)
-//
-//                        binding.tilCustomerRacketModel?.clearFocus()
-//                        binding.tilCustomerRacketRange?.requestFocus()
+            binding.atlExpressDelivery.setOnClickListener {
+                binding.tilExpressDelivery.clearFocus()
+                val picker = NumberPicker(context)
+                picker.minValue = 0
+                picker.maxValue = ExpressDayList.size - 1
+                picker.displayedValues = ExpressDayList
+                picker.value = ExpressDayList.indexOf(binding.atlExpressDelivery.text.toString())
+                picker.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
+                val layout = FrameLayout(requireContext())
+                layout.addView(
+                    picker, FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.WRAP_CONTENT,
+                        FrameLayout.LayoutParams.WRAP_CONTENT,
+                        Gravity.CENTER
+                    )
+                )
+
+                AlertDialog.Builder(context)
+                    .setView(layout)
+                    .setTitle(getString(R.string.select_days))
+                    .setPositiveButton(
+                        android.R.string.ok
+                    ) { _: DialogInterface?, i: Int ->
+                        binding.atlExpressDelivery.setText(ExpressDayList[picker.value])
                     }
-                } else {
-                    binding.recyclerViewModel.visibility = GONE
-                    binding.tilCustomerRacketModel?.clearFocus()
-                }
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show()
             }
 
-//            For Version selection click listener
-            adapterVersion = VersionListAdapter(racketVersionList, onVersionListItemClickListener)
-            recyclerViewVersion.layoutManager = LinearLayoutManager(requireContext())
-            recyclerViewVersion.adapter = adapterVersion
+            binding.btnShopTimeChargeTiming.setOnClickListener {
+                progressDialogShopTimingHoliday_1.setMessage("Updating")
+                progressDialogShopTimingHoliday_1.show()
 
-            binding.atlCustomerRacketVersion?.setOnClickListener {
-                if (binding.recyclerViewVersion.visibility == GONE) {
-                    if (binding.atlCustomerRacketModel?.text?.toString()?.isNotEmpty() == true) {
-                        getVersionList()
-                        binding.tilCustomerRacketVersion?.clearFocus()
-                        binding.recyclerViewVersion.visibility = VISIBLE
-                    } else {
-                        setErrorTIL(binding.tilCustomerRacketModel)
-                        binding.tilCustomerRacketModel?.requestFocus()
-//                        addErrorTIL(binding.tilCustomerRacketRange!!)
-//                        setErrorDropdownColor(requireContext(), binding.tilCustomerRacketRange!!)
-//
-//                        binding.tilCustomerRacketModel?.clearFocus()
-//                        binding.tilCustomerRacketRange?.requestFocus()
-                    }
-                } else {
-                    binding.recyclerViewVersion.visibility = GONE
-                    binding.tilCustomerRacketVersion?.clearFocus()
-                }
-            }
+                binding.btnShopTimeChargeTiming.isEnabled = false
 
-//            For Weight selection click listener
-            adapterWeight =
-                WeightListAdapter(requireContext(), racketWeightList, onWeightListItemClickListener)
-            recyclerViewWeight.layoutManager = LinearLayoutManager(requireContext())
-            recyclerViewWeight.adapter = adapterWeight
+                var shopTimingUpdateList = arrayListOf<ShopTimingList_Update_Pojo>()
+                shopTimingUpdateList.clear()
 
-            binding.atlCustomerRacketWeight?.setOnClickListener {
-                if (binding.recyclerViewWeight.visibility == GONE) {
-                    if (binding.atlCustomerRacketVersion?.text?.toString()?.isNotEmpty() == true) {
-                        getWeightList()
-                        binding.tilCustomerRacketWeight?.clearFocus()
-                        binding.recyclerViewWeight.visibility = VISIBLE
-                    } else {
-                        setErrorTIL(binding.tilCustomerRacketVersion)
-                        binding.tilCustomerRacketVersion?.isErrorEnabled = false
-//                        binding.tilCustomerRacketVersion?.requestFocus()
-//                        addErrorTIL(binding.tilCustomerRacketRange!!)
-//                        setErrorDropdownColor(requireContext(), binding.tilCustomerRacketRange!!)
-//
-//                        binding.tilCustomerRacketModel?.clearFocus()
-//                        binding.tilCustomerRacketRange?.requestFocus()
-                    }
-                } else {
-                    binding.recyclerViewWeight.visibility = GONE
-                    binding.tilCustomerRacketWeight?.clearFocus()
-                }
-            }
+                shopTimingUpdateList.add(
+                    ShopTimingList_Update_Pojo(
+                        binding.atlShopTimingCloseTimeSunday.text.toString(),
+                        shopTimingList[0].ID,
+                        binding.checkboxSunday.isChecked,
+                        binding.atlShopTimingOpenTimeSunday.text.toString(),
+                        shopTimingList[0].WeekDay,
+                        getPreference(requireContext(), "RoleAssignmentID").toInt()
+                    )
+                )
+                shopTimingUpdateList.add(
+                    ShopTimingList_Update_Pojo(
+                        binding.atlShopTimingCloseTimeMonday.text.toString(),
+                        shopTimingList[1].ID,
+                        binding.checkboxMonday.isChecked,
+                        binding.atlShopTimingOpenTimeMonday.text.toString(),
+                        shopTimingList[1].WeekDay,
+                        getPreference(requireContext(), "RoleAssignmentID").toInt()
+                    )
+                )
+                shopTimingUpdateList.add(
+                    ShopTimingList_Update_Pojo(
+                        binding.atlShopTimingCloseTimeTuesday.text.toString(),
+                        shopTimingList[2].ID,
+                        binding.checkboxTuesday.isChecked,
+                        binding.atlShopTimingOpenTimeTuesday.text.toString(),
+                        shopTimingList[2].WeekDay,
+                        getPreference(requireContext(), "RoleAssignmentID").toInt()
+                    )
+                )
+                shopTimingUpdateList.add(
+                    ShopTimingList_Update_Pojo(
+                        binding.atlShopTimingCloseTimeWednesday.text.toString(),
+                        shopTimingList[3].ID,
+                        binding.checkboxWednesday.isChecked,
+                        binding.atlShopTimingOpenTimeWednesday.text.toString(),
+                        shopTimingList[3].WeekDay,
+                        getPreference(requireContext(), "RoleAssignmentID").toInt()
+                    )
+                )
+                shopTimingUpdateList.add(
+                    ShopTimingList_Update_Pojo(
+                        binding.atlShopTimingCloseTimeThursday.text.toString(),
+                        shopTimingList[4].ID,
+                        binding.checkboxThursday.isChecked,
+                        binding.atlShopTimingOpenTimeThursday.text.toString(),
+                        shopTimingList[4].WeekDay,
+                        getPreference(requireContext(), "RoleAssignmentID").toInt()
+                    )
+                )
+                shopTimingUpdateList.add(
+                    ShopTimingList_Update_Pojo(
+                        binding.atlShopTimingCloseTimeFriday.text.toString(),
+                        shopTimingList[5].ID,
+                        binding.checkboxFriday.isChecked,
+                        binding.atlShopTimingOpenTimeFriday.text.toString(),
+                        shopTimingList[5].WeekDay,
+                        getPreference(requireContext(), "RoleAssignmentID").toInt()
+                    )
+                )
+                shopTimingUpdateList.add(
+                    ShopTimingList_Update_Pojo(
+                        binding.atlShopTimingCloseTimeSaturday.text.toString(),
+                        shopTimingList[6].ID,
+                        binding.checkboxSaturday.isChecked,
+                        binding.atlShopTimingOpenTimeSaturday.text.toString(),
+                        shopTimingList[6].WeekDay,
+                        getPreference(requireContext(), "RoleAssignmentID").toInt()
+                    )
+                )
 
-//            For sleeve size selection click listener
-            adapterSleeveSize =
-                SleeveSizeListAdapter(racketSleeveSizeList, onSleeveSizeListItemClickListener)
-            recyclerViewSleeveSize.layoutManager = LinearLayoutManager(requireContext())
-            recyclerViewSleeveSize.adapter = adapterSleeveSize
-
-            binding.atlCustomerRacketSleeveSize?.setOnClickListener {
-                if (binding.recyclerViewSleeveSize.visibility == GONE) {
-                    binding.recyclerViewSleeveSize.visibility = VISIBLE
-                    binding.tilCustomerRacketSleeveSize?.clearFocus()
-                    getSleeveSizeList()
+                if (checkInternetConnection(requireContext())) {
+                    updateShopTiming(shopTimingUpdateList)
                 } else
-                    binding.recyclerViewSleeveSize.visibility = GONE
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.no_internet_connection),
+                        Toast.LENGTH_LONG
+                    ).show()
             }
 
-//            for state selection click listener
-            adapterState = StateListAdapter(racketStateList, onStateListItemClickListener)
-            recyclerViewState.layoutManager = LinearLayoutManager(requireContext())
-            recyclerViewState.adapter = adapterState
-
-            binding.atlCustomerRacketState?.setOnClickListener {
-                if (binding.recyclerViewState.visibility == GONE) {
-                    binding.recyclerViewState.visibility = VISIBLE
-                    binding.tilCustomerRacketState?.clearFocus()
-                    getRacketStateList()
-                } else {
-                    binding.recyclerViewState.visibility = GONE
-                    binding.tilCustomerRacketState?.clearFocus()
-                }
+            binding.tilHolidayDate.setEndIconOnClickListener {
+                binding.atlHolidayDate.performClick()
             }
 
-            racketPurchasedYearList.clear()
-            var cal = Calendar.getInstance()
-            while (cal.get(Calendar.YEAR) >= 2010) {
-                racketPurchasedYearList.add(
-                    RacketPurchasedYear_Pojo(
-                        cal.get(Calendar.YEAR).toString()
-                    )
-                )
-                cal.add(Calendar.YEAR, -1)
-            }
-            racketPurchasedYearList.add(
-                RacketPurchasedYear_Pojo(
-                    requireContext().resources.getString(
-                        R.string.not_listed
-                    )
-                )
-            )
-            adapterPurchaseYear =
-                YearListAdapter(racketPurchasedYearList, onYearListItemClickListener)
-            binding.recyclerViewYear.layoutManager = LinearLayoutManager(requireContext())
-            binding.recyclerViewYear.adapter = adapterPurchaseYear
+            binding.atlHolidayDate.setOnClickListener {
+                hideSoftKeyboard(requireActivity())
+                binding.tilHolidayDate.clearFocus()
+                binding.atlHolidayDate.clearFocus()
+                binding.atlHolidayDate.text = null
 
-            binding.atlCustomerRacketYear?.setOnClickListener {
-                if (binding.recyclerViewYear.visibility == GONE) {
-                    binding.recyclerViewYear.visibility = VISIBLE
-                } else
-                    binding.recyclerViewYear.visibility = GONE
-            }
+                val c = Calendar.getInstance()
+                val year = c.get(Calendar.YEAR)
+                val month = c.get(Calendar.MONTH)
+                val day = c.get(Calendar.DAY_OF_MONTH)
 
-            binding.btnRacketInfoClearAll.setOnClickListener {
-                toastMessage(requireContext(), "Hello")
-                binding.tilCustomerRacketMark?.clearFocus()
-                binding.tilCustomerRacketRange?.clearFocus()
-                binding.tilCustomerRacketModel?.clearFocus()
-                binding.tilCustomerRacketVersion?.clearFocus()
-                binding.tilCustomerRacketWeight?.clearFocus()
-                binding.tilCustomerRacketSleeveSize?.clearFocus()
-                binding.tilCustomerRacketState?.clearFocus()
-                binding.tilCustomerRacketYear?.clearFocus()
+                val dpd = DatePickerDialog(
+                    requireActivity(),
+                    { view, year, monthOfYear, dayOfMonth ->
+                        holidayDate = "$year-${
+                            java.lang.String.format(
+                                "%02d",
+                                monthOfYear + 1
+                            )
+                        }-${java.lang.String.format("%02d", dayOfMonth)}"
 
-                binding.atlCustomerRacketYear?.text = null
-            }
-
-            tv_mark.text = selectedCustomerRacketDetailForNewOrder.customerRacketMark
-            tv_range.text = selectedCustomerRacketDetailForNewOrder.customerRacketRange
-            tv_model.text = selectedCustomerRacketDetailForNewOrder.customerRacketModele
-            tv_version.text = selectedCustomerRacketDetailForNewOrder.customerRacketVersion
-            tv_sleeve_size.text = selectedCustomerRacketDetailForNewOrder.customerRacketSleeveSize
-            if (selectedCustomerRacketDetailForNewOrder.customerRacketWeight != null) {
-                if (selectedCustomerRacketDetailForNewOrder.customerRacketWeight!!.isNotEmpty()) {
-                    if (selectedCustomerRacketDetailForNewOrder.customerRacketWeight!!.toInt() > 0)
-                        tv_weight.text =
-                            selectedCustomerRacketDetailForNewOrder.customerRacketWeight.toString() + " GR"
-                    else
-                        tv_weight.text = null
-                } else
-                    tv_weight.text = null
-            } else
-                tv_weight.text = null
-            tv_year.text = selectedCustomerRacketDetailForNewOrder.customerRacketPurachsedYear
-            tv_state.text = selectedCustomerRacketDetailForNewOrder.customerRacketState
-
-            when (selectedCustomerRacketDetailForNewOrder.customerRacketStoreBought) {
-                4 -> radio_yes.isChecked = true
-                5 -> radio_no.isChecked = true
-                6 -> radio_do_not_know.isChecked = true
-            }
-            btn_racket_info_clear_all.isEnabled = true
-            btn_racket_info_next.isEnabled = true
-
-//            btn_camera_1.setOnClickListener {
-//                recyclerViewAllVisibility()
-//                if (checkInternetConnection(requireContext())) {
-//                    openCamera()
-//                } else
-//                    Toast.makeText(
-//                        requireContext(),
-//                        getString(R.string.no_internet_connection),
-//                        Toast.LENGTH_LONG
-//                    ).show()
-//            }
-//
-//            btn_camera_2.setOnClickListener {
-//                recyclerViewAllVisibility()
-//                if (checkInternetConnection(requireContext())) {
-//                    openCamera()
-//                } else
-//                    Toast.makeText(
-//                        requireContext(),
-//                        getString(R.string.no_internet_connection),
-//                        Toast.LENGTH_LONG
-//                    ).show()
-//            }
-
-            radio_group.setOnClickListener {
-                recyclerViewAllVisibility()
-            }
-
-            radio_group.setOnCheckedChangeListener { group, checkedId ->
-                when (checkedId) {
-                    R.id.radio_yes -> selectedCustomerRacketDetailForNewOrder.customerRacketStoreBought =
-                        4
-                    R.id.radio_no -> selectedCustomerRacketDetailForNewOrder.customerRacketStoreBought =
-                        5
-                    R.id.radio_do_not_know -> selectedCustomerRacketDetailForNewOrder.customerRacketStoreBought =
-                        6
-                }
-            }
-
-
-            adapterModel = RacketModelListAdapter(racketModelList, onModelListItemClickListener)
-            recyclerViewModel.layoutManager = LinearLayoutManager(context)
-            recyclerViewModel.adapter = adapterModel
-
-            layout_model.setOnClickListener {
-                if (cardViewModel.visibility == GONE) {
-                    when {
-                        tv_range.text.toString().isEmpty() -> {
-                            recyclerViewAllVisibility()
-                            setTextBorderRed(requireContext(), layout_range)
-                        }
-                        else -> {
-                            if (cardViewModel.visibility == GONE) {
-                                getModelListRacketList()
-                                setCardVisibility(cardViewModel)
+                        var dateFound: Boolean? = false
+                        for (h in holidayListing) {
+                            if (h.HolidayDate.equals(holidayDate)) {
+                                dateFound = true
+                                break
                             }
                         }
-                    }
-                } else
-                    recyclerViewAllVisibility()
-            }
 
-            adapterVersion = VersionListAdapter(racketVersionList, onVersionListItemClickListener)
-            recyclerViewVersion.layoutManager = LinearLayoutManager(requireContext())
-            recyclerViewVersion.adapter = adapterVersion
-
-            layout_version.setOnClickListener {
-                if (cardViewVersion.visibility == GONE) {
-                    if (tv_model.text.toString().isNotEmpty()) {
-                        getVersionList()
-                        setCardVisibility(cardViewVersion)
-                    } else {
-                        recyclerViewAllVisibility()
-                        setTextBorderRed(requireContext(), layout_model)
-                    }
-                } else
-                    recyclerViewAllVisibility()
-            }
-
-            adapterWeight =
-                WeightListAdapter(requireContext(), racketWeightList, onWeightListItemClickListener)
-            recyclerViewWeight.layoutManager = LinearLayoutManager(requireContext())
-            recyclerViewWeight.adapter = adapterWeight
-
-            layout_weight.setOnClickListener {
-                if (cardViewWeight.visibility == GONE) {
-                    if (tv_version.text.toString().isNotEmpty()) {
-                        getWeightList()
-                        setCardVisibility(cardViewWeight)
-                    } else {
-                        recyclerViewAllVisibility()
-                        setTextBorderRed(requireContext(), layout_version)
-                    }
-                } else
-                    recyclerViewAllVisibility()
-            }
-
-            adapterSleeveSize =
-                SleeveSizeListAdapter(racketSleeveSizeList, onSleeveSizeListItemClickListener)
-            recyclerViewSleeveSize.layoutManager = LinearLayoutManager(requireContext())
-            recyclerViewSleeveSize.adapter = adapterSleeveSize
-
-            layout_sleeve_size.setOnClickListener {
-                if (cardViewSleeveSize.visibility == GONE) {
-                    setCardVisibility(cardViewSleeveSize)
-                } else
-                    recyclerViewAllVisibility()
-            }
-
-
-
-            adapterState = StateListAdapter(racketStateList, onStateListItemClickListener)
-            recyclerViewState.layoutManager = LinearLayoutManager(requireContext())
-            recyclerViewState.adapter = adapterState
-
-            layout_state.setOnClickListener {
-                if (cardViewState.visibility == GONE) {
-                    setCardVisibility(cardViewState)
-                } else
-                    recyclerViewAllVisibility()
-            }
-
-            btn_racket_info_clear_all.setOnClickListener {
-                setClearAllFields()
-                recyclerViewAllVisibility()
-                changeAllTextBoxColor()
-                btn_racket_info_clear_all.isEnabled = true
-                btn_racket_info_next.isEnabled = true
-            }
-
-            btn_racket_info_next.setOnClickListener {
-                recyclerViewAllVisibility()
-                when {
-                    tv_mark.text.isEmpty() || tv_mark.text.toString() == getString(R.string.other) ->
-                        layout_mark.background = ContextCompat.getDrawable(
-                            requireContext(),
-                            R.drawable.text_view_red_square_border
-                        )
-                    tv_range.text.toString() == getString(R.string.other) ->
-                        layout_range.background = ContextCompat.getDrawable(
-                            requireContext(),
-                            R.drawable.text_view_red_square_border
-                        )
-                    tv_model.text.isEmpty() || tv_model.text.toString() == getString(R.string.other) ->
-                        layout_model.background = ContextCompat.getDrawable(
-                            requireContext(),
-                            R.drawable.text_view_red_square_border
-                        )
-                    tv_version.text.isEmpty() || tv_version.text.toString() == getString(R.string.other) ->
-                        layout_version.background = ContextCompat.getDrawable(
-                            requireContext(),
-                            R.drawable.text_view_red_square_border
-                        )
-                    tv_weight.text.isEmpty() || tv_weight.text.toString() == getString(R.string.other) ->
-                        layout_weight.background = ContextCompat.getDrawable(
-                            requireContext(),
-                            R.drawable.text_view_red_square_border
-                        )
-                    else -> {
-                        btn_racket_info_next.isEnabled = false
-                        selectedCustomerRacketDetailForNewOrder.customerRacketMark =
-                            tv_mark.text.toString()
-                        selectedCustomerRacketDetailForNewOrder.customerRacketRange =
-                            tv_range.text.toString()
-                        selectedCustomerRacketDetailForNewOrder.customerRacketModele =
-                            tv_model.text.toString()
-                        selectedCustomerRacketDetailForNewOrder.customerRacketVersion =
-                            tv_version.text.toString()
-                        selectedCustomerRacketDetailForNewOrder.customerRacketSleeveSize =
-                            tv_sleeve_size.text.toString()
-                        selectedCustomerRacketDetailForNewOrder.customerRacketPurachsedYear =
-                            tv_year.text.toString()
-                        selectedCustomerRacketDetailForNewOrder.customerRacketState =
-                            tv_state.text.toString()
-
-                        if (checkInternetConnection(requireContext())) {
-                            if (navController.currentDestination?.id == R.id.customerRacketFragment)
-                                navController.navigate(R.id.action_customerRacketFragment_to_customerStringFragment)
-                        } else
+                        if (!dateFound!!) {
+                            binding.tilHolidayDate.isErrorEnabled = false
+                            binding.atlHolidayDate.setText("" + dayOfMonth + " " + DateFormatSymbols.getInstance().months[monthOfYear] + " " + year)
+                        } else {
                             Toast.makeText(
                                 requireContext(),
-                                getString(R.string.no_internet_connection),
+                                requireContext().resources.getText(R.string.not_apply_holiday),
                                 Toast.LENGTH_LONG
                             ).show()
+                        }
+                    }, year, month, day
+                )
+                val cal = Calendar.getInstance()
+                cal.add(Calendar.DAY_OF_YEAR, 1)
+                dpd.datePicker.minDate = cal.timeInMillis
+                dpd.show()
+            }
+
+            binding.ivHolidayOk.setOnClickListener {
+                var nameFound = false
+                when {
+                    binding.atlHolidayTitle.text.isEmpty() -> {
+                        binding.tilHolidayTitle.isErrorEnabled = true
+                        binding.tilHolidayTitle.error = getString(R.string.holiday_name_is_missing)
+//                        val dr = context?.getDrawable(R.drawable.ic_error)
+//                        dr?.setBounds(0, 0, dr.intrinsicWidth, dr.intrinsicHeight)
+//                        txt_holiday_date.setError(getString(R.string.holiday_date_is_missing), dr)
+                    }
+                    binding.atlHolidayDate.text.isEmpty() -> {
+                        binding.tilHolidayDate.isErrorEnabled = true
+                        binding.tilHolidayDate.error = getString(R.string.holiday_date_is_missing)
+//                        val dr = context?.getDrawable(R.drawable.ic_error)
+//                        dr?.setBounds(0, 0, dr.intrinsicWidth, dr.intrinsicHeight)
+//                        txt_holiday_title.setError(getString(R.string.holiday_name_is_missing), dr)
+                    }
+                    else -> {
+                        progressDialogShopTimingHoliday_2.setMessage("Adding New Holiday")
+
+                        for (i in holidayListing) {
+                            if (i.HolidayName?.equals(binding.atlHolidayTitle.text.toString()) == true) {
+                                nameFound = true
+                                break
+                            }
+                        }
+
+                        if (!nameFound) {
+                            callAddShopHolidayFunction(requireContext())
+                            binding.ivHolidayOk.isEnabled = false
+                            binding.tilHolidayTitle.isErrorEnabled = false
+                            binding.tilHolidayDate.isErrorEnabled = false
+                            binding.tvShopTimingAddHoliday.visibility = VISIBLE
+                            binding.vShopTimingDimBackground?.visibility = GONE
+                            binding.cvShopTimingCard?.visibility = GONE
+                            hideSoftKeyboard(requireActivity())
+                        } else {
+                            binding.tilHolidayTitle.isErrorEnabled = true
+                            binding.tilHolidayTitle.error = getString(R.string.holiday_name_found)
+                        }
                     }
                 }
             }
 
-            racketSearchDetailsAdapter = RacketSearchDetailsAdapter(
-                requireContext(),
-                racketSearchList, onRacketSearchResultListItemClickListener
-            )
-            recyclerViewRacketSearchResult.layoutManager = LinearLayoutManager(context)
-            recyclerViewRacketSearchResult.adapter = racketSearchDetailsAdapter
-
-            searchViewRacketDetails.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(newText: String): Boolean {
-
-                    return false
-                }
-
-                override fun onQueryTextChange(newText: String): Boolean {
-                    if (newText.isEmpty()) {
-                        cardViewSearchResultLayout.visibility = View.GONE
-                        recyclerViewRacketSearchResult.visibility = View.GONE
-                    } else {
-                        if (newText.isEmpty())
-                            progressDialogCustomerRacketDetail.show()
-                        cardViewSearchResultLayout.visibility = View.VISIBLE
-                        recyclerViewRacketSearchResult.visibility = View.VISIBLE
-
-                        racketSearchPageNo = 1
-                        getSearchRacketList(searchViewRacketDetails.query)
+            binding.btnRacketStateSave.setOnClickListener {
+                when {
+                    binding.atlMonthsReminder.text?.isEmpty() == true -> {
+                        binding.tilMonthReminder.isErrorEnabled = true
+                        binding.tilMonthReminder.error = getString(R.string.required_field)
                     }
-                    return true
-                }
-            })
+                    else -> {
+                        progressDialogShopTimingHoliday_1.show()
 
-            recyclerViewRacketSearchResult.addOnScrollListener(object :
-                RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    super.onScrolled(recyclerView, dx, dy)
-                    val linearLayoutManager = recyclerView.layoutManager as LinearLayoutManager?
-                    if (racketSearchLoading == false) {
-                        if (linearLayoutManager != null &&
-                            linearLayoutManager.findLastCompletelyVisibleItemPosition() == (racketSearchList.size - 1)
-                        ) {
-                            if (racketSearchLoading != null) {
-                                if (searchViewRacketDetails.query.toString().isEmpty())
-                                    progressDialogCustomerRacketDetail.show()
-                                getSearchRacketList(searchViewRacketDetails.query)
-                            }
-                        }
-                    }
-                }
-            })
+                        binding.btnRacketStateSave.isEnabled = false
+                        binding.tilMonthReminder.isErrorEnabled = false
 
-            if (racketStateList.size < 1) {
-                if (checkInternetConnection(requireContext())) {
-                    viewModel.getRacketStateList(
-                        getPreference(requireContext(), "shopTokenId"),
-                        getPreference(requireContext(), "shopId")
-                    )
-                        ?.observe(viewLifecycleOwner) {
-                            if (it != null) {
-                                racketStateList.clear()
-                                racketStateList.addAll(it)
+                        racketStateChangeUpdateBody.FrequencyInMonth =
+                            binding.atlMonthsReminder.text.toString().toInt()
 
-                                try {
-                                    if (sv_customer_racket_scrollview.visibility == GONE)
-                                        sv_customer_racket_scrollview.visibility = View.VISIBLE
-                                } catch (e: Exception) {
-                                    Log.d("TAG", "onResponse: $e")
+                        hideSoftKeyboard(requireActivity())
+                        callUpdateRacketStateMonthValue(requireContext())
+
+                        viewModelShopTimingNHoliday.updateSkipDayList(
+                            getPreference(requireContext(), "shopTokenId"),
+                            getPreference(requireContext(), "shopId").toInt(),
+                            DataSkip_Update_Input(
+                                skipDateListing.DeliveryID,
+                                binding.atlExpressDelivery.text.toString().toInt(),
+                                binding.atlStandardDelivery.text.toString().toInt(),
+                                getPreference(
+                                    requireContext(),
+                                    "RoleAssignmentID"
+                                ).toInt()
+                            )
+                        )?.observe(
+                            viewLifecycleOwner
+                        ) { response1 ->
+                            if (response1 != null) {
+                                if (response1.ShopID != null) {
+                                    if (response1.ShopID!! == getPreference(
+                                            requireContext(),
+                                            "shopId"
+                                        ).toInt()
+                                    ) {
+                                        binding.btnRacketStateSave.isEnabled = true
+                                        progressDialogShopTimingHoliday_1.dismiss()
+                                        Toast.makeText(
+                                            requireContext(),
+                                            requireContext().resources.getString(R.string.update_successfully),
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
                                 }
-                                adapterState.notifyDataSetChanged()
                             }
                         }
-                } else
-                    Toast.makeText(
-                        requireContext(),
-                        getString(R.string.no_internet_connection),
-                        Toast.LENGTH_LONG
-                    ).show()
-            } else {
-                adapterState.notifyDataSetChanged()
-            }
-
-            if (racketSleeveSizeList.size < 1) {
-                if (checkInternetConnection(requireContext())) {
-                    viewModel.getRacketSleeveSizeList(
-                        getPreference(requireContext(), "shopTokenId"),
-                        getPreference(requireContext(), "shopId").toInt()
-                    )
-                        ?.observe(viewLifecycleOwner) {
-                            if (it != null) {
-                                racketSleeveSizeList.clear()
-                                racketSleeveSizeList.addAll(it)
-
-                                try {
-                                    if (sv_customer_racket_scrollview.visibility == GONE)
-                                        sv_customer_racket_scrollview.visibility = View.VISIBLE
-                                } catch (e: Exception) {
-                                    Log.d("TAG", "onResponse: $e")
-                                }
-                                adapterSleeveSize.notifyDataSetChanged()
-                            }
-                        }
-                } else
-                    Toast.makeText(
-                        requireContext(),
-                        getString(R.string.no_internet_connection),
-                        Toast.LENGTH_LONG
-                    ).show()
-            } else {
-                adapterSleeveSize.notifyDataSetChanged()
-            }
-
-            if (QRscannerNewOrderFragment.selectedCustomerDetailForNewOrder.customerShopID != null) {
-                if (checkInternetConnection(requireContext())) {
-                    viewModel.getCustomerRacketList(
-                        getPreference(requireContext(), "shopTokenId"),
-                        getPreference(requireContext(), "shopId"),
-                        QRscannerNewOrderFragment.selectedCustomerDetailForNewOrder.customerShopID.toString(),
-                        1
-                    )
-                        ?.observe(viewLifecycleOwner) { response ->
-                            if (response != null) {
-                                customerRacketList.clear()
-                                response.results?.CutomerRackets?.let { customerRacketList.addAll(it) }
-
-                                if (customerRacketList.size > 0)
-                                    initRacketDB(customerRacketList)
-                            }
-                        }
-                } else
-                    Toast.makeText(
-                        requireContext(),
-                        getString(R.string.no_internet_connection),
-                        Toast.LENGTH_LONG
-                    ).show()
-            }
-
-            if (racketStateList.size > 0 && racketSleeveSizeList.size > 0) {
-                try {
-                    if (sv_customer_racket_scrollview.visibility == GONE)
-                        sv_customer_racket_scrollview.visibility = View.VISIBLE
-                } catch (e: Exception) {
-                    Log.d("TAG", "onResponse: $e")
+                    }
                 }
             }
+
+            if (checkInternetConnection(requireContext())) {
+                progressDialogShopTimingHoliday_1.show()
+                viewModelShopTimingNHoliday.getShopTimingList(
+                    getPreference(requireContext(), "shopTokenId"),
+                    getPreference(requireContext(), "shopId").toInt()
+                )?.observe(viewLifecycleOwner) { response ->
+                    if (response != null) {
+                        shopTimingList.clear()
+                        shopTimingList.addAll(response)
+
+                        viewModelShopTimingNHoliday.getSkipDayList(
+                            getPreference(requireContext(), "shopTokenId"),
+                            getPreference(requireContext(), "shopId").toInt()
+                        )?.observe(viewLifecycleOwner) { response1 ->
+                            if (response1 != null) {
+                                skipDateListing = response1
+
+                                binding.atlStandardDelivery.setText(response1.RegularDeliveryDays.toString())
+                                binding.atlExpressDelivery.setText(response1.ExpressDeliveryDays.toString())
+                                progressDialogShopTimingHoliday_1.dismiss()
+                                displayShopTiming()
+                            }
+                        }
+                    }
+                }
+
+                callDefaultRacketStateChangeValue(requireContext())
+            } else
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.no_internet_connection),
+                    Toast.LENGTH_LONG
+                ).show()
         } catch (e: Exception) {
             Log.d("TAG", "onCreateView: $e")
         }
     }
 
-    fun getSearchRacketList(searchQueryInput: CharSequence?) {
-        if (checkInternetConnection(requireContext())) {
-            racketSearchLoading = true
-            RetrofitClient.apiInterface.getRacketSearchList(
-                getPreference(requireContext(), "shopTokenId"),
-                getPreference(requireContext(), "shopId").toInt(),
-                RacketListBody(
-                    1,
-                    if (searchQueryInput == null) null else (if (searchQueryInput.isEmpty()) null else searchQueryInput.toString()),
-                    racketSearchPageNo, null, null, null, null, null, 1
-                )
-            ).enqueue(object : Callback<AllRacketList_Pojo> {
-                override fun onFailure(call: Call<AllRacketList_Pojo>, t: Throwable) {
-                    Log.v("DEBUG : ", t.message.toString())
-                    getSearchRacketList(searchQueryInput)
+    private fun updateShopTiming(shopTimingUpdateList: ArrayList<ShopTimingList_Update_Pojo>) {
+        progressDialogShopTimingHoliday_1.show()
+        viewModelNew.getShopTimingUpdated_List(
+            getPreference(requireContext(), "shopTokenId"),
+            getPreference(requireContext(), "shopId").toInt(),
+            shopTimingUpdateList
+        ).observe(viewLifecycleOwner) { response ->
+            when (response.status) {
+                Status.LOADING -> {
+                    progressDialogShopTimingHoliday_1.show()
                 }
+                Status.ERROR -> {
+                    updateShopTiming(shopTimingUpdateList)
+                }
+                Status.SUCCESS -> {
+                    progressDialogShopTimingHoliday_1.dismiss()
+                    val data = response.data
 
-                override fun onResponse(
-                    call: Call<AllRacketList_Pojo>,
-                    response: Response<AllRacketList_Pojo>
-                ) {
-                    Log.v("DEBUG : ", response.body().toString())
+                    if (data?.ShopID != null) {
+                        if (data.ShopID == getPreference(requireContext(), "shopId")) {
+                            shopTimingList[0].IsOpen = binding.checkboxSunday.isChecked
+                            shopTimingList[1].IsOpen = binding.checkboxMonday.isChecked
+                            shopTimingList[2].IsOpen = binding.checkboxTuesday.isChecked
+                            shopTimingList[3].IsOpen = binding.checkboxWednesday.isChecked
+                            shopTimingList[4].IsOpen = binding.checkboxThursday.isChecked
+                            shopTimingList[5].IsOpen = binding.checkboxFriday.isChecked
+                            shopTimingList[6].IsOpen = binding.checkboxSaturday.isChecked
 
-                    if (response.isSuccessful) {
-                        val data = response.body()
-                        progressDialogCustomerRacketDetail.dismiss()
+                            shopTimingList[0].StartTime =
+                                binding.atlShopTimingOpenTimeSunday.text.toString()
+                            shopTimingList[1].StartTime =
+                                binding.atlShopTimingOpenTimeMonday.text.toString()
+                            shopTimingList[2].StartTime =
+                                binding.atlShopTimingOpenTimeTuesday.text.toString()
+                            shopTimingList[3].StartTime =
+                                binding.atlShopTimingOpenTimeWednesday.text.toString()
+                            shopTimingList[4].StartTime =
+                                binding.atlShopTimingOpenTimeThursday.text.toString()
+                            shopTimingList[5].StartTime =
+                                binding.atlShopTimingOpenTimeFriday.text.toString()
+                            shopTimingList[6].StartTime =
+                                binding.atlShopTimingOpenTimeSaturday.text.toString()
 
-                        if (data != null) {
-                            if (data.current_page == 1)
-                                racketSearchList.clear()
+                            shopTimingList[0].EndTime =
+                                binding.atlShopTimingCloseTimeSunday.text.toString()
+                            shopTimingList[1].EndTime =
+                                binding.atlShopTimingCloseTimeMonday.text.toString()
+                            shopTimingList[2].EndTime =
+                                binding.atlShopTimingCloseTimeTuesday.text.toString()
+                            shopTimingList[3].EndTime =
+                                binding.atlShopTimingCloseTimeWednesday.text.toString()
+                            shopTimingList[4].EndTime =
+                                binding.atlShopTimingCloseTimeThursday.text.toString()
+                            shopTimingList[5].EndTime =
+                                binding.atlShopTimingCloseTimeFriday.text.toString()
+                            shopTimingList[6].EndTime =
+                                binding.atlShopTimingCloseTimeSaturday.text.toString()
 
-                            racketSearchPageNo = data.next_page
-
-                            racketSearchList.addAll(data.results)
-                            racketSearchDetailsAdapter?.notifyDataSetChanged()
-                            racketSearchLoading = false
-
-                            try {
-                                if (searchQueryInput != null) {
-                                    if (racketSearchList.size == 0 || (searchQueryInput.isEmpty())) {
-                                        cardViewSearchResultLayout.visibility = View.GONE
-                                        recyclerViewRacketSearchResult.visibility = View.GONE
-                                    } else {
-                                        cardViewSearchResultLayout.visibility = View.VISIBLE
-                                        recyclerViewRacketSearchResult.visibility = View.VISIBLE
-                                    }
-                                } else {
-                                    cardViewSearchResultLayout.visibility = View.GONE
-                                    recyclerViewRacketSearchResult.visibility = View.GONE
-                                }
-                            } catch (e: Exception) {
-                                Log.d("TAG", "onResponse: $e")
-                            }
+                            displayShopTiming()
+                            Toast.makeText(
+                                requireContext(),
+                                requireContext().resources.getString(R.string.update_successfully),
+                                Toast.LENGTH_LONG
+                            ).show()
                         }
-                    } else
-                        getSearchRacketList(searchQueryInput)
+                    }
                 }
-            })
-        } else
-            Toast.makeText(
-                requireContext(),
-                getString(R.string.no_internet_connection),
-                Toast.LENGTH_LONG
-            ).show()
+            }
+        }
     }
 
-    private fun getRacketBrandList() {
-        if (checkInternetConnection(requireContext())) {
-            progressDialogCustomerRacketDetail.show()
-            RetrofitClient.apiInterface.getRacketSearchList_Brand(
-                getPreference(requireContext(), "shopTokenId"),
-                getPreference(requireContext(), "shopId").toInt(),
-                RacketListBody(
-                    2,
-                    null, null, null, null, null,
-                    null, null, 1
-                )
-            ).enqueue(object : Callback<List<Brand>> {
-                override fun onFailure(call: Call<List<Brand>>, t: Throwable) {
-                    Log.v("DEBUG : ", t.message.toString())
-                    getRacketBrandList()
-                }
-
-                override fun onResponse(
-                    call: Call<List<Brand>>,
-                    response: Response<List<Brand>>
-                ) {
-                    Log.v("DEBUG : ", response.body().toString())
-                    progressDialogCustomerRacketDetail.dismiss()
-
-                    if (response.isSuccessful) {
-                        val data = response.body()
-
-                        if (data != null) {
-                            racketMarkList.clear()
-
-                            racketMarkList.addAll(data)
-                            racketMarkList.add(Brand(requireContext().resources.getString(R.string.other)))
-
-                            adapterBrand.notifyDataSetChanged()
+    private fun callUpdateRacketStateMonthValue(context: Context) {
+        viewModelNew.updateRacketStateChangeValue(
+            getPreference(context, "shopTokenId"),
+            getPreference(context, "shopId").toInt(), racketStateChangeUpdateBody
+        ).observe(viewLifecycleOwner) {
+            it?.let { response ->
+                when (response.status) {
+                    Status.ERROR -> {
+                        callDefaultRacketStateChangeValue(context)
+                    }
+                    Status.LOADING -> {
+                    }
+                    Status.SUCCESS -> {
+                        response.data?.let { output ->
+//                            btn_racket_state_save.isEnabled = true
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.update_successfully),
+                                Toast.LENGTH_LONG
+                            ).show()
                         }
-                    } else
-                        getRacketBrandList()
+                    }
                 }
-            })
-        } else
-            Toast.makeText(
-                requireContext(),
-                getString(R.string.no_internet_connection),
-                Toast.LENGTH_LONG
-            ).show()
+            }
+        }
     }
 
-    private fun getRangeList() {
-        if (checkInternetConnection(requireContext())) {
-            progressDialogCustomerRacketDetail.show()
-            RetrofitClient.apiInterface.getRacketSearchList_Range(
-                getPreference(requireContext(), "shopTokenId"),
-                getPreference(requireContext(), "shopId").toInt(),
-                RacketListBody(
-                    2,
-                    null, null, binding.atlCustomerRacketMark?.text.toString(), null, null,
-                    null, null, 2
-                )
+    private fun callAddShopHolidayFunction(context: Context) {
+        viewModelNew.add_ShopHoliday(
+            getPreference(context, "shopTokenId"),
+            getPreference(context, "shopId").toInt(),
+            Add_Holiday_Pojo(
+                binding.atlHolidayTitle.text.toString(), holidayDate.toString(),
+                getPreference(context, "RoleAssignmentID").toInt(), null
             )
-                .enqueue(object : Callback<List<Range>> {
-                    override fun onFailure(call: Call<List<Range>>, t: Throwable) {
-                        Log.v("DEBUG : ", t.message.toString())
-                        getRangeList()
+        ).observe(viewLifecycleOwner) {
+            when (it.status) {
+                Status.LOADING -> {
+                    progressDialogShopTimingHoliday_1.show()
+                }
+                Status.ERROR -> {
+                    callAddShopHolidayFunction(requireContext())
+                }
+                Status.SUCCESS -> {
+                    progressDialogShopTimingHoliday_1.dismiss()
+
+                    val response = it.data
+
+                    if (response != null) {
+                        if (response.ShopHolidayID != null) {
+                            Toast.makeText(
+                                context,
+                                context.resources.getString(R.string.holiday_added),
+                                Toast.LENGTH_LONG
+                            ).show()
+                            iv_holiday_ok.isEnabled = true
+                            holidayDate = null
+
+                            binding.atlHolidayTitle.text = null
+                            binding.atlHolidayDate.text = null
+
+                            callShopHolidayListing(
+                                getPreference(context, "shopTokenId"),
+                                getPreference(context, "shopId").toInt()
+                            )
+                        }
                     }
+                }
+            }
+        }
+    }
 
-                    override fun onResponse(
-                        call: Call<List<Range>>,
-                        response: Response<List<Range>>
-                    ) {
-                        Log.v("DEBUG : ", response.body().toString())
-                        progressDialogCustomerRacketDetail.dismiss()
+    fun callShopHolidayListing(shopTokenId: String, ShopId: Int) {
+        if (checkInternetConnection(requireContext())) {
+            progressDialogShopTimingHoliday_2.show()
+            viewModelShopTimingNHoliday.getShopHolidayList(
+                shopTokenId, ShopId
+            )
+                ?.observe(viewLifecycleOwner) { response ->
+                    if (response != null) {
+                        holidayListing.clear()
+                        holidayListing.addAll(response)
+                        displayHolidayListing()
 
-                        if (response.isSuccessful) {
-                            var data = response.body()
-                            if (data != null) {
-                                racketRangeList.clear()
-
-                                if (data != null)
-                                    racketRangeList.addAll(data)
-
-                                racketRangeList.add(
-                                    Range(
-                                        requireContext().resources.getString(
-                                            R.string.other
-                                        )
-                                    )
-                                )
-                                adapterRange.notifyDataSetChanged()
-                            }
-                        } else
-                            getRangeList()
+                        progressDialogShopTimingHoliday_2.dismiss()
                     }
-                })
+                }
         } else
             Toast.makeText(
                 requireContext(),
@@ -1559,56 +932,28 @@ class CustomerRacketFragment : Fragment() {
             ).show()
     }
 
-    private fun getModelListRacketList() {
+    private fun displayHolidayListing() {
         if (checkInternetConnection(requireContext())) {
-            progressDialogCustomerRacketDetail.show()
-            RetrofitClient.apiInterface.getRacketSearchList_Model(
-                getPreference(requireContext(), "shopTokenId"),
-                getPreference(requireContext(), "shopId").toInt(),
-                RacketListBody(
-                    2,
-                    null,
-                    null,
-                    binding.atlCustomerRacketMark?.text.toString(),
-                    binding.atlCustomerRacketRange?.text.toString(),
-                    null,
-                    null,
-                    null,
-                    3
-                )
-            ).enqueue(object : Callback<List<Model>> {
-                override fun onFailure(call: Call<List<Model>>, t: Throwable) {
-                    Log.v("DEBUG : ", t.message.toString())
-                    getModelListRacketList()
-                }
+            v_shop_timing_holiday_view_2.visibility = GONE
 
-                override fun onResponse(
-                    call: Call<List<Model>>,
-                    response: Response<List<Model>>
-                ) {
-                    Log.v("DEBUG : ", response.body().toString())
-                    progressDialogCustomerRacketDetail.dismiss()
+            if (holidayListing.size > 0) {
+                holidayAdapter = HolidayManagementAdapter(requireContext())
 
-                    if (response.isSuccessful) {
-                        val data = response.body()
+                if (MainActivity.fixedOrientation == 7)
+                    ev_holiday_list.layoutManager = LinearLayoutManager(context)
+                else
+                    ev_holiday_list.layoutManager =
+                        GridLayoutManager(context, 2, RecyclerView.VERTICAL, false)
 
-                        if (data != null) {
-                            racketModelList.clear()
+                ev_holiday_list.adapter?.notifyDataSetChanged()
+                ev_holiday_list.adapter = holidayAdapter
 
-                            racketModelList.addAll(data)
-                            racketModelList.add(
-                                Model(
-                                    requireContext().resources.getString(
-                                        R.string.other
-                                    )
-                                )
-                            )
-                            adapterModel.notifyDataSetChanged()
-                        }
-                    } else
-                        getModelListRacketList()
-                }
-            })
+                tv_no_holiday.visibility = View.GONE
+                ev_holiday_list.visibility = View.VISIBLE
+            } else {
+                tv_no_holiday.visibility = View.VISIBLE
+                ev_holiday_list.visibility = View.GONE
+            }
         } else
             Toast.makeText(
                 requireContext(),
@@ -1617,464 +962,95 @@ class CustomerRacketFragment : Fragment() {
             ).show()
     }
 
-    fun getVersionList() {
-        if (checkInternetConnection(requireContext())) {
-            progressDialogCustomerRacketDetail.show()
+    private fun openDialogForTiming(title: String, textview_time: TextView) {
+        val picker = NumberPicker(context)
+        picker.minValue = 0
+        picker.maxValue = timingList.size - 1
+        picker.displayedValues = timingList
+        picker.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
+        val layout = FrameLayout(requireContext())
+        layout.addView(
+            picker, FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                Gravity.CENTER
+            )
+        )
+        picker.value = timingList.indexOf(textview_time.text.toString())
 
-            RetrofitClient.apiInterface.getRacketSearchList_Version(
-                getPreference(requireContext(), "shopTokenId"),
-                getPreference(requireContext(), "shopId").toInt(),
-                RacketListBody(
-                    2,
-                    null,
-                    null,
-                    binding.atlCustomerRacketMark?.text.toString(),
-                    binding.atlCustomerRacketRange?.text.toString(),
-                    binding.atlCustomerRacketModel?.text.toString(),
-                    null,
-                    null,
-                    4
-                )
-            ).enqueue(object : Callback<List<RacketVersion>> {
-                override fun onFailure(call: Call<List<RacketVersion>>, t: Throwable) {
-                    Log.v("DEBUG : ", t.message.toString())
-                    getVersionList()
-                }
-
-                override fun onResponse(
-                    call: Call<List<RacketVersion>>,
-                    response: Response<List<RacketVersion>>
-                ) {
-                    Log.v("DEBUG : ", response.body().toString())
-
-                    progressDialogCustomerRacketDetail.dismiss()
-
-                    if (response.isSuccessful) {
-                        val data = response.body()
-
-                        if (data != null) {
-                            racketVersionList.clear()
-                            racketVersionList.addAll(data)
-
-                            racketVersionList.add(
-                                RacketVersion(
-                                    requireContext().resources.getString(R.string.other)
-                                )
-                            )
-
-                            adapterVersion.notifyDataSetChanged()
-                        }
-                    } else
-                        getVersionList()
-                }
-            })
-        } else
-            Toast.makeText(
-                requireContext(),
-                getString(R.string.no_internet_connection),
-                Toast.LENGTH_LONG
-            ).show()
+        AlertDialog.Builder(context)
+            .setView(layout)
+            .setTitle(title)
+            .setPositiveButton(
+                android.R.string.ok
+            ) { dialogInterface: DialogInterface?, i: Int ->
+                textview_time.text = timingList[picker.value]
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
-    fun getWeightList() {
-        if (checkInternetConnection(requireContext())) {
-            progressDialogCustomerRacketDetail.show()
+    private fun displayShopTiming() {
+        binding.checkboxSunday.isChecked = shopTimingList[0].IsOpen!!
+        binding.checkboxMonday.isChecked = shopTimingList[1].IsOpen!!
+        binding.checkboxTuesday.isChecked = shopTimingList[2].IsOpen!!
+        binding.checkboxWednesday.isChecked = shopTimingList[3].IsOpen!!
+        binding.checkboxThursday.isChecked = shopTimingList[4].IsOpen!!
+        binding.checkboxFriday.isChecked = shopTimingList[5].IsOpen!!
+        binding.checkboxSaturday.isChecked = shopTimingList[6].IsOpen!!
 
-            RetrofitClient.apiInterface.getRacketSearchList_Weight(
-                getPreference(requireContext(), "shopTokenId"),
-                getPreference(requireContext(), "shopId").toInt(),
-                RacketListBody(
-                    2,
-                    null,
-                    null,
-                    binding.atlCustomerRacketMark?.text.toString(),
-                    binding.atlCustomerRacketRange?.text.toString(),
-                    binding.atlCustomerRacketModel?.text.toString(),
-                    binding.atlCustomerRacketVersion?.text.toString(),
-                    null, 5
-                )
-            ).enqueue(object : Callback<List<RacketWeightList>> {
-                override fun onFailure(call: Call<List<RacketWeightList>>, t: Throwable) {
-                    Log.v("DEBUG : ", t.message.toString())
-                    getWeightList()
-                }
+        binding.atlShopTimingOpenTimeSunday.setText(shopTimingList[0].StartTime)
+        binding.atlShopTimingOpenTimeMonday.setText(shopTimingList[1].StartTime)
+        binding.atlShopTimingOpenTimeTuesday.setText(shopTimingList[2].StartTime)
+        binding.atlShopTimingOpenTimeWednesday.setText(shopTimingList[3].StartTime)
+        binding.atlShopTimingOpenTimeThursday.setText(shopTimingList[4].StartTime)
+        binding.atlShopTimingOpenTimeFriday.setText(shopTimingList[5].StartTime)
+        binding.atlShopTimingOpenTimeSaturday.setText(shopTimingList[6].StartTime)
 
-                override fun onResponse(
-                    call: Call<List<RacketWeightList>>,
-                    response: Response<List<RacketWeightList>>
-                ) {
-                    Log.v("DEBUG : ", response.body().toString())
+        binding.atlShopTimingCloseTimeSunday.setText(shopTimingList[0].EndTime)
+        binding.atlShopTimingCloseTimeMonday.setText(shopTimingList[1].EndTime)
+        binding.atlShopTimingCloseTimeTuesday.setText(shopTimingList[2].EndTime)
+        binding.atlShopTimingCloseTimeWednesday.setText(shopTimingList[3].EndTime)
+        binding.atlShopTimingCloseTimeThursday.setText(shopTimingList[4].EndTime)
+        binding.atlShopTimingCloseTimeFriday.setText(shopTimingList[5].EndTime)
+        binding.atlShopTimingCloseTimeSaturday.setText(shopTimingList[6].EndTime)
 
-                    progressDialogCustomerRacketDetail.dismiss()
-
-                    if (response.isSuccessful) {
-                        val data = response.body()
-
-                        if (data != null) {
-                            racketWeightList.clear()
-                            racketWeightList.addAll(data)
-
-                            racketWeightList.add(
-                                RacketWeightList(
-                                    0,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    null
-                                )
-                            )
-                            adapterWeight.notifyDataSetChanged()
-                        }
-                    } else
-                        getWeightList()
-                }
-            })
-        } else
-            Toast.makeText(
-                requireContext(),
-                getString(R.string.no_internet_connection),
-                Toast.LENGTH_LONG
-            ).show()
+        v_shop_timing_holiday_view_1.visibility = GONE
+        btn_shop_time_charge_timing.isEnabled = true
     }
 
-    fun getSleeveSizeList() {
-        if (racketSleeveSizeList.size < 1) {
-            if (checkInternetConnection(requireContext())) {
-                customerRacketViewModel.getSleeveSizeValues(
-                    getPreference(requireContext(), "shopTokenId"),
-                    getPreference(requireContext(), "shopId").toInt()
-                ).observe(viewLifecycleOwner) {
-                    when (it.status) {
+    private fun callDefaultRacketStateChangeValue(context: Context) {
+        if (checkInternetConnection(context)) {
+            viewModelNew.getRacketStateChangeValue(
+                getPreference(context, "shopTokenId"),
+                getPreference(context, "shopId").toInt()
+            ).observe(viewLifecycleOwner) {
+                it?.let { response ->
+                    when (response.status) {
+                        Status.ERROR -> {
+                            callDefaultRacketStateChangeValue(context)
+                        }
                         Status.LOADING -> {
                         }
-                        Status.ERROR -> {
-                            getSleeveSizeList()
-                        }
                         Status.SUCCESS -> {
-                            if (it.data != null) {
-                                racketSleeveSizeList.clear()
-                                racketSleeveSizeList.addAll(it.data as Collection<RacketSleeveSize_Pojo>)
-
-                                try {
-                                    if (sv_customer_racket_scrollview.visibility == GONE)
-                                        sv_customer_racket_scrollview.visibility = View.VISIBLE
-                                } catch (e: Exception) {
-                                    Log.d("TAG", "onResponse: $e")
-                                }
-
-                                adapterSleeveSize.notifyDataSetChanged()
+                            response.data?.let { output ->
+                                binding.atlMonthsReminder.setText(output.FrequencyInMonth.toString())
+                                racketStateChangeUpdateBody = RacketStateChangeUpdateBody(
+                                    output.FrequencyInMonth,
+                                    output.RacketStatsFrequencyID,
+                                    getPreference(requireContext(), "RoleAssignmentID").toInt()
+                                )
                             }
                         }
                     }
                 }
-            } else
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.no_internet_connection),
-                    Toast.LENGTH_LONG
-                ).show()
-        } else {
-            adapterSleeveSize.notifyDataSetChanged()
-        }
-    }
-
-    fun getRacketStateList() {
-        if (racketStateList.size < 1) {
-            if (checkInternetConnection(requireContext())) {
-                viewModel.getRacketStateList(
-                    getPreference(requireContext(), "shopTokenId"),
-                    getPreference(requireContext(), "shopId")
-                )
-                    ?.observe(viewLifecycleOwner) {
-                        if (it != null) {
-                            racketStateList.clear()
-                            racketStateList.addAll(it)
-
-                            try {
-                                if (sv_customer_racket_scrollview.visibility == GONE)
-                                    sv_customer_racket_scrollview.visibility = View.VISIBLE
-                            } catch (e: Exception) {
-                                Log.d("TAG", "onResponse: $e")
-                            }
-                            adapterState.notifyDataSetChanged()
-                        }
-                    }
-            } else
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.no_internet_connection),
-                    Toast.LENGTH_LONG
-                ).show()
-        } else {
-            adapterState.notifyDataSetChanged()
-        }
-    }
-
-    private fun openCamera() {
-        val values = ContentValues()
-        values.put(MediaStore.Images.Media.TITLE, "New Picture")
-        values.put(MediaStore.Images.Media.DESCRIPTION, "From the Camera")
-
-        val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        customerRacketImageUri[cameraButtonNo] = context?.contentResolver?.insert(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            values
-        )
-        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, customerRacketImageUri[cameraButtonNo])
-        startActivityForResult(cameraIntent, IMAGE_CAPTURE_CODE)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode == Activity.RESULT_OK) {
-            QRscannerNewOrderFragment.customerRacketImageDeleteUri.add(customerRacketImageUri[cameraButtonNo])
-            customerRacketImageFromWeb[cameraButtonNo] = false
-            customerRacketImageSet[cameraButtonNo] = true
-            customerRacketImageList[cameraButtonNo] =
-                RAcketImageList_Pojo(
-                    customerRacketImageFromWeb[cameraButtonNo],
-                    null,
-                    customerRacketImageUri[cameraButtonNo],
-                    null
-                )
-            init(customerRacketImageList)
-            customerRacketImageUri[cameraButtonNo] =
-                compressImage(customerRacketImageUri[cameraButtonNo])
-
-            QRscannerNewOrderFragment.customerRacketImageCompressDeleteUri.add(
-                customerRacketImageUri[cameraButtonNo]
-            )
-
-            cl_racket_image.background =
-                ContextCompat.getDrawable(requireContext(), R.drawable.text_view_gray_square_border)
-        }
-    }
-
-    private fun clearImageRecord() {
-        customerRacketImageUrl.clear()
-        customerRacketImageUri.clear()
-        customerRacketImageToBeAdded.clear()
-        customerRacketImageFromWeb.clear()
-        customerRacketImageSet.clear()
-
-        customerRacketImageUrl.addAll(Arrays.asList(null, null, null, null, null, null))
-        customerRacketImageUri.addAll(Arrays.asList(null, null, null, null, null, null))
-        customerRacketImageToBeAdded.addAll(Arrays.asList(false, false, false, false, false, false))
-        customerRacketImageFromWeb.addAll(Arrays.asList(false, false, false, false, false, false))
-        customerRacketImageSet.addAll(Arrays.asList(false, false, false, false, false, false))
-
-        customerRacketImageList.clear()
-        customerRacketImageList.add(
-            RAcketImageList_Pojo(
-                customerRacketImageFromWeb[0],
-                addCameraImage,
-                null,
-                null
-            )
-        )
-        customerRacketImageList.add(
-            RAcketImageList_Pojo(
-                customerRacketImageFromWeb[1],
-                addCameraImage,
-                null,
-                null
-            )
-        )
-        customerRacketImageList.add(
-            RAcketImageList_Pojo(
-                customerRacketImageFromWeb[2],
-                addCameraImage,
-                null,
-                null
-            )
-        )
-        customerRacketImageList.add(
-            RAcketImageList_Pojo(
-                customerRacketImageFromWeb[3],
-                addCameraImage,
-                null,
-                null
-            )
-        )
-        customerRacketImageList.add(
-            RAcketImageList_Pojo(
-                customerRacketImageFromWeb[4],
-                addCameraImage,
-                null,
-                null
-            )
-        )
-        customerRacketImageList.add(
-            RAcketImageList_Pojo(
-                customerRacketImageFromWeb[5],
-                addCameraImage,
-                null,
-                null
-            )
-        )
-        init(customerRacketImageList)
-    }
-
-    private fun addAllLayoutsInList() {
-        layoutList.add(binding.tilCustomerRacketMark!!)
-        layoutList.add(binding.tilCustomerRacketRange!!)
-        layoutList.add(binding.tilCustomerRacketModel!!)
-        layoutList.add(binding.tilCustomerRacketVersion!!)
-        layoutList.add(binding.tilCustomerRacketWeight!!)
-        layoutList.add(binding.tilCustomerRacketSleeveSize!!)
-        layoutList.add(binding.tilCustomerRacketState!!)
-        layoutList.add(binding.tilCustomerRacketYear!!)
-    }
-
-    private fun addCardToList() {
-        cardList.add(cardViewSearchResultLayout)
-        cardList.add(cardViewMark)
-        cardList.add(cardViewModel)
-        cardList.add(cardViewVersion)
-        cardList.add(cardViewRange)
-        cardList.add(cardViewSleeveSize)
-        cardList.add(cardViewWeight)
-        cardList.add(cardViewYear)
-        cardList.add(cardViewState)
-    }
-
-    private fun init(imageModelArrayList: ArrayList<RAcketImageList_Pojo>) {
-        image_pager.adapter = RacketImageAdapter(requireContext(), imageModelArrayList)
-        image_indicator.setViewPager(image_pager)
-
-        val density = resources.displayMetrics.density
-
-        image_indicator.radius = 4 * density
-
-        image_indicator.setOnPageChangeListener(object : ViewPager.OnPageChangeListener {
-
-            override fun onPageSelected(position: Int) {
-                cameraButtonNo = position
             }
-
-            override fun onPageScrolled(pos: Int, arg1: Float, arg2: Int) {}
-
-            override fun onPageScrollStateChanged(pos: Int) {}
-        })
-    }
-
-    private fun initRacketDB(dbRacketArrayList: ArrayList<CustomerRacketDetail_Pojo>) {
-        if (dbRacketArrayList.isNotEmpty()) {
-            tv_db_racket_list.visibility = View.VISIBLE
-            db_racket_pager.visibility = View.VISIBLE
-            db_image_indicator.visibility = View.VISIBLE
-
-            db_racket_pager.adapter = CustomerRacketListAdapter(
-                requireContext(),
-                dbRacketArrayList,
-                onDBRacketItemListClickListener
-            )
-            db_image_indicator.setViewPager(db_racket_pager)
-
-            val density = resources.displayMetrics.density
-            db_image_indicator.radius = 4 * density
-
-        } else {
-            tv_db_racket_list.visibility = View.INVISIBLE
-            db_racket_pager.visibility = View.INVISIBLE
-            db_image_indicator.visibility = View.INVISIBLE
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        when (requestCode) {
-            PERMISSION_CODE -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    openCamera()
-                } else {
-                    Toast.makeText(
-                        context,
-                        requireContext().resources.getString(R.string.permission_denied),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-        }
-    }
-
-    private fun compressImage(imageUri: Uri?): Uri? {
-        try {
-            val baos = ByteArrayOutputStream()
-            val bitmap = MediaStore.Images.Media.getBitmap(context?.contentResolver, imageUri)
-            bitmap.compress(Bitmap.CompressFormat.JPEG, imageCompressQuality, baos)
-
-            val path =
-                MediaStore.Images.Media.insertImage(
-                    context?.contentResolver,
-                    bitmap,
-                    System.currentTimeMillis().toString(),
-                    null
-                )
-            return Uri.parse(path.toString())
-        } catch (e: Exception) {
-            Log.d("compressImageFalied", "$e")
-            return imageUri
-        }
-    }
-
-    private fun recyclerViewAllVisibility() {
-        searchViewRacketDetails.setQuery("", true)
-        searchViewRacketDetails.clearFocus()
-        for (i in 0 until cardList.size) {
-            cardList[i].visibility = View.GONE
-        }
-    }
-
-    private fun setCardVisibility(cardName: CardView) {
-        searchViewRacketDetails.setQuery("", true)
-        searchViewRacketDetails.clearFocus()
-        for (i in 0 until cardList.size) {
-            if (cardList[i] == cardName) {
-                if (cardList[i].isVisible) {
-                    cardList[i].visibility = View.GONE
-                } else {
-                    cardList[i].visibility = View.VISIBLE
-                }
-            } else {
-                cardList[i].visibility = View.GONE
-            }
-        }
-    }
-
-    private fun changeAllTextBoxColor() {
-        for (i in 0 until layoutList.size) {
-//            setTextBorderGray(requireContext(), layoutList[i])
-        }
-    }
-
-    private fun setClearAllFields() {
-        binding.tilCustomerRacketMark?.clearFocus()
-        binding.tilCustomerRacketRange?.clearFocus()
-        binding.tilCustomerRacketModel?.clearFocus()
-        binding.tilCustomerRacketVersion?.clearFocus()
-        binding.tilCustomerRacketWeight?.clearFocus()
-        binding.tilCustomerRacketSleeveSize?.clearFocus()
-        binding.tilCustomerRacketState?.clearFocus()
-        binding.tilCustomerRacketYear?.clearFocus()
-//        tv_mark.text = null
-//        tv_range.text = null
-//        tv_model.text = null
-//        tv_version.text = null
-//        tv_sleeve_size.text = null
-//        tv_weight.text = null
-//        radio_do_not_know.isChecked = true
-//        tv_year.text = null
-//        tv_state.text = null
-
-        selectedCustomerRacketDetailForNewOrder = selectedCustomerRacketPojo()
-
-        clearImageRecord()
+        } else
+            Toast.makeText(
+                context,
+                getString(R.string.no_internet_connection),
+                Toast.LENGTH_LONG
+            ).show()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -2087,671 +1063,5 @@ class CustomerRacketFragment : Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
 
         menu.clear()
-    }
-
-    private fun addAllTIL() {
-        tilList.add(binding.tilCustomerRacketMark)
-        tilList.add(binding.tilCustomerRacketRange)
-        tilList.add(binding.tilCustomerRacketModel)
-        tilList.add(binding.tilCustomerRacketVersion)
-        tilList.add(binding.tilCustomerRacketWeight)
-    }
-
-    private fun setErrorTIL(textInputLayout: TextInputLayout?) {
-        for (i in 0 until tilList.size) {
-            if (tilList[i] == textInputLayout) {
-//                TODO Have to think about how to what to right in `if` clause
-                if (tilList[i]?.isErrorEnabled == true) {
-                    tilList[i]?.error = "_"
-                    tilList[i]?.requestFocus()
-                    tilList[i]?.clearFocus()
-//                    tilList[i]?.let {
-//                        setErrorDropdownColor(requireContext(), it)
-//                        it?.error = "_"
-//                        it?.requestFocus()
-//                        it?.clearFocus()
-//                    }
-                } else {
-                    tilList[i]?.clearFocus()
-                    tilList[i]?.isErrorEnabled = false
-                }
-            } else {
-                tilList[i]?.clearFocus()
-            }
-        }
-    }
-
-    private fun getModelImageList() {
-        if (checkInternetConnection(requireContext())) {
-            progressDialogCustomerRacketDetail.show()
-            RetrofitClient.apiInterface.getRacketModelImageList(
-                getPreference(requireContext(), "shopTokenId"),
-                getPreference(requireContext(), "shopId").toInt(),
-                binding.atlCustomerRacketMark?.text.toString(),
-                binding.atlCustomerRacketRange?.text.toString(),
-                binding.atlCustomerRacketModel?.text.toString()
-            )
-                .enqueue(object : Callback<List<racketImageList>> {
-                    override fun onFailure(call: Call<List<racketImageList>>, t: Throwable) {
-                        Log.v("DEBUG : ", t.message.toString())
-                        getModelImageList()
-                    }
-
-                    override fun onResponse(
-                        call: Call<List<racketImageList>>,
-                        response: Response<List<racketImageList>>
-                    ) {
-                        Log.v("DEBUG : ", response.body().toString())
-                        progressDialogCustomerRacketDetail.dismiss()
-
-                        if (response.isSuccessful) {
-                            val data = response.body()
-                            if (data != null) {
-                                customerRacketImageToBeAdded.clear()
-                                customerRacketImageUrl.clear()
-                                customerRacketImageFromWeb.clear()
-                                customerRacketImageUri.clear()
-                                customerRacketImageSet.clear()
-
-                                customerRacketImageToBeAdded.add(false)
-                                customerRacketImageUrl.add(if (data.size == 1) data[0].RacketModelImage else addCameraImage)
-                                customerRacketImageFromWeb.add(if (data.size == 1) (data[0].RacketModelImage != null) else false)
-                                customerRacketImageUri.add(null)
-                                customerRacketImageSet.add(if (data.size == 1) (data[0].RacketModelImage != null) else false)
-
-                                customerRacketImageToBeAdded.add(false)
-                                customerRacketImageUrl.add(if (data.size == 2) data[1].RacketModelImage else addCameraImage)
-                                customerRacketImageFromWeb.add(if (data.size == 2) (data[1].RacketModelImage != null) else false)
-                                customerRacketImageUri.add(null)
-                                customerRacketImageSet.add(if (data.size == 2) (data[1].RacketModelImage != null) else false)
-
-                                customerRacketImageToBeAdded.add(false)
-                                customerRacketImageUrl.add(if (data.size == 3) data[2].RacketModelImage else addCameraImage)
-                                customerRacketImageFromWeb.add(if (data.size == 3) (data[2].RacketModelImage != null) else false)
-                                customerRacketImageUri.add(null)
-                                customerRacketImageSet.add(if (data.size == 3) (data[2].RacketModelImage != null) else false)
-
-                                customerRacketImageToBeAdded.add(false)
-                                customerRacketImageUrl.add(if (data.size == 4) data[3].RacketModelImage else addCameraImage)
-                                customerRacketImageFromWeb.add(if (data.size == 4) (data[3].RacketModelImage != null) else false)
-                                customerRacketImageUri.add(null)
-                                customerRacketImageSet.add(if (data.size == 4) (data[3].RacketModelImage != null) else false)
-
-                                customerRacketImageToBeAdded.add(false)
-                                customerRacketImageUrl.add(if (data.size == 5) data[4].RacketModelImage else addCameraImage)
-                                customerRacketImageFromWeb.add(if (data.size == 5) (data[4].RacketModelImage != null) else false)
-                                customerRacketImageUri.add(null)
-                                customerRacketImageSet.add(if (data.size == 5) (data[4].RacketModelImage != null) else false)
-
-                                customerRacketImageToBeAdded.add(false)
-                                customerRacketImageUrl.add(if (data.size == 6) data[5].RacketModelImage else addCameraImage)
-                                customerRacketImageFromWeb.add(if (data.size == 6) (data[5].RacketModelImage != null) else false)
-                                customerRacketImageUri.add(null)
-                                customerRacketImageSet.add(if (data.size == 6) (data[5].RacketModelImage != null) else false)
-
-                                customerRacketImageList.clear()
-                                customerRacketImageList.add(
-                                    RAcketImageList_Pojo(
-                                        customerRacketImageFromWeb[0],
-                                        customerRacketImageUrl[0],
-                                        null,
-                                        null
-                                    )
-                                )
-                                customerRacketImageList.add(
-                                    RAcketImageList_Pojo(
-                                        customerRacketImageFromWeb[1],
-                                        customerRacketImageUrl[1],
-                                        null,
-                                        null
-                                    )
-                                )
-                                customerRacketImageList.add(
-                                    RAcketImageList_Pojo(
-                                        customerRacketImageFromWeb[2],
-                                        customerRacketImageUrl[2],
-                                        null,
-                                        null
-                                    )
-                                )
-                                customerRacketImageList.add(
-                                    RAcketImageList_Pojo(
-                                        customerRacketImageFromWeb[3],
-                                        customerRacketImageUrl[3],
-                                        null,
-                                        null
-                                    )
-                                )
-                                customerRacketImageList.add(
-                                    RAcketImageList_Pojo(
-                                        customerRacketImageFromWeb[4],
-                                        customerRacketImageUrl[4],
-                                        null,
-                                        null
-                                    )
-                                )
-                                customerRacketImageList.add(
-                                    RAcketImageList_Pojo(
-                                        customerRacketImageFromWeb[5],
-                                        customerRacketImageUrl[5],
-                                        null,
-                                        null
-                                    )
-                                )
-                                init(customerRacketImageList)
-                            }
-                        } else
-                            getModelImageList()
-                    }
-                })
-        } else
-            Toast.makeText(
-                requireContext(),
-                getString(R.string.no_internet_connection),
-                Toast.LENGTH_LONG
-            ).show()
-    }
-
-    private fun getModelImageList2() {
-        if (checkInternetConnection(requireContext())) {
-            progressDialogCustomerRacketDetail.show()
-            RetrofitClient.apiInterface.getRacketModelImageList(
-                getPreference(requireContext(), "shopTokenId"),
-                getPreference(requireContext(), "shopId").toInt(),
-                binding.atlCustomerRacketMark?.text.toString(),
-                binding.atlCustomerRacketRange?.text.toString(),
-                binding.atlCustomerRacketModel?.text.toString(),
-                binding.atlCustomerRacketVersion?.text.toString()
-            )
-                .enqueue(object : Callback<List<racketImageList>> {
-                    override fun onFailure(call: Call<List<racketImageList>>, t: Throwable) {
-                        Log.v("DEBUG : ", t.message.toString())
-                        getModelImageList2()
-                    }
-
-                    override fun onResponse(
-                        call: Call<List<racketImageList>>,
-                        response: Response<List<racketImageList>>
-                    ) {
-                        Log.v("DEBUG : ", response.body().toString())
-                        progressDialogCustomerRacketDetail.dismiss()
-
-                        if (response.isSuccessful) {
-                            val data = response.body()
-                            if (data != null) {
-                                customerRacketImageToBeAdded.clear()
-                                customerRacketImageUrl.clear()
-                                customerRacketImageFromWeb.clear()
-                                customerRacketImageUri.clear()
-                                customerRacketImageSet.clear()
-
-                                customerRacketImageToBeAdded.add(false)
-                                customerRacketImageUrl.add(if (data.size == 1) data[0].RacketModelImage else addCameraImage)
-                                customerRacketImageFromWeb.add(if (data.size == 1) (data[0].RacketModelImage != null) else false)
-                                customerRacketImageUri.add(null)
-                                customerRacketImageSet.add(if (data.size == 1) (data[0].RacketModelImage != null) else false)
-
-                                customerRacketImageToBeAdded.add(false)
-                                customerRacketImageUrl.add(if (data.size == 2) data[1].RacketModelImage else addCameraImage)
-                                customerRacketImageFromWeb.add(if (data.size == 2) (data[1].RacketModelImage != null) else false)
-                                customerRacketImageUri.add(null)
-                                customerRacketImageSet.add(if (data.size == 2) (data[1].RacketModelImage != null) else false)
-
-                                customerRacketImageToBeAdded.add(false)
-                                customerRacketImageUrl.add(if (data.size == 3) data[2].RacketModelImage else addCameraImage)
-                                customerRacketImageFromWeb.add(if (data.size == 3) (data[2].RacketModelImage != null) else false)
-                                customerRacketImageUri.add(null)
-                                customerRacketImageSet.add(if (data.size == 3) (data[2].RacketModelImage != null) else false)
-
-                                customerRacketImageToBeAdded.add(false)
-                                customerRacketImageUrl.add(if (data.size == 4) data[3].RacketModelImage else addCameraImage)
-                                customerRacketImageFromWeb.add(if (data.size == 4) (data[3].RacketModelImage != null) else false)
-                                customerRacketImageUri.add(null)
-                                customerRacketImageSet.add(if (data.size == 4) (data[3].RacketModelImage != null) else false)
-
-                                customerRacketImageToBeAdded.add(false)
-                                customerRacketImageUrl.add(if (data.size == 5) data[4].RacketModelImage else addCameraImage)
-                                customerRacketImageFromWeb.add(if (data.size == 5) (data[4].RacketModelImage != null) else false)
-                                customerRacketImageUri.add(null)
-                                customerRacketImageSet.add(if (data.size == 5) (data[4].RacketModelImage != null) else false)
-
-                                customerRacketImageToBeAdded.add(false)
-                                customerRacketImageUrl.add(if (data.size == 6) data[5].RacketModelImage else addCameraImage)
-                                customerRacketImageFromWeb.add(if (data.size == 6) (data[5].RacketModelImage != null) else false)
-                                customerRacketImageUri.add(null)
-                                customerRacketImageSet.add(if (data.size == 6) (data[5].RacketModelImage != null) else false)
-
-                                customerRacketImageList.clear()
-                                customerRacketImageList.add(
-                                    RAcketImageList_Pojo(
-                                        customerRacketImageFromWeb[0],
-                                        customerRacketImageUrl[0],
-                                        null,
-                                        null
-                                    )
-                                )
-                                customerRacketImageList.add(
-                                    RAcketImageList_Pojo(
-                                        customerRacketImageFromWeb[1],
-                                        customerRacketImageUrl[1],
-                                        null,
-                                        null
-                                    )
-                                )
-                                customerRacketImageList.add(
-                                    RAcketImageList_Pojo(
-                                        customerRacketImageFromWeb[2],
-                                        customerRacketImageUrl[2],
-                                        null,
-                                        null
-                                    )
-                                )
-                                customerRacketImageList.add(
-                                    RAcketImageList_Pojo(
-                                        customerRacketImageFromWeb[3],
-                                        customerRacketImageUrl[3],
-                                        null,
-                                        null
-                                    )
-                                )
-                                customerRacketImageList.add(
-                                    RAcketImageList_Pojo(
-                                        customerRacketImageFromWeb[4],
-                                        customerRacketImageUrl[4],
-                                        null,
-                                        null
-                                    )
-                                )
-                                customerRacketImageList.add(
-                                    RAcketImageList_Pojo(
-                                        customerRacketImageFromWeb[5],
-                                        customerRacketImageUrl[5],
-                                        null,
-                                        null
-                                    )
-                                )
-                                init(customerRacketImageList)
-                            }
-                        } else
-                            getModelImageList2()
-                    }
-                })
-        } else
-            Toast.makeText(
-                requireContext(),
-                getString(R.string.no_internet_connection),
-                Toast.LENGTH_LONG
-            ).show()
-    }
-}
-
-private fun showDialogForOtherMarkDetails(
-    context: Context,
-    dialog: Dialog,
-    title: String,
-    textView: AutoCompleteTextView?
-) {
-    dialog.setContentView(R.layout.add_other_details_dialog_layout)
-    dialog.window?.decorView?.setBackgroundResource(android.R.color.transparent)
-    dialog.setCancelable(false)
-    dialog.tv_other_title.text = title
-    dialog.show()
-
-    dialog.iv_other_text_clear.setOnClickListener {
-        dialog.et_other_text.text = null
-        dialog.et_other_text.requestFocus()
-        dialog.iv_other_text_clear.visibility = GONE
-    }
-
-    dialog.et_other_text.addTextChangedListener(object : TextWatcher {
-        override fun afterTextChanged(p0: Editable?) {}
-
-        override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-        override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            if (p0 != null && p0.isNotEmpty())
-                dialog.iv_other_text_clear.visibility = VISIBLE
-            else
-                dialog.iv_other_text_clear.visibility = GONE
-        }
-
-    })
-
-    dialog.btn_save.setOnClickListener {
-        if (dialog.et_other_text.text.toString().isEmpty()) {
-            toastMessage(context, context.getString(R.string.please_enter_text))
-        } else {
-            var foundIn = false
-            for (c in racketMarkList) {
-                if (c.Brand!!.equals(dialog.et_other_text.text.toString(), ignoreCase = true)
-                ) {
-                    foundIn = true
-                    break
-                }
-            }
-
-            if (foundIn) {
-                toastMessage(context, context.getString(R.string.mark_already_found))
-            } else {
-                textView?.setText(dialog.et_other_text.text.toString())
-                selectedCustomerRacketDetailForNewOrder.customerRacketMark =
-                    dialog.et_other_text.text.toString()
-                dialog.dismiss()
-            }
-        }
-    }
-
-    dialog.btn_cancel.setOnClickListener {
-        dialog.dismiss()
-    }
-}
-
-private fun showDialogForOtherModelDetails(
-    context: Context,
-    dialog: Dialog,
-    title: String,
-    textView: AutoCompleteTextView?
-) {
-    dialog.setContentView(R.layout.add_other_details_dialog_layout)
-    dialog.window?.decorView?.setBackgroundResource(android.R.color.transparent)
-    dialog.setCancelable(false)
-    dialog.tv_other_title.text = title
-    dialog.show()
-
-    dialog.iv_other_text_clear.setOnClickListener {
-        dialog.et_other_text.text = null
-        dialog.et_other_text.requestFocus()
-        dialog.iv_other_text_clear.visibility = GONE
-    }
-
-    dialog.et_other_text.addTextChangedListener(object : TextWatcher {
-        override fun afterTextChanged(p0: Editable?) {}
-
-        override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-        override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            if (p0 != null && p0.isNotEmpty())
-                dialog.iv_other_text_clear.visibility = VISIBLE
-            else
-                dialog.iv_other_text_clear.visibility = GONE
-        }
-
-    })
-
-    dialog.btn_save.setOnClickListener {
-        if (dialog.et_other_text.text.toString().isEmpty()) {
-            toastMessage(context, context.getString(R.string.please_enter_text))
-        } else {
-            var foundIn = false
-            for (c in racketModelList) {
-                if (c.Model!!.equals(dialog.et_other_text.text.toString(), ignoreCase = true)
-                ) {
-                    foundIn = true
-                    break
-                }
-            }
-
-            if (foundIn) {
-                toastMessage(context, context.getString(R.string.already_found))
-            } else {
-                textView?.setText(dialog.et_other_text.text.toString())
-                selectedCustomerRacketDetailForNewOrder.customerRacketModele =
-                    dialog.et_other_text.text.toString()
-                dialog.dismiss()
-            }
-        }
-    }
-
-    dialog.btn_cancel.setOnClickListener {
-        dialog.dismiss()
-    }
-}
-
-private fun showDialogForOtherVersionDetails(
-    context: Context,
-    dialog: Dialog,
-    title: String,
-    textView: AutoCompleteTextView?
-) {
-    dialog.setContentView(R.layout.add_other_details_dialog_layout)
-    dialog.window?.decorView?.setBackgroundResource(android.R.color.transparent)
-    dialog.setCancelable(false)
-    dialog.tv_other_title.text = title
-    dialog.show()
-
-    dialog.iv_other_text_clear.setOnClickListener {
-        dialog.et_other_text.text = null
-        dialog.et_other_text.requestFocus()
-        dialog.iv_other_text_clear.visibility = GONE
-    }
-
-    dialog.et_other_text.addTextChangedListener(object : TextWatcher {
-        override fun afterTextChanged(p0: Editable?) {}
-
-        override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-        override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            if (p0 != null && p0.isNotEmpty())
-                dialog.iv_other_text_clear.visibility = VISIBLE
-            else
-                dialog.iv_other_text_clear.visibility = GONE
-        }
-
-    })
-
-    dialog.btn_save.setOnClickListener {
-        if (dialog.et_other_text.text.toString().isEmpty()) {
-            toastMessage(context, context.getString(R.string.please_enter_text))
-        } else {
-            var foundIn = false
-            for (c in racketVersionList) {
-                if (c.Version!!.equals(dialog.et_other_text.text.toString(), ignoreCase = true)
-                ) {
-                    foundIn = true
-                    break
-                }
-            }
-
-            if (foundIn) {
-                toastMessage(context, context.getString(R.string.already_found))
-            } else {
-                textView?.setText(dialog.et_other_text.text.toString())
-                selectedCustomerRacketDetailForNewOrder.customerRacketVersion =
-                    dialog.et_other_text.text.toString()
-                dialog.dismiss()
-            }
-        }
-    }
-
-    dialog.btn_cancel.setOnClickListener {
-        dialog.dismiss()
-    }
-}
-
-private fun showDialogForOtherRangeDetails(
-    context: Context,
-    dialog: Dialog,
-    title: String,
-    textView: AutoCompleteTextView?
-) {
-    dialog.setContentView(R.layout.add_other_details_dialog_layout)
-    dialog.window?.decorView?.setBackgroundResource(android.R.color.transparent)
-    dialog.setCancelable(false)
-    dialog.tv_other_title.text = title
-    dialog.show()
-
-    dialog.iv_other_text_clear.setOnClickListener {
-        dialog.et_other_text.text = null
-        dialog.et_other_text.requestFocus()
-        dialog.iv_other_text_clear.visibility = GONE
-    }
-
-    dialog.et_other_text.addTextChangedListener(object : TextWatcher {
-        override fun afterTextChanged(p0: Editable?) {}
-
-        override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-        override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            if (p0 != null && p0.isNotEmpty())
-                dialog.iv_other_text_clear.visibility = VISIBLE
-            else
-                dialog.iv_other_text_clear.visibility = GONE
-        }
-
-    })
-
-    dialog.btn_save.setOnClickListener {
-        if (dialog.et_other_text.text.toString().isEmpty()) {
-            toastMessage(context, context.getString(R.string.please_enter_text))
-        } else {
-            var foundIn = false
-            for (c in racketRangeList) {
-                if (c.Range!!.equals(dialog.et_other_text.text.toString(), ignoreCase = true)
-                ) {
-                    foundIn = true
-                    break
-                }
-            }
-
-            if (foundIn) {
-                toastMessage(context, context.getString(R.string.mark_already_found))
-            } else {
-                textView?.setText(dialog.et_other_text.text.toString())
-                selectedCustomerRacketDetailForNewOrder.customerRacketRange =
-                    dialog.et_other_text.text.toString()
-                dialog.dismiss()
-            }
-        }
-    }
-
-    dialog.btn_cancel.setOnClickListener {
-        dialog.dismiss()
-    }
-}
-
-private fun showDialogForOtherSleeveSizeDetails(
-    context: Context,
-    dialog: Dialog,
-    title: String,
-    textView: AutoCompleteTextView?
-) {
-    dialog.setContentView(R.layout.add_other_details_dialog_layout)
-    dialog.window?.decorView?.setBackgroundResource(android.R.color.transparent)
-    dialog.setCancelable(false)
-    dialog.tv_other_title.text = title
-    dialog.show()
-
-    dialog.iv_other_text_clear.setOnClickListener {
-        dialog.et_other_text.text = null
-        dialog.et_other_text.requestFocus()
-        dialog.iv_other_text_clear.visibility = GONE
-    }
-
-    dialog.et_other_text.addTextChangedListener(object : TextWatcher {
-        override fun afterTextChanged(p0: Editable?) {}
-
-        override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-        override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            if (p0 != null && p0.isNotEmpty())
-                dialog.iv_other_text_clear.visibility = VISIBLE
-            else
-                dialog.iv_other_text_clear.visibility = GONE
-        }
-
-    })
-
-    dialog.btn_save.setOnClickListener {
-        if (dialog.et_other_text.text.toString().isEmpty()) {
-            toastMessage(context, context.getString(R.string.please_enter_text))
-        } else {
-            var foundIn = false
-            for (c in racketSleeveSizeList) {
-                if (c.SleeveSize!!.equals(dialog.et_other_text.text.toString(), ignoreCase = true)
-                ) {
-                    foundIn = true
-                    break
-                }
-            }
-
-            if (foundIn) {
-                toastMessage(context, context.getString(R.string.already_found))
-            } else {
-                textView?.setText(dialog.et_other_text.text.toString())
-                selectedCustomerRacketDetailForNewOrder.customerRacketSleeveSize =
-                    dialog.et_other_text.text.toString()
-                dialog.dismiss()
-            }
-        }
-    }
-
-    dialog.btn_cancel.setOnClickListener {
-        dialog.dismiss()
-    }
-}
-
-private fun showDialogForWeightDetails(
-    context: Context,
-    dialog: Dialog,
-    title: String,
-    textView: AutoCompleteTextView?
-) {
-    dialog.setContentView(R.layout.add_other_details_dialog_layout)
-    dialog.window?.decorView?.setBackgroundResource(android.R.color.transparent)
-    dialog.setCancelable(false)
-    dialog.tv_other_title.text = title
-    dialog.show()
-
-    dialog.et_other_text.isAllCaps = true
-    dialog.et_other_text.inputType = InputType.TYPE_CLASS_NUMBER
-    dialog.et_other_text.hint = context.resources.getString(R.string.weight_hint)
-
-    dialog.iv_other_text_clear.setOnClickListener {
-        dialog.et_other_text.text = null
-        dialog.et_other_text.requestFocus()
-        dialog.iv_other_text_clear.visibility = GONE
-    }
-
-    dialog.et_other_text.addTextChangedListener(object : TextWatcher {
-        override fun afterTextChanged(p0: Editable?) {}
-
-        override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-        override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            if (p0 != null && p0.isNotEmpty())
-                dialog.iv_other_text_clear.visibility = VISIBLE
-            else
-                dialog.iv_other_text_clear.visibility = GONE
-        }
-
-    })
-
-    dialog.btn_save.setOnClickListener {
-        if (dialog.et_other_text.text.toString().isEmpty()) {
-            toastMessage(context, context.getString(R.string.please_enter_text))
-        } else {
-            var foundIn = false
-            for (c in racketWeightList) {
-                if (c.Weight!!.toString()
-                        .equals(dialog.et_other_text.text.toString(), ignoreCase = true)
-                ) {
-                    foundIn = true
-                    break
-                }
-            }
-
-            if (foundIn) {
-                toastMessage(context, context.getString(R.string.already_found))
-            } else {
-                textView?.setText(dialog.et_other_text.text.toString().plus(" GR"))
-                selectedCustomerRacketDetailForNewOrder.customerRacketWeight =
-                    dialog.et_other_text.text.toString()
-                dialog.dismiss()
-            }
-        }
-    }
-
-    dialog.btn_cancel.setOnClickListener {
-        dialog.dismiss()
     }
 }
