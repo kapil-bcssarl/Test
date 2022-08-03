@@ -2,114 +2,968 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/racketLayoutFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    android:focusable="true"
-    android:focusableInTouchMode="true"
-    tools:context=".view.fragments.CustomerRacketFragment">
+    tools:context=".view.fragments.ShopTimingHolidayFragment">
 
-    <ScrollView
-        android:id="@+id/sv_customer_racket_scrollview"
-        android:layout_width="match_parent"
+    <View
+        android:id="@+id/v_shop_timing_holiday_view_1"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="4dp"
-        android:fillViewport="true"
-        android:scrollbars="none"
-        android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@id/btn_racket_info_next"
+        android:layout_marginEnd="1dp"
+        android:background="@color/white"
+        android:elevation="17dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/guideline14"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/v_shop_timing_holiday_view_2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="1dp"
+        android:background="@color/white"
+        android:elevation="8dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@id/guideline14"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline14"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="2dp"
+        android:layout_height="0dp"
+        android:layout_margin="4dp"
+        android:background="@color/colorAccent"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/guideline14"
+        app:layout_constraintStart_toStartOf="@+id/guideline14"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/tabLayout"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0">
+        app:layout_constraintWidth_percent="0.2">
+
+        <View
+            android:id="@+id/view_holiday"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginHorizontal="32dp"
+            android:layout_marginTop="56dp"
+            android:background="?attr/selectableItemBackground"
+            android:elevation="4dp"
+            android:foreground="@drawable/text_view_yellow_square_border_focused"
+            app:layout_constraintBottom_toTopOf="@id/view_timing"
+            app:layout_constraintEnd_toEndOf="@id/guideline3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/iv_holiday"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:scaleType="center"
+            android:src="@drawable/ic_calendar_checked_large"
+            app:layout_constraintBottom_toTopOf="@id/holiday_tv"
+            app:layout_constraintEnd_toEndOf="@id/view_holiday"
+            app:layout_constraintStart_toStartOf="@id/view_holiday"
+            app:layout_constraintTop_toTopOf="@id/view_holiday"
+            app:layout_constraintVertical_chainStyle="packed"
+            app:tint="@color/colorAccent" />
+
+        <TextView
+            android:id="@+id/holiday_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/shop_time_title"
+            android:textAppearance="?android:textAppearanceLarge"
+            android:textColor="@color/colorAccent"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@id/view_holiday"
+            app:layout_constraintEnd_toEndOf="@id/view_holiday"
+            app:layout_constraintStart_toStartOf="@id/view_holiday"
+            app:layout_constraintTop_toBottomOf="@id/iv_holiday" />
+
+        <View
+            android:id="@+id/view_timing"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginVertical="56dp"
+            android:background="?attr/selectableItemBackground"
+            android:elevation="4dp"
+            android:foreground="@drawable/text_view_yellow_square_border"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@id/view_config"
+            app:layout_constraintEnd_toEndOf="@id/view_holiday"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@id/view_holiday"
+            app:layout_constraintTop_toBottomOf="@id/view_holiday" />
+
+        <ImageView
+            android:id="@+id/iv_timings"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
+            android:padding="8dp"
+            android:scaleType="center"
+            android:src="@drawable/ic_clock"
+            app:layout_constraintBottom_toTopOf="@id/timings_tv"
+            app:layout_constraintEnd_toEndOf="@id/view_timing"
+            app:layout_constraintStart_toStartOf="@id/view_timing"
+            app:layout_constraintTop_toTopOf="@id/view_timing"
+            app:layout_constraintVertical_chainStyle="packed"
+            app:tint="@color/colorAccent" />
+
+        <TextView
+            android:id="@+id/timings_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/holiday_title_1"
+            android:textAppearance="?android:textAppearanceLarge"
+            android:textColor="@color/colorAccent"
+            android:textStyle="normal"
+            app:layout_constraintBottom_toBottomOf="@id/view_timing"
+            app:layout_constraintEnd_toEndOf="@id/view_timing"
+            app:layout_constraintStart_toStartOf="@id/view_timing"
+            app:layout_constraintTop_toBottomOf="@id/iv_timings" />
+
+        <View
+            android:id="@+id/view_config"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="56dp"
+            android:background="?attr/selectableItemBackground"
+            android:elevation="4dp"
+            android:foreground="@drawable/text_view_yellow_square_border"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/view_holiday"
+            app:layout_constraintStart_toStartOf="@id/view_holiday"
+            app:layout_constraintTop_toBottomOf="@id/view_timing" />
+
+        <ImageView
+            android:id="@+id/iv_config"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:scaleType="center"
+            android:src="@drawable/ic_setting"
+            app:layout_constraintBottom_toTopOf="@id/others_tv"
+            app:layout_constraintEnd_toEndOf="@id/view_config"
+            app:layout_constraintStart_toStartOf="@id/view_config"
+            app:layout_constraintTop_toTopOf="@id/view_config"
+            app:layout_constraintVertical_chainStyle="packed"
+            app:tint="@color/colorAccent" />
+
+        <TextView
+            android:id="@+id/others_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/other_1"
+            android:textAppearance="?android:textAppearanceLarge"
+            android:textColor="@color/colorAccent"
+            android:textStyle="normal"
+            app:layout_constraintBottom_toBottomOf="@id/view_config"
+            app:layout_constraintEnd_toEndOf="@id/view_config"
+            app:layout_constraintStart_toStartOf="@id/view_config"
+            app:layout_constraintTop_toBottomOf="@id/iv_config" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="1.0" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tabLayout"
+        app:layout_constraintTop_toTopOf="@id/tabLayout">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline18"
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/group_holidays"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.01" />
+                android:visibility="gone"
+                app:constraint_referenced_ids="btn_shop_time_charge_timing, tv, tv2, tv3, tv4, tv5, tv6, tv7, checkbox_sunday, checkbox_monday, checkbox_tuesday, checkbox_wednesday, checkbox_thursday, checkbox_friday, checkbox_saturday, view1, view2, view3, view4,view5,view6,view7, tv_weekday_1,tv_weekday_2, tv_weekday_3, tv_weekday_4, tv_weekday_5, tv_weekday_6, tv_weekday_7, atl_shop_timing_open_time_sunday, atl_shop_timing_open_time_monday, atl_shop_timing_open_time_tuesday, atl_shop_timing_open_time_wednesday, atl_shop_timing_open_time_thursday, atl_shop_timing_open_time_friday, atl_shop_timing_open_time_saturday, atl_shop_timing_close_time_sunday, atl_shop_timing_close_time_saturday, atl_shop_timing_close_time_monday, atl_shop_timing_close_time_tuesday, atl_shop_timing_close_time_wednesday, atl_shop_timing_close_time_thursday, atl_shop_timing_close_time_friday" />
 
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline19"
+            <View
+                android:id="@+id/view1"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginHorizontal="18dp"
+                android:layout_marginTop="60dp"
+                android:layout_marginBottom="-4dp"
+                android:background="@drawable/search_view_background"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="@id/checkbox_sunday"
+                app:layout_constraintEnd_toEndOf="@id/guideline17"
+                app:layout_constraintStart_toStartOf="@id/guideline16"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_weekday_1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.99" />
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="48dp"
+                android:background="@drawable/custom_label_textinputlayout"
+                android:paddingHorizontal="6dp"
+                android:text="@string/weekday_sunday"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/grey"
+                android:visibility="visible"
+                app:layout_constraintStart_toStartOf="@id/view1"
+                app:layout_constraintTop_toTopOf="parent" />
 
-            <SearchView
-                android:id="@+id/searchViewRacketDetails"
+            <CheckBox
+                android:id="@+id/checkbox_sunday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/black"
+                app:layout_constraintBottom_toBottomOf="@id/view1"
+                app:layout_constraintStart_toStartOf="@id/view1"
+                app:layout_constraintTop_toBottomOf="@id/tv_weekday_1" />
+
+            <TextView
+                android:id="@+id/atl_shop_timing_open_time_sunday"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginStart="16dp"
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="8dp"
+                android:singleLine="true"
+                android:text="10.00"
+                android:textAlignment="center"
+                android:textAppearance="?android:textAppearanceLarge"
+                android:textColor="@color/black"
+                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
+                app:drawableTint="@color/gray"
+                app:layout_constraintBottom_toBottomOf="@id/checkbox_sunday"
+                app:layout_constraintEnd_toStartOf="@id/tv"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                app:layout_constraintStart_toEndOf="@id/checkbox_sunday"
+                app:layout_constraintTop_toTopOf="@+id/checkbox_sunday" />
+
+            <TextView
+                android:id="@+id/tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:text="to"
+                android:textAlignment="center"
+                android:textAppearance="?android:textAppearanceMedium"
+                android:textColor="@color/black"
+                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_sunday"
+                app:layout_constraintEnd_toStartOf="@id/atl_shop_timing_close_time_sunday"
+                app:layout_constraintStart_toEndOf="@id/atl_shop_timing_open_time_sunday"
+                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_sunday" />
+
+            <TextView
+                android:id="@+id/atl_shop_timing_close_time_sunday"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="8dp"
+                android:singleLine="true"
+                android:text="19.00"
+                android:textAlignment="center"
+                android:textAppearance="?android:textAppearanceLarge"
+                android:textColor="@color/black"
+                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
+                app:drawableTint="@color/gray"
+                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_sunday"
+                app:layout_constraintEnd_toEndOf="@id/view1"
+                app:layout_constraintStart_toEndOf="@id/tv"
+                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_sunday" />
+
+            <View
+                android:id="@+id/view2"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="-4dp"
                 android:background="@drawable/search_view_background"
-                android:iconifiedByDefault="false"
-                android:paddingHorizontal="0dp"
-                android:paddingVertical="4dp"
-                android:queryBackground="@android:color/transparent"
-                android:queryHint="@string/search_for_racket"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="@id/checkbox_monday"
+                app:layout_constraintEnd_toEndOf="@id/view1"
+                app:layout_constraintStart_toStartOf="@id/view1"
+                app:layout_constraintTop_toBottomOf="@id/view1" />
+
+            <TextView
+                android:id="@+id/tv_weekday_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/custom_label_textinputlayout"
+                android:paddingHorizontal="6dp"
+                android:text="@string/weekday_monday"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/grey"
+                android:visibility="visible"
+                app:layout_constraintStart_toStartOf="@id/view2"
+                app:layout_constraintTop_toBottomOf="@id/view1" />
+
+            <CheckBox
+                android:id="@+id/checkbox_monday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/black"
+                app:layout_constraintBottom_toBottomOf="@id/view2"
+                app:layout_constraintStart_toStartOf="@id/view2"
+                app:layout_constraintTop_toBottomOf="@id/tv_weekday_2" />
+
+            <TextView
+                android:id="@+id/atl_shop_timing_open_time_monday"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="8dp"
+                android:singleLine="true"
+                android:text="10.00"
+                android:textAlignment="center"
+                android:textAppearance="?android:textAppearanceLarge"
+                android:textColor="@color/black"
+                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
+                app:drawableTint="@color/gray"
+                app:layout_constraintBottom_toBottomOf="@id/checkbox_monday"
+                app:layout_constraintEnd_toStartOf="@id/tv2"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                app:layout_constraintStart_toEndOf="@id/checkbox_monday"
+                app:layout_constraintTop_toTopOf="@+id/checkbox_monday" />
+
+            <TextView
+                android:id="@+id/tv2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:text="to"
+                android:textAlignment="center"
+                android:textAppearance="?android:textAppearanceMedium"
+                android:textColor="@color/black"
+                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_monday"
+                app:layout_constraintEnd_toStartOf="@id/atl_shop_timing_close_time_monday"
+                app:layout_constraintStart_toEndOf="@id/atl_shop_timing_open_time_monday"
+                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_monday" />
+
+            <TextView
+                android:id="@+id/atl_shop_timing_close_time_monday"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="8dp"
+                android:singleLine="true"
+                android:text="19.00"
+                android:textAlignment="center"
+                android:textAppearance="?android:textAppearanceLarge"
+                android:textColor="@color/black"
+                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
+                app:drawableTint="@color/gray"
+                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_monday"
+                app:layout_constraintEnd_toEndOf="@id/view2"
+                app:layout_constraintStart_toEndOf="@id/tv2"
+                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_monday" />
+
+            <View
+                android:id="@+id/view3"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="-4dp"
+                android:background="@drawable/search_view_background"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="@id/checkbox_tuesday"
+                app:layout_constraintEnd_toEndOf="@id/view1"
+                app:layout_constraintStart_toStartOf="@id/view1"
+                app:layout_constraintTop_toBottomOf="@id/view2" />
+
+            <TextView
+                android:id="@+id/tv_weekday_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/custom_label_textinputlayout"
+                android:paddingHorizontal="6dp"
+                android:text="@string/weekday_tuesday"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/grey"
+                android:visibility="visible"
+                app:layout_constraintStart_toStartOf="@id/view3"
+                app:layout_constraintTop_toBottomOf="@id/view2" />
+
+            <CheckBox
+                android:id="@+id/checkbox_tuesday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/black"
+                app:layout_constraintBottom_toBottomOf="@id/view3"
+                app:layout_constraintStart_toStartOf="@id/view3"
+                app:layout_constraintTop_toBottomOf="@id/tv_weekday_3" />
+
+            <TextView
+                android:id="@+id/atl_shop_timing_open_time_tuesday"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="8dp"
+                android:singleLine="true"
+                android:text="10.00"
+                android:textAlignment="center"
+                android:textAppearance="?android:textAppearanceLarge"
+                android:textColor="@color/black"
+                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
+                app:drawableTint="@color/gray"
+                app:layout_constraintBottom_toBottomOf="@id/checkbox_tuesday"
+                app:layout_constraintEnd_toStartOf="@id/tv3"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                app:layout_constraintStart_toEndOf="@id/checkbox_tuesday"
+                app:layout_constraintTop_toTopOf="@+id/checkbox_tuesday" />
+
+            <TextView
+                android:id="@+id/tv3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:text="to"
+                android:textAlignment="center"
+                android:textAppearance="?android:textAppearanceMedium"
+                android:textColor="@color/black"
+                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_tuesday"
+                app:layout_constraintEnd_toStartOf="@id/atl_shop_timing_close_time_tuesday"
+                app:layout_constraintStart_toEndOf="@id/atl_shop_timing_open_time_tuesday"
+                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_tuesday" />
+
+            <TextView
+                android:id="@+id/atl_shop_timing_close_time_tuesday"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="8dp"
+                android:singleLine="true"
+                android:text="19.00"
+                android:textAlignment="center"
+                android:textAppearance="?android:textAppearanceLarge"
+                android:textColor="@color/black"
+                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
+                app:drawableTint="@color/gray"
+                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_tuesday"
+                app:layout_constraintEnd_toEndOf="@id/view3"
+                app:layout_constraintStart_toEndOf="@id/tv3"
+                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_tuesday" />
+
+            <View
+                android:id="@+id/view4"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="-4dp"
+                android:background="@drawable/search_view_background"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="@id/checkbox_wednesday"
+                app:layout_constraintEnd_toEndOf="@id/view1"
+                app:layout_constraintStart_toStartOf="@id/view1"
+                app:layout_constraintTop_toBottomOf="@id/view3" />
+
+            <TextView
+                android:id="@+id/tv_weekday_4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/custom_label_textinputlayout"
+                android:paddingHorizontal="6dp"
+                android:text="@string/weekday_wednesday"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/grey"
+                android:visibility="visible"
+                app:layout_constraintStart_toStartOf="@id/view4"
+                app:layout_constraintTop_toBottomOf="@id/view3" />
+
+            <CheckBox
+                android:id="@+id/checkbox_wednesday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/black"
+                app:layout_constraintBottom_toBottomOf="@id/view4"
+                app:layout_constraintStart_toStartOf="@id/view4"
+                app:layout_constraintTop_toBottomOf="@id/tv_weekday_4" />
+
+            <TextView
+                android:id="@+id/atl_shop_timing_open_time_wednesday"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="8dp"
+                android:singleLine="true"
+                android:text="10.00"
+                android:textAlignment="center"
+                android:textAppearance="?android:textAppearanceLarge"
+                android:textColor="@color/black"
+                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
+                app:drawableTint="@color/gray"
+                app:layout_constraintBottom_toBottomOf="@id/checkbox_wednesday"
+                app:layout_constraintEnd_toStartOf="@id/tv4"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                app:layout_constraintStart_toEndOf="@id/checkbox_wednesday"
+                app:layout_constraintTop_toTopOf="@+id/checkbox_wednesday" />
+
+            <TextView
+                android:id="@+id/tv4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:text="to"
+                android:textAlignment="center"
+                android:textAppearance="?android:textAppearanceMedium"
+                android:textColor="@color/black"
+                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_wednesday"
+                app:layout_constraintEnd_toStartOf="@id/atl_shop_timing_close_time_wednesday"
+                app:layout_constraintStart_toEndOf="@id/atl_shop_timing_open_time_wednesday"
+                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_wednesday" />
+
+            <TextView
+                android:id="@+id/atl_shop_timing_close_time_wednesday"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="8dp"
+                android:singleLine="true"
+                android:text="19.00"
+                android:textAlignment="center"
+                android:textAppearance="?android:textAppearanceLarge"
+                android:textColor="@color/black"
+                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
+                app:drawableTint="@color/gray"
+                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_wednesday"
+                app:layout_constraintEnd_toEndOf="@id/view4"
+                app:layout_constraintStart_toEndOf="@id/tv4"
+                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_wednesday" />
+
+            <View
+                android:id="@+id/view5"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="-4dp"
+                android:background="@drawable/search_view_background"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="@id/checkbox_thursday"
+                app:layout_constraintEnd_toEndOf="@id/view1"
+                app:layout_constraintStart_toStartOf="@id/view1"
+                app:layout_constraintTop_toBottomOf="@id/view4" />
+
+            <TextView
+                android:id="@+id/tv_weekday_5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/custom_label_textinputlayout"
+                android:paddingHorizontal="6dp"
+                android:text="@string/weekday_thursday"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/grey"
+                android:visibility="visible"
+                app:layout_constraintStart_toStartOf="@id/view5"
+                app:layout_constraintTop_toBottomOf="@id/view4" />
+
+            <CheckBox
+                android:id="@+id/checkbox_thursday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/black"
+                app:layout_constraintBottom_toBottomOf="@id/view5"
+                app:layout_constraintStart_toStartOf="@id/view5"
+                app:layout_constraintTop_toBottomOf="@id/tv_weekday_5" />
+
+            <TextView
+                android:id="@+id/atl_shop_timing_open_time_thursday"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="8dp"
+                android:singleLine="true"
+                android:text="10.00"
+                android:textAlignment="center"
+                android:textAppearance="?android:textAppearanceLarge"
+                android:textColor="@color/black"
+                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
+                app:drawableTint="@color/gray"
+                app:layout_constraintBottom_toBottomOf="@id/checkbox_thursday"
+                app:layout_constraintEnd_toStartOf="@id/tv5"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                app:layout_constraintStart_toEndOf="@id/checkbox_thursday"
+                app:layout_constraintTop_toTopOf="@+id/checkbox_thursday" />
+
+            <TextView
+                android:id="@+id/tv5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:text="to"
+                android:textAlignment="center"
+                android:textAppearance="?android:textAppearanceMedium"
+                android:textColor="@color/black"
+                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_thursday"
+                app:layout_constraintEnd_toStartOf="@id/atl_shop_timing_close_time_thursday"
+                app:layout_constraintStart_toEndOf="@id/atl_shop_timing_open_time_thursday"
+                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_thursday" />
+
+            <TextView
+                android:id="@+id/atl_shop_timing_close_time_thursday"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="8dp"
+                android:singleLine="true"
+                android:text="19.00"
+                android:textAlignment="center"
+                android:textAppearance="?android:textAppearanceLarge"
+                android:textColor="@color/black"
+                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
+                app:drawableTint="@color/gray"
+                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_thursday"
+                app:layout_constraintEnd_toEndOf="@id/view5"
+                app:layout_constraintStart_toEndOf="@+id/tv5"
+                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_thursday" />
+
+            <View
+                android:id="@+id/view6"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="-4dp"
+                android:background="@drawable/search_view_background"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="@id/checkbox_friday"
+                app:layout_constraintEnd_toEndOf="@id/view1"
+                app:layout_constraintStart_toStartOf="@id/view1"
+                app:layout_constraintTop_toBottomOf="@id/view5" />
+
+            <TextView
+                android:id="@+id/tv_weekday_6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/custom_label_textinputlayout"
+                android:paddingHorizontal="6dp"
+                android:text="@string/weekday_friday"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/grey"
+                android:visibility="visible"
+                app:layout_constraintStart_toStartOf="@id/view6"
+                app:layout_constraintTop_toBottomOf="@id/view5" />
+
+            <CheckBox
+                android:id="@+id/checkbox_friday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/black"
+                app:layout_constraintBottom_toBottomOf="@id/view6"
+                app:layout_constraintStart_toStartOf="@id/view6"
+                app:layout_constraintTop_toBottomOf="@id/tv_weekday_6" />
+
+            <TextView
+                android:id="@+id/atl_shop_timing_open_time_friday"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="8dp"
+                android:singleLine="true"
+                android:text="10.00"
+                android:textAlignment="center"
+                android:textAppearance="?android:textAppearanceLarge"
+                android:textColor="@color/black"
+                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
+                app:drawableTint="@color/gray"
+                app:layout_constraintBottom_toBottomOf="@id/checkbox_friday"
+                app:layout_constraintEnd_toStartOf="@id/tv6"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                app:layout_constraintStart_toEndOf="@id/checkbox_friday"
+                app:layout_constraintTop_toTopOf="@+id/checkbox_friday" />
+
+            <TextView
+                android:id="@+id/tv6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:text="to"
+                android:textAlignment="center"
+                android:textAppearance="?android:textAppearanceMedium"
+                android:textColor="@color/black"
+                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_friday"
+                app:layout_constraintEnd_toStartOf="@id/atl_shop_timing_close_time_friday"
+                app:layout_constraintStart_toEndOf="@id/atl_shop_timing_open_time_friday"
+                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_friday" />
+
+            <TextView
+                android:id="@+id/atl_shop_timing_close_time_friday"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="8dp"
+                android:singleLine="true"
+                android:text="19.00"
+                android:textAlignment="center"
+                android:textAppearance="?android:textAppearanceLarge"
+                android:textColor="@color/black"
+                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
+                app:drawableTint="@color/gray"
+                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_friday"
+                app:layout_constraintEnd_toEndOf="@id/view6"
+                app:layout_constraintStart_toEndOf="@id/tv6"
+                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_friday" />
+
+            <View
+                android:id="@+id/view7"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="-4dp"
+                android:background="@drawable/search_view_background"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="@id/checkbox_saturday"
+                app:layout_constraintEnd_toEndOf="@id/view1"
+                app:layout_constraintStart_toStartOf="@id/view1"
+                app:layout_constraintTop_toBottomOf="@id/view6" />
+
+            <TextView
+                android:id="@+id/tv_weekday_7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/custom_label_textinputlayout"
+                android:paddingHorizontal="6dp"
+                android:text="@string/weekday_saturday"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/grey"
+                android:visibility="visible"
+                app:layout_constraintStart_toStartOf="@id/view7"
+                app:layout_constraintTop_toBottomOf="@id/view6" />
+
+            <CheckBox
+                android:id="@+id/checkbox_saturday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/black"
+                app:layout_constraintBottom_toBottomOf="@id/view7"
+                app:layout_constraintStart_toStartOf="@id/view7"
+                app:layout_constraintTop_toBottomOf="@id/tv_weekday_7" />
+
+            <TextView
+                android:id="@+id/atl_shop_timing_open_time_saturday"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="8dp"
+                android:singleLine="true"
+                android:text="10.00"
+                android:textAlignment="center"
+                android:textAppearance="?android:textAppearanceLarge"
+                android:textColor="@color/black"
+                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
+                app:drawableTint="@color/gray"
+                app:layout_constraintBottom_toBottomOf="@id/checkbox_saturday"
+                app:layout_constraintEnd_toStartOf="@id/tv7"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                app:layout_constraintStart_toEndOf="@id/checkbox_saturday"
+                app:layout_constraintTop_toTopOf="@id/checkbox_saturday" />
+
+            <TextView
+                android:id="@+id/tv7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:text="to"
+                android:textAlignment="center"
+                android:textAppearance="?android:textAppearanceMedium"
+                android:textColor="@color/black"
+                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_saturday"
+                app:layout_constraintEnd_toStartOf="@id/atl_shop_timing_close_time_saturday"
+                app:layout_constraintStart_toEndOf="@id/atl_shop_timing_open_time_saturday"
+                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_saturday" />
+
+            <TextView
+                android:id="@+id/atl_shop_timing_close_time_saturday"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="8dp"
+                android:singleLine="true"
+                android:text="19.00"
+                android:textAlignment="center"
+                android:textAppearance="?android:textAppearanceLarge"
+                android:textColor="@color/black"
+                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
+                app:drawableTint="@color/gray"
+                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_saturday"
+                app:layout_constraintEnd_toEndOf="@id/view7"
+                app:layout_constraintStart_toEndOf="@id/tv7"
+                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_saturday" />
+
+            <Button
+                android:id="@+id/btn_shop_time_charge_timing"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="16dp"
+                android:background="@drawable/button_background"
+                android:elevation="16dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="@string/save_change"
                 android:textAllCaps="true"
-                app:layout_constraintEnd_toEndOf="parent"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/view1"
+                app:layout_constraintStart_toStartOf="@id/view1"
+                app:layout_constraintTop_toBottomOf="@id/view7" />
+
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/group_others"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:constraint_referenced_ids="v15, v16, v17, v18, tv31, textView24, til_standard_delivery, til_express_delivery, til_month_reminder, btn_racket_state_save" />
+
+            <View
+                android:id="@+id/v16"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="4dp"
+                android:background="@color/gray"
+                app:layout_constraintBottom_toBottomOf="@id/textView24"
+                app:layout_constraintEnd_toStartOf="@+id/guideline18"
+                app:layout_constraintStart_toEndOf="@id/textView24"
+                app:layout_constraintTop_toTopOf="@id/textView24" />
+
+            <TextView
+                android:id="@+id/textView24"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:gravity="center"
+                android:text="@string/skip_day_title"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/black"
+                android:textStyle="italic"
+                app:layout_constraintEnd_toStartOf="@+id/guideline18"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <ProgressBar
-                android:id="@+id/pb_racket_detail_loader"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_gravity="center"
-                android:layout_margin="8dp"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@id/searchViewRacketDetails"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toEndOf="@id/searchViewRacketDetails"
-                app:layout_constraintTop_toTopOf="@id/searchViewRacketDetails" />
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardViewSearchResultLayout"
+            <View
+                android:id="@+id/v15"
                 android:layout_width="0dp"
-                android:layout_height="300dp"
+                android:layout_height="1dp"
                 android:layout_marginStart="4dp"
-                android:layout_marginEnd="4dp"
-                android:background="@drawable/recyclerview_gray_square_border"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="@id/searchViewRacketDetails"
-                app:layout_constraintStart_toStartOf="@id/searchViewRacketDetails"
-                app:layout_constraintTop_toBottomOf="@id/searchViewRacketDetails">
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerViewRacketSearchResult"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:clipToPadding="false"
-                    android:visibility="gone" />
-
-            </androidx.cardview.widget.CardView>
-
-            <TextView
-                android:id="@+id/text_racket_screen_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="16dp"
-                android:singleLine="true"
-                android:text="@string/what_is_your_racket_model"
-                android:textAllCaps="true"
-                android:textColor="@color/black"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:visibility="gone"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/searchViewRacketDetails" />
+                android:layout_marginEnd="8dp"
+                android:background="@color/gray"
+                app:layout_constraintBottom_toBottomOf="@id/textView24"
+                app:layout_constraintEnd_toStartOf="@id/textView24"
+                app:layout_constraintStart_toStartOf="@id/til_standard_delivery"
+                app:layout_constraintTop_toTopOf="@id/textView24" />
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_customer_racket_mark"
+                android:id="@+id/til_standard_delivery"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="12dp"
+                android:layout_marginTop="16dp"
+                app:boxStrokeColor="@color/grey"
+                app:endIconTint="@color/grey"
+                app:hintTextAppearance="?android:textAppearanceSmall"
+                app:hintTextColor="@color/grey"
+                app:layout_constraintEnd_toStartOf="@+id/guideline18"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textView24"
+                app:prefixText="@string/standard_d">
+
+                <AutoCompleteTextView
+                    android:id="@+id/atl_standard_delivery"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/standard_display"
+                    android:inputType="none"
+                    android:paddingEnd="24dp"
+                    android:singleLine="true"
+                    android:textAlignment="textEnd"
+                    android:textAppearance="?android:textAppearanceMedium"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/gray"
+                    tools:text="1" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_express_delivery"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -118,829 +972,257 @@
                 app:endIconTint="@color/grey"
                 app:hintTextAppearance="?android:textAppearanceSmall"
                 app:hintTextColor="@color/grey"
-                app:layout_constraintEnd_toEndOf="@id/guideline19"
-                app:layout_constraintStart_toStartOf="@id/guideline18"
-                app:layout_constraintTop_toBottomOf="@id/searchViewRacketDetails">
+                app:layout_constraintEnd_toEndOf="@+id/til_standard_delivery"
+                app:layout_constraintStart_toStartOf="@+id/til_standard_delivery"
+                app:layout_constraintTop_toBottomOf="@id/til_standard_delivery"
+                app:prefixText="@string/standard_d">
 
                 <AutoCompleteTextView
-                    android:id="@+id/atl_customer_racket_mark"
+                    android:id="@+id/atl_express_delivery"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/mark"
+                    android:hint="@string/express"
                     android:inputType="none"
+                    android:paddingEnd="24dp"
+                    android:singleLine="true"
+                    android:textAlignment="textEnd"
+                    android:textAppearance="?android:textAppearanceMedium"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/gray"
+                    tools:text="0" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <View
+                android:id="@+id/v17"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="@color/gray"
+                app:layout_constraintBottom_toBottomOf="@id/tv31"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/tv31"
+                app:layout_constraintTop_toTopOf="@id/tv31" />
+
+            <TextView
+                android:id="@+id/tv31"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/racket_state_change_title"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/black"
+                android:textStyle="italic"
+                android:visibility="visible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/guideline18"
+                app:layout_constraintTop_toTopOf="@+id/textView24" />
+
+            <View
+                android:id="@+id/v18"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="@color/gray"
+                app:layout_constraintBottom_toBottomOf="@id/tv31"
+                app:layout_constraintEnd_toStartOf="@id/tv31"
+                app:layout_constraintStart_toEndOf="@+id/v16"
+                app:layout_constraintTop_toTopOf="@id/tv31" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_month_reminder"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                app:boxStrokeColor="@color/gray"
+                app:boxStrokeWidthFocused="1dp"
+                app:endIconTint="@color/grey"
+                app:hintTextAppearance="?android:textAppearanceSmall"
+                app:hintTextColor="@color/grey"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/guideline18"
+                app:layout_constraintTop_toBottomOf="@id/tv31">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/atl_months_reminder"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:digits="0123456789"
+                    android:hint="@string/titleMonth"
+                    android:imeOptions="actionDone"
+                    android:inputType="number|phone"
+                    android:maxLength="2"
+                    android:paddingEnd="52dp"
+                    android:singleLine="true"
+                    android:textAlignment="textEnd"
+                    android:textAppearance="?android:textAppearanceMedium"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/gray"
+                    tools:text="0" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Button
+                android:id="@+id/btn_racket_state_save"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/button_background"
+                android:paddingHorizontal="18dp"
+                android:text="@string/save_changes"
+                android:textAppearance="?android:textAppearanceMedium"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="@id/til_month_reminder"
+                app:layout_constraintTop_toBottomOf="@id/til_month_reminder" />
+
+            <TextView
+                android:id="@+id/tv_shop_timing_add_holiday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="8dp"
+                android:background="?attr/selectableItemBackground"
+                android:drawablePadding="6dp"
+                android:elevation="16dp"
+                android:padding="8dp"
+                android:text="@string/add_holiday"
+                android:textAppearance="?android:textAppearanceMedium"
+                android:textColor="@color/black"
+                android:visibility="gone"
+                app:drawableStartCompat="@drawable/ic_add_holiday"
+                app:drawableTint="@color/black"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.constraintlayout.widget.Group
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:constraint_referenced_ids="til_holiday_date, til_holiday_title, iv_holiday_ok" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_holiday_title"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="24dp"
+                app:boxStrokeColor="@color/gray"
+                app:endIconMode="none"
+                app:hintTextAppearance="?android:textAppearanceSmall"
+                app:hintTextColor="@color/gray"
+                app:layout_constraintEnd_toStartOf="@id/til_holiday_date"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <AutoCompleteTextView
+                    android:id="@+id/atl_holiday_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/holidays_title"
+                    android:inputType="textCapWords"
                     android:singleLine="true"
                     android:textAppearance="?android:textAppearanceMedium"
                     android:textColor="@color/black"
                     android:textColorHint="@color/gray" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!--            <androidx.constraintlayout.widget.ConstraintLayout-->
-            <!--                android:id="@+id/layout_1"-->
-            <!--                android:layout_width="0dp"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:layout_marginTop="6dp"-->
-            <!--                android:clipToPadding="false"-->
-            <!--                android:orientation="vertical"-->
-            <!--                android:paddingLeft="8dp"-->
-            <!--                android:paddingRight="8dp"-->
-            <!--                app:layout_constraintBottom_toBottomOf="parent"-->
-            <!--                app:layout_constraintEnd_toStartOf="@id/layout_2"-->
-            <!--                app:layout_constraintHorizontal_weight="0.6"-->
-            <!--                app:layout_constraintStart_toStartOf="parent"-->
-            <!--                app:layout_constraintTop_toBottomOf="@id/text_racket_screen_title"-->
-            <!--                app:layout_constraintVertical_bias="0.0">-->
-
-            <!--                <androidx.constraintlayout.widget.ConstraintLayout-->
-            <!--                    android:id="@+id/layout_mark"-->
-            <!--                    android:layout_width="0dp"-->
-            <!--                    android:layout_height="wrap_content"-->
-            <!--                    android:layout_marginEnd="4dp"-->
-            <!--                    android:background="@drawable/text_view_gray_square_border"-->
-            <!--                    android:orientation="vertical"-->
-            <!--                    android:padding="8dp"-->
-            <!--                    app:layout_constraintEnd_toStartOf="@id/layout_range"-->
-            <!--                    app:layout_constraintStart_toStartOf="parent"-->
-            <!--                    app:layout_constraintTop_toTopOf="parent">-->
-
-            <!--                    <TextView-->
-            <!--                        android:id="@+id/tv_mark"-->
-            <!--                        android:layout_width="0dp"-->
-            <!--                        android:layout_height="wrap_content"-->
-            <!--                        android:layout_marginStart="4dp"-->
-            <!--                        android:layout_marginEnd="8dp"-->
-            <!--                        android:hint="@string/mark"-->
-            <!--                        android:singleLine="true"-->
-            <!--                        android:textAllCaps="true"-->
-            <!--                        android:textAppearance="?android:attr/textAppearanceMedium"-->
-            <!--                        android:textColor="@color/black"-->
-            <!--                        android:textColorHint="@color/black"-->
-            <!--                        app:layout_constraintEnd_toStartOf="@id/arrow_mark"-->
-            <!--                        app:layout_constraintStart_toStartOf="parent"-->
-            <!--                        app:layout_constraintTop_toTopOf="parent" />-->
-
-            <!--                    <ImageView-->
-            <!--                        android:id="@+id/arrow_mark"-->
-            <!--                        android:layout_width="wrap_content"-->
-            <!--                        android:layout_height="wrap_content"-->
-            <!--                        android:src="@drawable/ic_arrow_down"-->
-            <!--                        app:layout_constraintBottom_toBottomOf="@id/tv_mark"-->
-            <!--                        app:layout_constraintEnd_toEndOf="parent"-->
-            <!--                        app:layout_constraintStart_toEndOf="@id/tv_mark"-->
-            <!--                        app:layout_constraintTop_toTopOf="@id/tv_mark" />-->
-
-            <!--                </androidx.constraintlayout.widget.ConstraintLayout>-->
-
-            <!--                <androidx.cardview.widget.CardView-->
-            <!--                    android:id="@+id/cardViewMark"-->
-            <!--                    android:layout_width="0dp"-->
-            <!--                    android:layout_height="wrap_content"-->
-            <!--                    android:layout_marginStart="2dp"-->
-            <!--                    android:layout_marginEnd="2dp"-->
-            <!--                    android:background="@drawable/recyclerview_gray_square_border"-->
-            <!--                    android:visibility="gone"-->
-            <!--                    app:layout_constraintEnd_toEndOf="@id/layout_mark"-->
-            <!--                    app:layout_constraintStart_toStartOf="@id/layout_mark"-->
-            <!--                    app:layout_constraintTop_toBottomOf="@id/layout_mark">-->
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerViewMark"
-                android:layout_width="0dp"
-                android:layout_height="150dp"
-                android:background="@drawable/text_view_gray_square_border"
-                android:clipToPadding="false"
-                android:padding="8dp"
-                android:scrollbars="vertical"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="@id/til_customer_racket_mark"
-                app:layout_constraintStart_toStartOf="@id/til_customer_racket_mark"
-                app:layout_constraintTop_toBottomOf="@id/til_customer_racket_mark" />
-
-            <!--                </androidx.cardview.widget.CardView>-->
-
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_customer_racket_model"
+                android:id="@+id/til_holiday_date"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                app:boxStrokeColor="@color/grey"
-                app:endIconTint="@color/grey"
+                android:layout_marginEnd="16dp"
+                app:boxStrokeColor="@color/gray"
                 app:hintTextAppearance="?android:textAppearanceSmall"
-                app:hintTextColor="@color/grey"
-                app:layout_constraintEnd_toEndOf="@id/til_customer_racket_range"
-                app:layout_constraintStart_toStartOf="@id/til_customer_racket_range"
-                app:layout_constraintTop_toBottomOf="@id/recyclerViewRange">
+                app:hintTextColor="@color/gray"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/til_holiday_title"
+                app:layout_constraintTop_toTopOf="@id/til_holiday_title">
 
                 <AutoCompleteTextView
-                    android:id="@+id/atl_customer_racket_model"
+                    android:id="@+id/atl_holiday_date"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/model"
-                    android:inputType="none"
+                    android:hint="@string/holiday_date"
+                    android:inputType="textCapWords"
                     android:singleLine="true"
                     android:textAppearance="?android:textAppearanceMedium"
                     android:textColor="@color/black"
-                    android:textColorHint="@color/grey" />
+                    android:textColorHint="@color/gray" />
             </com.google.android.material.textfield.TextInputLayout>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerViewModel"
-                android:layout_width="0dp"
-                android:layout_height="150dp"
-                android:background="@drawable/text_view_gray_square_border"
-                android:clipToPadding="false"
-                android:padding="8dp"
-                android:scrollbars="vertical"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="@id/til_customer_racket_model"
-                app:layout_constraintStart_toStartOf="@id/til_customer_racket_model"
-                app:layout_constraintTop_toBottomOf="@id/til_customer_racket_model" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_customer_racket_version"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                app:boxStrokeColor="@color/grey"
-                app:endIconTint="@color/grey"
-                app:hintTextAppearance="?android:textAppearanceSmall"
-                app:hintTextColor="@color/grey"
-                app:layout_constraintEnd_toEndOf="@id/til_customer_racket_mark"
-                app:layout_constraintStart_toStartOf="@id/til_customer_racket_mark"
-                app:layout_constraintTop_toBottomOf="@id/recyclerViewModel">
-
-                <AutoCompleteTextView
-                    android:id="@+id/atl_customer_racket_version"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/version"
-                    android:inputType="none"
-                    android:singleLine="true"
-                    android:textAppearance="?android:textAppearanceMedium"
-                    android:textColor="@color/black"
-                    android:textColorHint="@android:color/transparent" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerViewVersion"
-                android:layout_width="0dp"
-                android:layout_height="150dp"
-                android:background="@drawable/text_view_gray_square_border"
-                android:clipToPadding="false"
-                android:padding="8dp"
-                android:scrollbars="vertical"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="@id/til_customer_racket_version"
-                app:layout_constraintStart_toStartOf="@id/til_customer_racket_version"
-                app:layout_constraintTop_toBottomOf="@id/til_customer_racket_version" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_customer_racket_weight"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                app:boxStrokeColor="@color/grey"
-                app:endIconTint="@color/grey"
-                app:hintTextAppearance="?android:textAppearanceSmall"
-                app:hintTextColor="@color/grey"
-                app:layout_constraintEnd_toEndOf="@id/til_customer_racket_mark"
-                app:layout_constraintStart_toStartOf="@id/til_customer_racket_mark"
-                app:layout_constraintTop_toBottomOf="@id/recyclerViewVersion">
-
-                <AutoCompleteTextView
-                    android:id="@+id/atl_customer_racket_weight"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/weight"
-                    android:inputType="none"
-                    android:singleLine="true"
-                    android:textAppearance="?android:textAppearanceMedium"
-                    android:textColor="@color/black" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerViewWeight"
-                android:layout_width="0dp"
-                android:layout_height="150dp"
-                android:background="@drawable/text_view_gray_square_border"
-                android:clipToPadding="false"
-                android:padding="8dp"
-                android:scrollbars="vertical"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="@id/til_customer_racket_weight"
-                app:layout_constraintStart_toStartOf="@id/til_customer_racket_weight"
-                app:layout_constraintTop_toBottomOf="@id/til_customer_racket_weight" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerViewYear"
-                android:layout_width="0dp"
-                android:layout_height="150dp"
-                android:background="@drawable/text_view_gray_square_border"
-                android:clipToPadding="false"
-                android:padding="8dp"
-                android:scrollbars="vertical"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="@id/til_customer_racket_year"
-                app:layout_constraintStart_toStartOf="@id/til_customer_racket_year"
-                app:layout_constraintTop_toBottomOf="@id/til_customer_racket_year" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_customer_racket_range"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                app:boxStrokeColor="@color/grey"
-                app:endIconTint="@color/grey"
-                app:hintTextAppearance="?android:textAppearanceSmall"
-                app:hintTextColor="@color/grey"
-                app:layout_constraintEnd_toEndOf="@id/til_customer_racket_mark"
-                app:layout_constraintStart_toStartOf="@id/til_customer_racket_mark"
-                app:layout_constraintTop_toBottomOf="@id/recyclerViewMark">
-
-                <AutoCompleteTextView
-                    android:id="@+id/atl_customer_racket_range"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/range"
-                    android:inputType="none"
-                    android:singleLine="true"
-                    android:textAppearance="?android:textAppearanceMedium"
-                    android:textColor="@color/black"
-                    android:textColorHint="@color/grey" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerViewRange"
-                android:layout_width="0dp"
-                android:layout_height="150dp"
-                android:background="@drawable/text_view_gray_square_border"
-                android:clipToPadding="false"
-                android:padding="8dp"
-                android:scrollbars="vertical"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="@id/til_customer_racket_range"
-                app:layout_constraintStart_toStartOf="@id/til_customer_racket_range"
-                app:layout_constraintTop_toBottomOf="@id/til_customer_racket_range" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_customer_racket_sleeve_size"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:visibility="visible"
-                app:boxStrokeColor="@color/grey"
-                app:endIconTint="@color/grey"
-                app:hintTextAppearance="?android:textAppearanceSmall"
-                app:hintTextColor="@color/grey"
-                app:layout_constraintEnd_toEndOf="@id/til_customer_racket_mark"
-                app:layout_constraintStart_toStartOf="@id/til_customer_racket_mark"
-                app:layout_constraintTop_toBottomOf="@id/recyclerViewWeight">
-
-                <AutoCompleteTextView
-                    android:id="@+id/atl_customer_racket_sleeve_size"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/sleeve_size"
-                    android:inputType="none"
-                    android:singleLine="true"
-                    android:textAppearance="?android:textAppearanceMedium"
-                    android:textColor="@color/black"
-                    android:textColorHint="@color/grey" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerViewSleeveSize"
-                android:layout_width="0dp"
-                android:layout_height="150dp"
-                android:background="@drawable/text_view_gray_square_border"
-                android:clipToPadding="false"
-                android:padding="8dp"
-                android:scrollbars="vertical"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="@id/til_customer_racket_sleeve_size"
-                app:layout_constraintStart_toStartOf="@id/til_customer_racket_sleeve_size"
-                app:layout_constraintTop_toBottomOf="@id/til_customer_racket_sleeve_size" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerViewState"
-                android:layout_width="0dp"
-                android:layout_height="150dp"
-                android:background="@drawable/text_view_gray_square_border"
-                android:clipToPadding="false"
-                android:padding="8dp"
-                android:scrollbars="vertical"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="@id/til_customer_racket_state"
-                app:layout_constraintStart_toStartOf="@id/til_customer_racket_state"
-                app:layout_constraintTop_toBottomOf="@id/til_customer_racket_state" />
-
-            <View
-                android:id="@+id/camera_view"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/search_view_background"
-                android:padding="16dp"
-                app:layout_constraintDimensionRatio="2:1"
-                app:layout_constraintEnd_toEndOf="@id/til_customer_racket_mark"
-                app:layout_constraintStart_toStartOf="@id/til_customer_racket_mark"
-                app:layout_constraintTop_toBottomOf="@id/recyclerViewSleeveSize" />
-
-            <androidx.viewpager.widget.ViewPager
-                android:id="@+id/image_pager"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="20dp"
-                app:layout_constraintBottom_toBottomOf="@id/camera_view"
-                app:layout_constraintDimensionRatio="3:2"
-                app:layout_constraintEnd_toEndOf="@id/camera_view"
-                app:layout_constraintStart_toStartOf="@id/camera_view"
-                app:layout_constraintTop_toTopOf="@id/camera_view" />
-
-            <com.viewpagerindicator.CirclePageIndicator
-                android:id="@+id/image_indicator"
-                android:layout_width="80dp"
-                android:layout_height="wrap_content"
-                app:fillColor="@color/text_view_border_yellow"
-                app:layout_constraintBottom_toBottomOf="@id/camera_view"
-                app:layout_constraintEnd_toEndOf="@id/image_pager"
-                app:layout_constraintStart_toStartOf="@id/image_pager"
-                app:layout_constraintTop_toBottomOf="@id/image_pager"
-                app:pageColor="@color/text_view_border_gray"
-                app:snap="false" />
 
             <TextView
-                android:id="@+id/additional_details"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/textview_filled_background"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="4dp"
-                android:text="@string/additional_details"
-                android:textAppearance="?android:textAppearanceMedium"
-                android:textColor="@color/white"
-                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
-                app:drawableTint="@color/white"
-                app:layout_constraintEnd_toEndOf="@id/camera_view"
-                app:layout_constraintStart_toStartOf="@id/camera_view"
-                app:layout_constraintTop_toBottomOf="@id/camera_view" />
-
-            <View
-                android:id="@+id/addition_view"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:background="@drawable/search_view_background"
-                app:layout_constraintDimensionRatio="2:1.18"
-                app:layout_constraintEnd_toEndOf="@id/additional_details"
-                app:layout_constraintStart_toStartOf="@id/additional_details"
-                app:layout_constraintTop_toBottomOf="@id/additional_details" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_customer_racket_state"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="8dp"
-                android:layout_marginTop="4dp"
-                android:visibility="visible"
-                app:boxStrokeColor="@color/grey"
-                app:endIconTint="@color/grey"
-                app:hintTextAppearance="?android:textAppearanceSmall"
-                app:hintTextColor="@color/grey"
-                app:layout_constraintEnd_toEndOf="@id/til_customer_racket_sleeve_size"
-                app:layout_constraintStart_toStartOf="@id/til_customer_racket_sleeve_size"
-                app:layout_constraintTop_toTopOf="@id/addition_view">
-
-                <AutoCompleteTextView
-                    android:id="@+id/atl_customer_racket_state"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/state"
-                    android:inputType="none"
-                    android:singleLine="true"
-                    android:textAppearance="?android:textAppearanceMedium"
-                    android:textColor="@color/black"
-                    android:textColorHint="@color/grey" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_customer_racket_year"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:visibility="visible"
-                app:boxStrokeColor="@color/grey"
-                app:endIconTint="@color/grey"
-                app:hintTextAppearance="?android:textAppearanceMedium"
-                app:hintTextColor="@color/grey"
-                app:layout_constraintEnd_toEndOf="@id/til_customer_racket_state"
-                app:layout_constraintStart_toStartOf="@id/til_customer_racket_state"
-                app:layout_constraintTop_toBottomOf="@id/recyclerViewState">
-
-                <AutoCompleteTextView
-                    android:id="@+id/atl_customer_racket_year"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/year"
-                    android:inputType="none"
-                    android:singleLine="true"
-                    android:textAppearance="?android:textAppearanceLarge"
-                    android:textColor="@color/black"
-                    app:hintTextColor="@android:color/transparent" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <View
-                android:id="@+id/purchased_view"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/search_view_background"
-                android:paddingBottom="8dp"
-                android:layout_marginBottom="8dp"
-                android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="@id/addition_view"
-                app:layout_constraintEnd_toEndOf="@id/til_customer_racket_year"
-                app:layout_constraintStart_toStartOf="@id/til_customer_racket_year"
-                app:layout_constraintTop_toBottomOf="@id/recyclerViewYear" />
-
-            <TextView
-                android:id="@+id/tv_store_bought"
+                android:id="@+id/iv_holiday_ok"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="6dp"
-                android:background="@drawable/custom_label_textinputlayout"
-                android:paddingHorizontal="6dp"
-                android:text="@string/store_bought"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/grey"
-                android:visibility="visible"
-                app:layout_constraintStart_toStartOf="@id/purchased_view"
-                app:layout_constraintTop_toBottomOf="@id/recyclerViewYear" />
-
-            <RadioGroup
-                android:id="@+id/radio_group"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:checkedButton="@id/radio_do_not_know"
-                android:orientation="horizontal"
-                android:paddingBottom="8dp"
-                android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="@id/purchased_view"
-                app:layout_constraintEnd_toEndOf="@id/purchased_view"
-                app:layout_constraintStart_toStartOf="@id/purchased_view"
-                app:layout_constraintTop_toBottomOf="@id/tv_store_bought">
-
-                <RadioButton
-                    android:id="@+id/radio_yes"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:buttonTint="@color/text_view_border_yellow"
-                    android:text="@string/yes"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="@color/black" />
-
-                <RadioButton
-                    android:id="@+id/radio_no"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="8dp"
-                    android:buttonTint="@color/text_view_border_yellow"
-                    android:text="@string/no"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="@color/black" />
-
-                <RadioButton
-                    android:id="@+id/radio_do_not_know"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="8dp"
-                    android:buttonTint="@color/text_view_border_yellow"
-                    android:text="@string/don_t_know"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="@color/black" />
-            </RadioGroup>
-
-            <TextView
-                android:id="@+id/customer_registered_racket_tv"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/textview_filled_background"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="4dp"
-                android:text="@string/racket_list_from_database"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/button_background"
+                android:drawablePadding="12dp"
+                android:paddingVertical="12dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="24dp"
+                android:text="@string/save_changes"
+                android:textAlignment="center"
                 android:textAppearance="?android:textAppearanceMedium"
-                android:textColor="@color/white"
-                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
-                app:drawableTint="@color/white"
-                app:layout_constraintEnd_toEndOf="@id/camera_view"
-                app:layout_constraintStart_toStartOf="@id/camera_view"
-                app:layout_constraintTop_toBottomOf="@id/addition_view" />
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:visibility="visible"
+                app:drawableStartCompat="@drawable/ic_add_holiday"
+                app:drawableTint="@color/black"
+                app:layout_constraintEnd_toEndOf="@id/til_holiday_date"
+                app:layout_constraintTop_toBottomOf="@id/til_holiday_date" />
 
-            <!--            <TextView-->
-            <!--                android:id="@+id/tv_db_racket_list"-->
-            <!--                android:layout_width="0dp"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:layout_marginTop="4dp"-->
-            <!--                android:text="@string/racket_list_from_database"-->
-            <!--                android:textAppearance="?android:attr/textAppearanceSmall"-->
-            <!--                android:textColor="@color/green"-->
-            <!--                android:textStyle="bold"-->
-            <!--                android:visibility="gone"-->
-            <!--                app:layout_constraintEnd_toEndOf="@id/additional_details"-->
-            <!--                app:layout_constraintStart_toStartOf="@id/additional_details"-->
-            <!--                app:layout_constraintTop_toBottomOf="@id/additional_details" />-->
-
-            <View
-                android:id="@+id/racket_view"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/ev_holiday_list"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:background="@drawable/search_view_background"
+                android:layout_marginVertical="8dp"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintDimensionRatio="2:1"
-                app:layout_constraintEnd_toEndOf="@id/customer_registered_racket_tv"
-                app:layout_constraintStart_toStartOf="@id/customer_registered_racket_tv"
-                app:layout_constraintTop_toBottomOf="@id/customer_registered_racket_tv" />
+                app:layout_constraintEnd_toEndOf="@id/til_holiday_date"
+                app:layout_constraintStart_toStartOf="@id/til_holiday_title"
+                app:layout_constraintTop_toBottomOf="@id/iv_holiday_ok" />
 
-            <androidx.viewpager.widget.ViewPager
-                android:id="@+id/db_racket_pager"
-                android:layout_width="0dp"
-                android:layout_height="170dp"
-                android:visibility="invisible"
-                app:layout_constraintEnd_toEndOf="@id/racket_view"
-                app:layout_constraintStart_toStartOf="@id/racket_view"
-                app:layout_constraintTop_toTopOf="@id/racket_view" />
+            <TextView
+                android:id="@+id/tv_no_holiday"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_margin="8dp"
+                android:gravity="center"
+                android:text="@string/holiday_not_found"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/black"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/til_holiday_date"
+                app:layout_constraintStart_toStartOf="@id/til_holiday_title"
+                app:layout_constraintTop_toBottomOf="@id/iv_holiday_ok" />
 
-            <com.viewpagerindicator.CirclePageIndicator
-                android:id="@+id/db_image_indicator"
-                android:layout_width="80dp"
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline16"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:visibility="invisible"
-                app:fillColor="@color/red"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="@id/db_racket_pager"
-                app:layout_constraintStart_toStartOf="@id/db_racket_pager"
-                app:layout_constraintTop_toBottomOf="@id/db_racket_pager"
-                app:pageColor="#CACACA"
-                app:radius="10dp"
-                app:snap="false"
-                app:strokeColor="#FF000000"
-                app:strokeWidth="1dp" />
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.2" />
 
-            <!--            <ImageView-->
-            <!--                android:id="@+id/btn_camera_1"-->
-            <!--                android:layout_width="wrap_content"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:background="@drawable/text_view_no_border"-->
-            <!--                android:src="@drawable/ic_open_camera"-->
-            <!--                app:layout_constraintEnd_toEndOf="@id/image_pager"-->
-            <!--                app:layout_constraintTop_toBottomOf="@id/image_pager" />-->
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline17"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.7" />
 
-            <!--            <ImageView-->
-            <!--                android:id="@+id/btn_camera_2"-->
-            <!--                android:layout_width="wrap_content"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:src="@drawable/ic_open_camera"-->
-            <!--                android:visibility="gone"-->
-            <!--                app:layout_constraintEnd_toEndOf="@id/image_pager"-->
-            <!--                app:layout_constraintTop_toBottomOf="@id/image_pager" />-->
-
-            <!--                <androidx.constraintlayout.widget.ConstraintLayout-->
-            <!--                    android:id="@+id/layout_range"-->
-            <!--                    android:layout_width="0dp"-->
-            <!--                    android:layout_height="wrap_content"-->
-            <!--                    android:layout_marginStart="4dp"-->
-            <!--                    android:background="@drawable/text_view_gray_square_border"-->
-            <!--                    android:orientation="vertical"-->
-            <!--                    android:padding="8dp"-->
-            <!--                    app:layout_constraintEnd_toEndOf="parent"-->
-            <!--                    app:layout_constraintStart_toEndOf="@id/layout_mark"-->
-            <!--                    app:layout_constraintTop_toTopOf="parent">-->
-
-            <!--                    <TextView-->
-            <!--                        android:id="@+id/tv_range"-->
-            <!--                        android:layout_width="0dp"-->
-            <!--                        android:layout_height="wrap_content"-->
-            <!--                        android:layout_marginStart="4dp"-->
-            <!--                        android:layout_marginEnd="8dp"-->
-            <!--                        android:hint="@string/range"-->
-            <!--                        android:singleLine="true"-->
-            <!--                        android:textAllCaps="true"-->
-            <!--                        android:textAppearance="?android:attr/textAppearanceMedium"-->
-            <!--                        android:textColor="@color/black"-->
-            <!--                        android:textColorHint="@color/black"-->
-            <!--                        app:layout_constraintEnd_toStartOf="@id/arrow_range"-->
-            <!--                        app:layout_constraintStart_toStartOf="parent"-->
-            <!--                        app:layout_constraintTop_toTopOf="parent" />-->
-
-            <!--                    <ImageView-->
-            <!--                        android:id="@+id/arrow_range"-->
-            <!--                        android:layout_width="wrap_content"-->
-            <!--                        android:layout_height="wrap_content"-->
-            <!--                        android:src="@drawable/ic_arrow_down"-->
-            <!--                        app:layout_constraintBottom_toBottomOf="@id/tv_range"-->
-            <!--                        app:layout_constraintEnd_toEndOf="parent"-->
-            <!--                        app:layout_constraintStart_toEndOf="@id/tv_range"-->
-            <!--                        app:layout_constraintTop_toTopOf="@id/tv_range" />-->
-
-            <!--                </androidx.constraintlayout.widget.ConstraintLayout>-->
-
-            <!--                <androidx.cardview.widget.CardView-->
-            <!--                    android:id="@+id/cardViewRange"-->
-            <!--                    android:layout_width="0dp"-->
-            <!--                    android:layout_height="wrap_content"-->
-            <!--                    android:layout_marginStart="2dp"-->
-            <!--                    android:layout_marginEnd="2dp"-->
-            <!--                    android:background="@drawable/recyclerview_gray_square_border"-->
-            <!--                    android:visibility="gone"-->
-            <!--                    app:layout_constraintEnd_toEndOf="@id/layout_range"-->
-            <!--                    app:layout_constraintStart_toStartOf="@id/layout_range"-->
-            <!--                    app:layout_constraintTop_toBottomOf="@id/layout_range">-->
-
-            <!--                    <androidx.recyclerview.widget.RecyclerView-->
-            <!--                        android:id="@+id/recyclerViewRange"-->
-            <!--                        android:layout_width="0dp"-->
-            <!--                        android:layout_height="150dp"-->
-            <!--                        android:background="@drawable/text_view_gray_square_border"-->
-            <!--                        android:clipToPadding="false"-->
-            <!--                        android:padding="8dp"-->
-            <!--                        android:scrollbars="vertical"-->
-            <!--                        android:visibility="visible" -->
-            <!--                        app:layout_constraintStart_toStartOf="@id/til_customer_racket_mark"-->
-            <!--                        app:layout_constraintEnd_toEndOf="@id/til_customer_racket_mark"-->
-            <!--                        />-->
-
-            <!--                </androidx.cardview.widget.CardView>-->
-
-            <!--                <androidx.constraintlayout.widget.ConstraintLayout-->
-            <!--                    android:id="@+id/layout_model"-->
-            <!--                    android:layout_width="0dp"-->
-            <!--                    android:layout_height="wrap_content"-->
-            <!--                    android:layout_marginTop="6dp"-->
-            <!--                    android:layout_marginEnd="4dp"-->
-            <!--                    android:background="@drawable/text_view_gray_square_border"-->
-            <!--                    android:orientation="vertical"-->
-            <!--                    android:padding="8dp"-->
-            <!--                    app:layout_constraintEnd_toStartOf="@id/layout_sleeve_size"-->
-            <!--                    app:layout_constraintStart_toStartOf="parent"-->
-            <!--                    app:layout_constraintTop_toBottomOf="@id/layout_mark">-->
-
-            <!--                    <TextView-->
-            <!--                        android:id="@+id/tv_model"-->
-            <!--                        android:layout_width="0dp"-->
-            <!--                        android:layout_height="wrap_content"-->
-            <!--                        android:layout_marginStart="4dp"-->
-            <!--                        android:layout_marginEnd="8dp"-->
-            <!--                        android:hint="@string/model"-->
-            <!--                        android:singleLine="true"-->
-            <!--                        android:textAllCaps="true"-->
-            <!--                        android:textAppearance="?android:attr/textAppearanceMedium"-->
-            <!--                        android:textColor="@color/black"-->
-            <!--                        android:textColorHint="@color/black"-->
-            <!--                        app:layout_constraintEnd_toStartOf="@id/arrow_model"-->
-            <!--                        app:layout_constraintStart_toStartOf="parent"-->
-            <!--                        app:layout_constraintTop_toTopOf="parent" />-->
-
-            <!--                    <ImageView-->
-            <!--                        android:id="@+id/arrow_model"-->
-            <!--                        android:layout_width="wrap_content"-->
-            <!--                        android:layout_height="wrap_content"-->
-            <!--                        android:src="@drawable/ic_arrow_down"-->
-            <!--                        app:layout_constraintBottom_toBottomOf="@id/tv_model"-->
-            <!--                        app:layout_constraintEnd_toEndOf="parent"-->
-            <!--                        app:layout_constraintStart_toEndOf="@id/tv_model"-->
-            <!--                        app:layout_constraintTop_toTopOf="@id/tv_model" />-->
-
-            <!--                </androidx.constraintlayout.widget.ConstraintLayout>-->
-
-            <!--                <androidx.cardview.widget.CardView-->
-            <!--                    android:id="@+id/cardViewModel"-->
-            <!--                    android:layout_width="0dp"-->
-            <!--                    android:layout_height="wrap_content"-->
-            <!--                    android:layout_marginStart="2dp"-->
-            <!--                    android:layout_marginEnd="2dp"-->
-            <!--                    android:background="@drawable/recyclerview_gray_square_border"-->
-            <!--                    android:visibility="gone"-->
-            <!--                    app:layout_constraintEnd_toEndOf="@id/layout_model"-->
-            <!--                    app:layout_constraintStart_toStartOf="@id/layout_model"-->
-            <!--                    app:layout_constraintTop_toBottomOf="@id/layout_model">-->
-
-            <!--                    <androidx.recyclerview.widget.RecyclerView-->
-            <!--                        android:id="@+id/recyclerViewModel"-->
-            <!--                        android:layout_width="match_parent"-->
-            <!--                        android:layout_height="150dp"-->
-            <!--                        android:background="@drawable/text_view_gray_square_border"-->
-            <!--                        android:clipToPadding="false"-->
-            <!--                        android:padding="8dp"-->
-            <!--                        android:scrollbars="vertical"-->
-            <!--                        android:visibility="visible" />-->
-
-            <!--                </androidx.cardview.widget.CardView>-->
-
-            <!--                <androidx.constraintlayout.widget.ConstraintLayout-->
-            <!--                    android:id="@+id/layout_sleeve_size"-->
-            <!--                    android:layout_width="0dp"-->
-            <!--                    android:layout_height="wrap_content"-->
-            <!--                    android:layout_marginStart="4dp"-->
-            <!--                    android:layout_marginTop="6dp"-->
-            <!--                    android:background="@drawable/text_view_gray_square_border"-->
-            <!--                    android:orientation="vertical"-->
-            <!--                    android:padding="8dp"-->
-            <!--                    app:layout_constraintEnd_toEndOf="parent"-->
-            <!--                    app:layout_constraintStart_toEndOf="@id/layout_model"-->
-            <!--                    app:layout_constraintTop_toBottomOf="@id/layout_range">-->
-
-            <!--                    <TextView-->
-            <!--                        android:id="@+id/tv_sleeve_size"-->
-            <!--                        android:layout_width="0dp"-->
-            <!--                        android:layout_height="wrap_content"-->
-            <!--                        android:layout_marginStart="4dp"-->
-            <!--                        android:layout_marginEnd="8dp"-->
-            <!--                        android:hint="@string/sleeve_size"-->
-            <!--                        android:singleLine="true"-->
-            <!--                        android:textAllCaps="true"-->
-            <!--                        android:textAppearance="?android:attr/textAppearanceMedium"-->
-            <!--                        android:textColor="@color/black"-->
-            <!--                        android:textColorHint="@color/black"-->
-            <!--                        app:layout_constraintEnd_toStartOf="@id/arrow_sleeve"-->
-            <!--                        app:layout_constraintStart_toStartOf="parent"-->
-            <!--                        app:layout_constraintTop_toTopOf="parent" />-->
-
-            <!--                    <ImageView-->
-            <!--                        android:id="@+id/arrow_sleeve"-->
-            <!--                        android:layout_width="wrap_content"-->
-            <!--                        android:layout_height="wrap_content"-->
-            <!--                        android:src="@drawable/ic_arrow_down"-->
-            <!--                        app:layout_constraintBottom_toBottomOf="@id/tv_sleeve_size"-->
-            <!--                        app:layout_constraintEnd_toEndOf="parent"-->
-            <!--                        app:layout_constraintStart_toEndOf="@id/tv_sleeve_size"-->
-            <!--                        app:layout_constraintTop_toTopOf="@id/tv_sleeve_size" />-->
-
-            <!--                </androidx.constraintlayout.widget.ConstraintLayout>-->
-
-            <!--                <androidx.cardview.widget.CardView-->
-            <!--                    android:id="@+id/cardViewSleeveSize"-->
-            <!--                    android:layout_width="0dp"-->
-            <!--                    android:layout_height="wrap_content"-->
-            <!--                    android:layout_marginStart="2dp"-->
-            <!--                    android:layout_marginEnd="2dp"-->
-            <!--                    android:background="@drawable/recyclerview_gray_square_border"-->
-            <!--                    android:visibility="gone"-->
-            <!--                    app:layout_constraintEnd_toEndOf="@id/layout_sleeve_size"-->
-            <!--                    app:layout_constraintStart_toStartOf="@id/layout_sleeve_size"-->
-            <!--                    app:layout_constraintTop_toBottomOf="@id/layout_sleeve_size">-->
-
-            <!--                    <androidx.recyclerview.widget.RecyclerView-->
-            <!--                        android:id="@+id/recyclerViewSleeveSize"-->
-            <!--                        android:layout_width="match_parent"-->
-            <!--                        android:layout_height="150dp"-->
-            <!--                        android:background="@drawable/text_view_gray_square_border"-->
-            <!--                        android:clipToPadding="false"-->
-            <!--                        android:padding="8dp"-->
-            <!--                        android:scrollbars="vertical"-->
-            <!--                        android:visibility="visible" />-->
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline18"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.5" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
-
-    <Button
-        android:id="@+id/btn_racket_info_clear_all"
-        android:layout_width="160dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/button_background"
-        android:elevation="16dp"
-        android:text="@string/clear_all_fields"
-        android:textAllCaps="true"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@color/black"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/btn_racket_info_next"
-        android:layout_width="160dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/button_background"
-        android:elevation="16dp"
-        android:text="@string/next"
-        android:textAllCaps="true"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@color/black"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
