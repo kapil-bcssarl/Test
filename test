@@ -1,82 +1,61 @@
 package com.borakay.tennisproadminapplicationnodesignchange.view.fragments
 
-import android.app.AlertDialog
-import android.app.DatePickerDialog
 import android.app.ProgressDialog
-import android.content.Context
-import android.content.DialogInterface
-import android.graphics.Typeface
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.view.View.*
-import android.widget.FrameLayout
-import android.widget.NumberPicker
-import android.widget.TextView
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.widget.Toast
-import androidx.core.content.ContextCompat
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.borakay.tennisproadminapplicationnodesignchange.ModelFactory.ShopTimingAndHolidayFragmentModelFactory
 import com.borakay.tennisproadminapplicationnodesignchange.R
-import com.borakay.tennisproadminapplicationnodesignchange.databinding.ShopTimingHolidayFragmentBinding
-import com.borakay.tennisproadminapplicationnodesignchange.model_pojoclass.*
-import com.borakay.tennisproadminapplicationnodesignchange.retrofit.ApiHelper
+import com.borakay.tennisproadminapplicationnodesignchange.databinding.QrcodeCustomerOrderDetailFragmentBinding
+import com.borakay.tennisproadminapplicationnodesignchange.model_pojoclass.ResendEmailData
+import com.borakay.tennisproadminapplicationnodesignchange.model_pojoclass.ResendEmailData_Output
+import com.borakay.tennisproadminapplicationnodesignchange.model_pojoclass.ShopTimingList_Pojo
 import com.borakay.tennisproadminapplicationnodesignchange.retrofit.RetrofitClient
 import com.borakay.tennisproadminapplicationnodesignchange.staticvaluesfolder.*
 import com.borakay.tennisproadminapplicationnodesignchange.view.MainActivity
-import com.borakay.tennisproadminapplicationnodesignchange.view.adapters.HolidayManagementAdapter
-import com.borakay.tennisproadminapplicationnodesignchange.viewmodel.fragments.ShopTimingAndHoliday_New_ViewModel
-import com.borakay.tennisproadminapplicationnodesignchange.viewmodel.fragments.ShopTimingHolidayViewModel
-import kotlinx.android.synthetic.main.shop_timing_holiday_fragment.*
+import com.borakay.tennisproadminapplicationnodesignchange.view.MainActivity.Companion.navController
+import com.borakay.tennisproadminapplicationnodesignchange.view.fragments.QRcodeScanOrderDetailFragment.Companion.orderDetail
+import com.borakay.tennisproadminapplicationnodesignchange.viewmodel.fragments.QRCodeCustomerOrderDetailViewModel
+import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.qrcode_customer_order_detail_fragment.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.text.DateFormatSymbols
+import java.text.DecimalFormat
+import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
+import kotlin.concurrent.schedule
 
-class ShopTimingHolidayFragment : Fragment() {
+class QRCodeCustomerOrderDetailFragment : Fragment() {
 
     companion object {
-        fun newInstance() = ShopTimingHolidayFragment()
-        lateinit var holidayAdapter: HolidayManagementAdapter
-        lateinit var viewModelShopTimingNHoliday: ShopTimingHolidayViewModel
-        var holidayListing = arrayListOf<HolidayList_Pojo>()
-        lateinit var skipDateListing: DaySkip_Pojo
-
-        lateinit var progressDialogShopTimingHoliday_1: ProgressDialog
-        lateinit var progressDialogShopTimingHoliday_2: ProgressDialog
+        fun newInstance() = QRCodeCustomerOrderDetailFragment()
     }
 
-    var shopTimingList = arrayListOf<ShopTimingList_Pojo>()
-    var timingList = arrayOf(
-        "06.00", "06.30", "07.00", "07.30", "08.00", "08.30", "09.00", "09.30", "10.00", "10.30",
-        "11.00", "11.30", "12.00", "12.30", "13.00", "13.30", "14.00", "14.30", "15.00",
-        "15.30", "16.00", "16.30", "17.00", "17.30", "18.00", "18.30", "19.00", "19.30",
-        "20.00", "20.30", "21.00", "21.30", "22.00", "22.30", "23.00", "23.30"
-    )
-    var StandardDayList = arrayOf("0", "1", "2", "3", "4", "5", "6", "7")
-    var ExpressDayList = arrayOf("0", "1", "2")
-
-    var holidayDate: String? = null
-    lateinit var racketStateChangeUpdateBody: RacketStateChangeUpdateBody
-
-    private lateinit var viewModelNew: ShopTimingAndHoliday_New_ViewModel
-    lateinit var binding: ShopTimingHolidayFragmentBinding
+    private lateinit var viewModel: QRCodeCustomerOrderDetailViewModel
+    private var shopTimingList = arrayListOf<ShopTimingList_Pojo>()
+    lateinit var progressDialog: ProgressDialog
+    lateinit var stateChangeDialog: RacketStateChange_Dialog_Fragment
+    lateinit var binding: QrcodeCustomerOrderDetailFragmentBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         return try {
-            binding = ShopTimingHolidayFragmentBinding.bind(
-                inflater.inflate(R.layout.shop_timing_holiday_fragment, container, false)
+            binding = QrcodeCustomerOrderDetailFragmentBinding.bind(
+                inflater.inflate(
+                    R.layout.qrcode_customer_order_detail_fragment,
+                    container,
+                    false
+                )
             )
+
             binding.root
         } catch (e: Exception) {
             Log.d("TAG", "onCreateView: $e")
@@ -84,492 +63,540 @@ class ShopTimingHolidayFragment : Fragment() {
         }
     }
 
-    private fun setupViewModel() {
-        try {
-            viewModelNew = ViewModelProviders.of(
-                requireActivity(),
-                ShopTimingAndHolidayFragmentModelFactory(ApiHelper(RetrofitClient.apiInterface))
-            ).get(ShopTimingAndHoliday_New_ViewModel::class.java)
-
-        } catch (e: Exception) {
-            Log.d("TAG", "onActivityCreated: $e")
-        }
-    }
-
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
         try {
-            setupViewModel()
+            viewModel = ViewModelProvider(this)[QRCodeCustomerOrderDetailViewModel::class.java]
 
-            viewModelShopTimingNHoliday =
-                ViewModelProvider(this)[ShopTimingHolidayViewModel::class.java]
+            stateChangeDialog = RacketStateChange_Dialog_Fragment()
+            stateChangeDialog.isCancelable = false
 
             MainActivity.activityMainBinding.tvMainActivityToolbarTitle.text =
-                getString(R.string.shop_time_title)
-            MainActivity.activityMainBinding.tbMainActivityToolbar.elevation = 0f
+                getString(R.string.order_detail_list)
 
-            progressDialogShopTimingHoliday_1 = ProgressDialog(requireContext())
-            progressDialogShopTimingHoliday_1.setMessage(getString(R.string.loading))
-            progressDialogShopTimingHoliday_1.setCancelable(false)
+            if (orderDetail?.OrderDetails?.OrderStatus == 7) {
+                binding.ivOrderDetailOrderComplete.visibility = View.GONE
+                binding.btnOrderDetailStringReminderEmail.visibility = View.GONE
+                binding.btnOrderDetailStringCompleteOrder.visibility = View.VISIBLE
+            } else {
+                binding.ivOrderDetailOrderComplete.visibility = View.VISIBLE
+                binding.btnOrderDetailStringCompleteOrder.visibility = View.GONE
 
-            progressDialogShopTimingHoliday_2 = ProgressDialog(requireContext())
-            progressDialogShopTimingHoliday_2.setMessage(getString(R.string.loading))
-            progressDialogShopTimingHoliday_2.setCancelable(false)
-
-            binding.ivHoliday.setOnClickListener {
-                binding.view1.background = ContextCompat.getDrawable(
-                    requireContext(),
-                    R.drawable.text_view_yellow_square_border_focused
-                )
-                binding.holidayTv?.typeface = Typeface.DEFAULT_BOLD
-
-                binding.view2.background = ContextCompat.getDrawable(
-                    requireContext(),
-                    R.drawable.text_view_yellow_square_border
-                )
-                binding.holidayTv?.typeface = Typeface.DEFAULT
-
-                binding.view3.background = ContextCompat.getDrawable(
-                    requireContext(),
-                    R.drawable.text_view_yellow_square_border
-                )
-                binding.holidayTv?.typeface = Typeface.DEFAULT
-
-                binding.viewHoliday.visibility = VISIBLE
-                binding.groupHolidays.visibility = VISIBLE
-                binding.tvShopTimingAddHoliday.visibility = GONE
-                binding.viewTiming.visibility = GONE
-                binding.viewConfig.visibility = GONE
-                binding.cvShopTimingCard?.visibility = GONE
-                binding.groupOthers.visibility = GONE
-                MainActivity.activityMainBinding.tvMainActivityToolbarTitle.text =
-                    getString(R.string.shop_time_title)
-                binding.evHolidayList.visibility = GONE
-                binding.tvNoHoliday.visibility = GONE
-            }
-
-            binding.ivTiming?.setOnClickListener {
-                binding.view1.background = ContextCompat.getDrawable(
-                    requireContext(),
-                    R.drawable.text_view_yellow_square_border
-                )
-                binding.holidayTv?.typeface = Typeface.DEFAULT
-
-                binding.view2.background = ContextCompat.getDrawable(
-                    requireContext(),
-                    R.drawable.text_view_yellow_square_border_focused
-                )
-                binding.holidayTv?.typeface = Typeface.DEFAULT_BOLD
-
-                binding.view3.background = ContextCompat.getDrawable(
-                    requireContext(),
-                    R.drawable.text_view_yellow_square_border
-                )
-                binding.holidayTv?.typeface = Typeface.DEFAULT
-
-                binding.viewTiming.visibility = VISIBLE
-                binding.tvShopTimingAddHoliday.visibility = VISIBLE
-                binding.tvShopTimingAddHoliday.setOnClickListener {
-                    binding.cvShopTimingCard?.visibility = VISIBLE
-                    binding.vShopTimingDimBackground?.visibility = VISIBLE
-                    binding.tvShopTimingAddHoliday.visibility = INVISIBLE
+                if (orderDetail?.OrderDetails?.OrderStatus == 8) {
+                    if (orderDetail?.CustomerDetails?.EmailAddress != null)
+                        binding.btnOrderDetailStringReminderEmail.visibility = View.VISIBLE
                 }
-
-                binding.closeCard?.setOnClickListener {
-                    binding.tilHolidayTitle.isErrorEnabled = false
-                    binding.tilHolidayDate.isErrorEnabled = false
-                    binding.atlHolidayTitle.text = null
-                    binding.atlHolidayDate.text = null
-                    hideSoftKeyboard(requireActivity())
-
-                    binding.vShopTimingDimBackground?.visibility = GONE
-                    binding.cvShopTimingCard?.visibility = GONE
-                    binding.tvShopTimingAddHoliday.visibility = VISIBLE
-                }
-
-                binding.viewHoliday.visibility = GONE
-                binding.viewConfig.visibility = GONE
-                binding.groupOthers.visibility = GONE
-                binding.groupHolidays.visibility = GONE
-                MainActivity.activityMainBinding.tvMainActivityToolbarTitle.text =
-                    getString(R.string.holiday_title_1)
-                callShopHolidayListing(
-                    getPreference(requireContext(), "shopTokenId"),
-                    getPreference(requireContext(), "shopId").toInt()
-                )
             }
 
-            binding.ivConfig.setOnClickListener {
-                binding.view1.background = ContextCompat.getDrawable(
-                    requireContext(),
-                    R.drawable.text_view_yellow_square_border
-                )
-                binding.holidayTv?.typeface = Typeface.DEFAULT
+            var deliveryDateTime1 =
+                if (orderDetail?.OrderDetails?.IsExpressDelivery == true) getString(
+                    R.string.express_delivery
+                ) else getString(R.string.delivery)
 
-                binding.view2.background = ContextCompat.getDrawable(
-                    requireContext(),
-                    R.drawable.text_view_yellow_square_border
-                )
-                binding.holidayTv?.typeface = Typeface.DEFAULT
-
-                binding.view3.background = ContextCompat.getDrawable(
-                    requireContext(),
-                    R.drawable.text_view_yellow_square_border_focused
-                )
-                binding.holidayTv?.typeface = Typeface.DEFAULT_BOLD
-
-                binding.viewConfig.visibility = VISIBLE
-                binding.groupOthers.visibility = VISIBLE
-                binding.viewHoliday.visibility = GONE
-                binding.tvShopTimingAddHoliday.visibility = GONE
-                binding.viewTiming.visibility = GONE
-                binding.groupHolidays.visibility = GONE
-                binding.cvShopTimingCard?.visibility = GONE
-                MainActivity.activityMainBinding.tvMainActivityToolbarTitle.text =
-                    getString(R.string.other)
-                binding.evHolidayList.visibility = GONE
-                binding.tvNoHoliday.visibility = GONE
-            }
-
-            binding.checkboxSunday.setOnCheckedChangeListener { buttonView, isChecked ->
-                if (isChecked) {
-                    binding.atlShopTimingOpenTimeSunday.text = "10.00"
-                    binding.atlShopTimingCloseTimeSunday.text = "19.00"
+            var deliveryDateTime: String =
+                if (orderDetail?.OrderDetails?.IsExpressDelivery == true) {
+                    SimpleDateFormat("EEEE").format(
+                        SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(
+                            orderDetail?.OrderDetails?.DeliveryDate
+                        )
+                    ).uppercase(Locale.getDefault()).plus(", ").plus(
+                        SimpleDateFormat("dd MMMM yyyy").format(
+                            SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(
+                                orderDetail?.OrderDetails?.DeliveryDate
+                            )
+                        )
+                    ).plus(" ").plus(getString(R.string.at)).plus(" ").plus(
+                        SimpleDateFormat("H").format(
+                            SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(
+                                orderDetail?.OrderDetails?.DeliveryDate
+                            )
+                        )
+                    ).plus("h")
                 } else {
-                    binding.atlShopTimingOpenTimeSunday.setText("00.00")
-                    binding.atlShopTimingCloseTimeSunday.setText("00.00")
+                    SimpleDateFormat("EEEE").format(
+                        SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(
+                            orderDetail?.OrderDetails?.DeliveryDate
+                        )
+                    ).uppercase(Locale.getDefault()).plus(", ").plus(
+                        SimpleDateFormat("dd MMMM yyyy").format(
+                            SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(
+                                orderDetail?.OrderDetails?.DeliveryDate
+                            )
+                        )
+                    ).plus(" ").plus(getString(R.string.after)).plus(" ")
+                        .plus(
+                            SimpleDateFormat("H").format(
+                                SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(
+                                    orderDetail?.OrderDetails?.DeliveryDate
+                                )
+                            )
+                        ).plus("h")
+                }
+            
+            binding.tvOrderDetailDeliveryDetail.text =
+                deliveryDateTime1.plus(": ").plus(deliveryDateTime)
+
+            if (orderDetail?.OrderDetails?.OrderStatus == 9) {
+                binding.ivOrderDetailOrderCompleteTag.visibility = VISIBLE
+                binding.ivOrderDetailOrderComplete.visibility = View.GONE
+            }
+
+            binding.tvOrderDetailQrCodeDetail.text =
+                requireContext().resources.getString(R.string.qr).plus(": ").plus(
+                    orderDetail?.QRCodeDetails?.DecryptQRCode
+                )
+
+            if (orderDetail?.CustomerDetails?.Initial != 3)
+                binding.tvOrderDetailCustomerName.text =
+                    (if (orderDetail?.CustomerDetails?.Initial == 1) requireContext().resources.getString(
+                        R.string.db_mr
+                    ) else requireContext().resources.getString(
+                        R.string.db_mrs
+                    )).plus(" ").plus(orderDetail?.CustomerDetails?.Fname ?: "").plus(" ")
+                        .plus(orderDetail?.CustomerDetails?.Lname)
+            else
+                binding.tvOrderDetailCustomerName.text =
+                    orderDetail?.CustomerDetails?.CompanyName.plus(" ")
+                        .plus(if (orderDetail?.CustomerDetails?.CompanyPersonName.isNullOrEmpty()) "" else " (" + orderDetail?.CustomerDetails?.CompanyPersonName + ")")
+
+            if (orderDetail?.CustomerDetails?.EmailAddress != null)
+                binding.tvOrderDetailCustomerEmail.text =
+                    requireContext().resources.getString(R.string.email).plus(": ").plus(orderDetail?.CustomerDetails?.EmailAddress)
+
+            if (orderDetail?.CustomerDetails?.PhoneNo != null && orderDetail?.CustomerDetails?.PhoneNo != "")
+                binding.tvOrderDetailCustomerPhone.text =
+                    requireContext().resources.getString(R.string.mobile_number).plus(" : ")
+                        .plus(orderDetail?.CustomerDetails?.PhoneNo)
+            else
+                binding.tvOrderDetailCustomerPhone.visibility = GONE
+
+            if (orderDetail?.RacketDetails?.RacketImage_1 == null || orderDetail?.RacketDetails?.RacketImage_1.isNullOrEmpty())
+                Picasso.get().load(noImage)
+                    .error(R.drawable.ic_add_image)
+                    .resize(110, 110).centerInside().into(binding.ivOrderDetailRacketImage)
+            else
+                Picasso.get().load(orderDetail?.RacketDetails?.RacketImage_1)
+                    .error(R.drawable.ic_add_image)
+                    .resize(110, 110).centerInside().into(binding.ivOrderDetailRacketImage)
+
+            binding.tvOrderDetailRacketMark.text = orderDetail?.RacketDetails?.Brand
+            binding.tvOrderDetailRacketTitle.text =
+                requireContext().resources.getString(R.string.racket_title) + " " + orderDetail?.RacketDetails?.Range + " " + orderDetail?.RacketDetails?.Modele + " " + (orderDetail?.RacketDetails?.Version
+                    ?: "") + if (orderDetail?.RacketDetails?.Weight == null) "" else " (" + orderDetail?.RacketDetails?.Weight + " GR)"
+
+            if (orderDetail?.RacketDetails?.SleeveSize.isNullOrEmpty()) binding.tvOrderDetailRacketSleeveSize.visibility =
+                GONE 
+            else
+                binding.tvOrderDetailRacketSleeveSize.text =
+                    requireContext().resources.getString(R.string.sleeve_size) + ": " + orderDetail?.RacketDetails?.SleeveSize
+
+            if (orderDetail?.RacketDetails?.PurchaseYear.isNullOrEmpty()) binding.tvOrderDetailRacketYear.visibility =
+                GONE 
+            else
+                binding.tvOrderDetailRacketYear.text =
+                    requireContext().resources.getString(R.string.year) + ": " + orderDetail?.RacketDetails?.PurchaseYear
+
+            when (orderDetail?.RacketDetails?.IsShopPurchased) {
+                4 -> binding.tvOrderDetailStoreBought.text =
+                    requireContext().resources.getString(R.string.store_bought) + ": " + requireContext().resources.getString(
+                        R.string.yes
+                    )
+                5 -> binding.tvOrderDetailStoreBought.text =
+                    requireContext().resources.getString(R.string.store_bought) + ": " + requireContext().resources.getString(
+                        R.string.no
+                    )
+                6 -> binding.tvOrderDetailStoreBought.text =
+                    requireContext().resources.getString(R.string.store_bought) + ": " + requireContext().resources.getString(
+                        R.string.don_t_know
+                    )
+                else -> binding.tvOrderDetailStoreBought.visibility = View.GONE
+            }
+
+            if (orderDetail?.RacketDetails?.NewStatus.isNullOrEmpty()) {
+                if (orderDetail?.RacketDetails?.Status.isNullOrEmpty()) {
+                    binding.tvOrderDetailState.text =
+                        requireContext().resources.getString(R.string.state) + ": "
+                    binding.tvOrderDetailStateNotFound.visibility = VISIBLE
+                } else
+                    binding.tvOrderDetailState.text =
+                        requireContext().resources.getString(R.string.state) + ": " + orderDetail?.RacketDetails?.Status
+            } else
+                binding.tvOrderDetailState.text =
+                    requireContext().resources.getString(R.string.state) + ": " + orderDetail?.RacketDetails?.NewStatus
+
+            if (!orderDetail?.StringDetails?.get(0)?.ImagePath_1.isNullOrEmpty())
+                Picasso.get().load(orderDetail?.StringDetails?.get(0)?.ImagePath_1)
+                    .error(R.drawable.ic_add_image)
+                    .resize(110, 110).centerInside().into(binding.ivOrderDetailStringImage)
+            else if (!orderDetail?.StringDetails?.get(0)?.String?.ImageUrl.isNullOrEmpty())
+                Picasso.get().load(orderDetail?.StringDetails?.get(0)?.String?.ImageUrl)
+                    .error(R.drawable.ic_add_image)
+                    .resize(110, 110).centerInside().into(binding.ivOrderDetailStringImage)
+            else if (!orderDetail?.StringDetails?.get(0)?.String?.BrandImageUrl.isNullOrEmpty())
+                Picasso.get().load(orderDetail?.StringDetails?.get(0)?.String?.BrandImageUrl)
+                    .error(R.drawable.ic_add_image)
+                    .resize(110, 110).centerInside().into(binding.ivOrderDetailStringImage)
+            else
+                Picasso.get().load(noImage)
+                    .error(R.drawable.ic_add_image)
+                    .resize(110, 110).centerInside().into(binding.ivOrderDetailStringImage)
+
+            binding.ivOrderDetailStringFinish.visibility =
+                if (orderDetail?.StringDetails?.get(0)?.OriginalStringCount ?: 0.0 > 0) (if (orderDetail?.StringDetails?.get(
+                        0
+                    )?.StringFinished == true
+                ) View.VISIBLE else View.GONE) else View.GONE
+
+            if (orderDetail?.StringDetails?.get(0)?.IsPersonalString == true)
+                binding.tvOrderDetailStringCordagePerso.visibility = VISIBLE
+            else
+                binding.tvOrderDetailStringCordagePerso.visibility = GONE
+
+            binding.tvOrderDetailStringMark.text = orderDetail?.StringDetails?.get(0)?.String?.Brand
+            binding.tvOrderDetailStringModel.text =
+                (if (orderDetail?.StringDetails!![0].OriginalStringCount ?: 0.0 == 0.0) requireContext().resources.getString(
+                    R.string.one_string_title
+                ) else requireContext().resources.getString(R.string.bobine_title)) + " " + orderDetail?.StringDetails!![0].String.Model + " (" + orderDetail?.StringDetails!![0].String.Length + ")"
+
+            binding.tvOrderDetailStringJauge.text =
+                requireContext().resources.getString(R.string.gauge) + ": " + orderDetail?.StringDetails?.get(
+                    0
+                )?.String?.Jauge
+
+            if (orderDetail?.StringDetails?.get(0)?.String?.Color.isNullOrEmpty()) binding.tvOrderDetailStringColor.visibility =
+                View.GONE else binding.tvOrderDetailStringColor.text =
+                requireContext().resources.getString(R.string.color) + ": " + orderDetail?.StringDetails?.get(
+                    0
+                )?.String?.Color
+
+            if (orderDetail?.StringDetails?.get(0)?.TensionHorizontal != null && orderDetail?.StringDetails?.get(
+                    0
+                )?.TensionVertical != null
+            ) {
+                binding.tvOrderDetailStringTension.visibility = View.GONE
+                binding.tvOrderDetailStringTensionHorizontal.visibility = View.VISIBLE
+                binding.tvOrderDetailStringTensionVertical.visibility = View.VISIBLE
+
+                binding.tvOrderDetailStringTensionHorizontal.text =
+                    requireContext().resources.getString(R.string.tension_horizontal_).plus(" ") +
+                            orderDetail?.StringDetails?.get(0)?.TensionHorizontal?.split(" ")
+                                ?.get(0)
+                                .plus(" Kg")
+                binding.tvOrderDetailStringTensionVertical.text =
+                    requireContext().resources.getString(R.string.tension_vertical_).plus(" ") +
+                            orderDetail?.StringDetails?.get(0)?.TensionVertical?.split(" ")?.get(0)
+                                .plus(" Kg")
+            } else {
+                binding.tvOrderDetailStringTension.visibility = View.VISIBLE
+                binding.tvOrderDetailStringTensionHorizontal.visibility = View.GONE
+                binding.tvOrderDetailStringTensionVertical.visibility = View.GONE
+
+                if (orderDetail?.StringDetails?.get(0)?.TensionHorizontal != null)
+                    binding.tvOrderDetailStringTension.text =
+                        requireContext().resources.getString(R.string.tension_) + " " +
+                                orderDetail?.StringDetails?.get(0)?.TensionHorizontal?.split(" ")
+                                    ?.get(0).plus(" Kg")
+                else if (orderDetail?.StringDetails?.get(0)?.TensionVertical != null)
+                    binding.tvOrderDetailStringTension.text =
+                        requireContext().resources.getString(R.string.tension_) + " " +
+                                orderDetail?.StringDetails?.get(0)?.TensionVertical?.split(" ")
+                                    ?.get(0)
+                                    .plus(" Kg")
+            }
+
+
+            if (orderDetail?.StringDetails?.get(0)?.StringFinished == true)
+                binding.tvOrderDetailStringPoseCounter.text =
+                    requireContext().resources.getString(R.string.string_remaining) + ": 0.0"
+            else
+                binding.tvOrderDetailStringPoseCounter.text =
+                    requireContext().resources.getString(R.string.string_remaining) + ": " + (orderDetail?.StringDetails?.get(
+                        0
+                    )?.RemainingStringCount ?: 0.0)
+
+            if (orderDetail?.OrderDetails?.OrderStatus == 8) {
+                if (orderDetail?.StringerDetail != null) {
+                    binding.tvOrderDetailStringStringer.text =
+                        requireContext().resources.getString(R.string.stringer) + ": " + orderDetail?.StringerDetail?.get(
+                            0
+                        )?.Name
                 }
             }
-            binding.checkboxMonday.setOnCheckedChangeListener { buttonView, isChecked ->
-                if (isChecked) {
-                    binding.atlShopTimingOpenTimeMonday.setText("10.00")
-                    binding.atlShopTimingCloseTimeMonday.setText("19.00")
-                } else {
-                    binding.atlShopTimingOpenTimeMonday.setText("00.00")
-                    binding.atlShopTimingCloseTimeMonday.setText("00.00")
+
+            if (orderDetail?.OrderDetails?.TotalPrice ?: 0.0 <= 0.0)
+                binding.tvOrderDetailPaymentDetail.text =
+                    getString(R.string.payment).plus(" ").plus("0,00")
+                        .plus(getString(R.string.euro))
+            else {
+                var stringPrice =
+                    orderDetail?.OrderServiceandStringCharge?.CustomerStringPrice ?: 0.0
+                var selectedServicePrice =
+                    orderDetail?.OrderServiceandStringCharge?.CustomerServicePrice ?: 0.0
+                var orderDeliveryCharge = orderDetail?.OrderDetails?.DeliveryCharges ?: 0.0
+
+                var sb = StringBuilder()
+                if (stringPrice > 0.0) {
+                    sb.append(DecimalFormat("0.00").format(stringPrice))
+                        .append(getString(R.string.euro)).append(" +")
                 }
-            }
-            binding.checkboxTuesday.setOnCheckedChangeListener { buttonView, isChecked ->
-                if (isChecked) {
-                    binding.atlShopTimingOpenTimeTuesday.setText("10.00")
-                    binding.atlShopTimingCloseTimeTuesday.setText("19.00")
-                } else {
-                    binding.atlShopTimingOpenTimeTuesday.setText("00.00")
-                    binding.atlShopTimingCloseTimeTuesday.setText("00.00")
+                if (selectedServicePrice > 0.0) {
+                    sb.append(DecimalFormat("0.00").format(selectedServicePrice))
+                        .append(getString(R.string.euro)).append(" +")
                 }
-            }
-            binding.checkboxWednesday.setOnCheckedChangeListener { buttonView, isChecked ->
-                if (isChecked) {
-                    binding.atlShopTimingOpenTimeWednesday.setText("10.00")
-                    binding.atlShopTimingCloseTimeWednesday.setText("19.00")
-                } else {
-                    binding.atlShopTimingOpenTimeWednesday.setText("00.00")
-                    binding.atlShopTimingCloseTimeWednesday.setText("00.00")
+                if (orderDeliveryCharge > 0.0) {
+                    sb.append(DecimalFormat("0.00").format(orderDeliveryCharge))
+                        .append(getString(R.string.euro))
                 }
-            }
-            binding.checkboxThursday.setOnCheckedChangeListener { buttonView, isChecked ->
-                if (isChecked) {
-                    binding.atlShopTimingOpenTimeThursday.setText("10.00")
-                    binding.atlShopTimingCloseTimeThursday.setText("19.00")
-                } else {
-                    binding.atlShopTimingOpenTimeThursday.setText("00.00")
-                    binding.atlShopTimingCloseTimeThursday.setText("00.00")
+
+                if (sb.toString().endsWith("+")) {
+                    val a = sb.substring(0, sb.toString().length - 2)
+                    sb.clear()
+                    sb.append(a)
                 }
-            }
-            binding.checkboxFriday.setOnCheckedChangeListener { buttonView, isChecked ->
-                if (isChecked) {
-                    binding.atlShopTimingOpenTimeFriday.setText("10.00")
-                    binding.atlShopTimingCloseTimeFriday.setText("19.00")
-                } else {
-                    binding.atlShopTimingOpenTimeFriday.setText("00.00")
-                    binding.atlShopTimingCloseTimeFriday.setText("00.00")
+
+                var a = 0
+                if (stringPrice > 0.0)
+                    a++
+                if (selectedServicePrice > 0.0)
+                    a++
+                if (orderDeliveryCharge > 0.0)
+                    a++
+
+                binding.tvOrderDetailPaymentDetail.text =
+                    getString(R.string.payment).plus(" ").plus(sb.toString().trim())
+                        .plus(" = " + DecimalFormat("0.00").format(orderDetail?.OrderDetails?.TotalPrice))
+                        .plus(getString(R.string.euro))
+
+                if (a == 1) {
+                    binding.tvOrderDetailPaymentDetail.text =
+                        getString(R.string.payment)
+                            .plus(" " + DecimalFormat("0.00").format(orderDetail?.OrderDetails?.TotalPrice))
+                            .plus(getString(R.string.euro))
+
                 }
-            }
-            binding.checkboxSaturday.setOnCheckedChangeListener { buttonView, isChecked ->
-                if (isChecked) {
-                    binding.atlShopTimingOpenTimeSaturday.setText("10.00")
-                    binding.atlShopTimingCloseTimeSaturday.setText("19.00")
-                } else {
-                    binding.atlShopTimingOpenTimeSaturday.setText("00.00")
-                    binding.atlShopTimingCloseTimeSaturday.setText("00.00")
+
+                if (Locale.getDefault().language == "fr") {
+                    binding.tvOrderDetailPaymentDetail.text =
+                        binding.tvOrderDetailPaymentDetail.text.toString().replace(".", ",")
                 }
+
             }
 
-            binding.atlShopTimingOpenTimeSunday.setOnClickListener {
-                openDialogForTiming(
-                    resources.getString(
-                        R.string.opening_time,
-                        resources.getString(R.string.weekday_sunday)
-                    ), binding.atlShopTimingOpenTimeSunday
-                )
-            }
-
-            binding.atlShopTimingOpenTimeMonday.setOnClickListener {
-                openDialogForTiming(
-                    resources.getString(
-                        R.string.opening_time,
-                        resources.getString(R.string.weekday_monday)
-                    ), binding.atlShopTimingOpenTimeMonday
-                )
-            }
-
-            binding.atlShopTimingOpenTimeTuesday.setOnClickListener {
-                openDialogForTiming(
-                    resources.getString(
-                        R.string.opening_time,
-                        resources.getString(R.string.weekday_tuesday)
-                    ), binding.atlShopTimingOpenTimeTuesday
-                )
-            }
-
-            binding.atlShopTimingOpenTimeWednesday.setOnClickListener {
-                openDialogForTiming(
-                    resources.getString(
-                        R.string.opening_time,
-                        resources.getString(R.string.weekday_wednesday)
-                    ), binding.atlShopTimingOpenTimeWednesday
-                )
-            }
-
-            binding.atlShopTimingOpenTimeThursday.setOnClickListener {
-                openDialogForTiming(
-                    resources.getString(
-                        R.string.opening_time,
-                        resources.getString(R.string.weekday_thursday)
-                    ), binding.atlShopTimingOpenTimeThursday
-                )
-            }
-
-            binding.atlShopTimingOpenTimeFriday.setOnClickListener {
-                openDialogForTiming(
-                    resources.getString(
-                        R.string.opening_time,
-                        resources.getString(R.string.weekday_friday)
-                    ), binding.atlShopTimingOpenTimeFriday
-                )
-            }
-
-            binding.atlShopTimingOpenTimeSaturday.setOnClickListener {
-                openDialogForTiming(
-                    resources.getString(
-                        R.string.opening_time,
-                        resources.getString(R.string.weekday_saturday)
-                    ), binding.atlShopTimingOpenTimeSaturday
-                )
-            }
-
-            binding.atlShopTimingCloseTimeSunday.setOnClickListener {
-                openDialogForTiming(
-                    resources.getString(
-                        R.string.closing_time,
-                        resources.getString(R.string.weekday_sunday)
-                    ), binding.atlShopTimingCloseTimeSunday
-                )
-            }
-
-            binding.atlShopTimingCloseTimeMonday.setOnClickListener {
-                openDialogForTiming(
-                    resources.getString(
-                        R.string.closing_time,
-                        resources.getString(R.string.weekday_monday)
-                    ), binding.atlShopTimingCloseTimeMonday
-                )
-            }
-
-            binding.atlShopTimingCloseTimeTuesday.setOnClickListener {
-                openDialogForTiming(
-                    resources.getString(
-                        R.string.closing_time,
-                        resources.getString(R.string.weekday_tuesday)
-                    ), binding.atlShopTimingCloseTimeTuesday
-                )
-            }
-
-            binding.atlShopTimingCloseTimeWednesday.setOnClickListener {
-                openDialogForTiming(
-                    resources.getString(
-                        R.string.closing_time,
-                        resources.getString(R.string.weekday_wednesday)
-                    ), binding.atlShopTimingCloseTimeWednesday
-                )
-            }
-
-            binding.atlShopTimingCloseTimeThursday.setOnClickListener {
-                openDialogForTiming(
-                    resources.getString(
-                        R.string.closing_time,
-                        resources.getString(R.string.weekday_thursday)
-                    ), binding.atlShopTimingCloseTimeThursday
-                )
-            }
-
-            binding.atlShopTimingOpenTimeFriday.setOnClickListener {
-                openDialogForTiming(
-                    resources.getString(
-                        R.string.closing_time,
-                        resources.getString(R.string.weekday_friday)
-                    ), binding.atlShopTimingOpenTimeFriday
-                )
-            }
-
-            binding.atlShopTimingCloseTimeSaturday.setOnClickListener {
-                openDialogForTiming(
-                    resources.getString(
-                        R.string.closing_time,
-                        resources.getString(R.string.weekday_saturday)
-                    ), binding.atlShopTimingCloseTimeSaturday
-                )
-            }
-
-            binding.tilStandardDelivery.setEndIconOnClickListener {
-                binding.atlStandardDelivery.performClick()
-            }
-
-            binding.atlStandardDelivery.setOnClickListener {
-                binding.atlStandardDelivery.clearFocus()
-                val picker = NumberPicker(context)
-                picker.minValue = 0
-                picker.maxValue = StandardDayList.size - 1
-                picker.displayedValues = StandardDayList
-                picker.value = StandardDayList.indexOf(binding.atlStandardDelivery.text.toString())
-                picker.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
-                val layout = FrameLayout(requireContext())
-                layout.addView(
-                    picker, FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.WRAP_CONTENT,
-                        FrameLayout.LayoutParams.WRAP_CONTENT,
-                        Gravity.CENTER
+            binding.btnOrderDetailStringPrint.setOnClickListener {
+                var orderDateTime = getString(R.string.receipt_date).plus(": ").plus(
+                    SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(
+                        SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(
+                            orderDetail?.OrderDetails?.OrderDate
+                        )
                     )
                 )
 
-                AlertDialog.Builder(context)
-                    .setView(layout)
-                    .setTitle(getString(R.string.select_days))
-                    .setPositiveButton(
-                        android.R.string.ok
-                    ) { _: DialogInterface?, i: Int ->
-                        binding.atlStandardDelivery.setText(StandardDayList[picker.value])
+                var tensionDisplay: String =
+                    if (orderDetail?.StringDetails?.get(0)?.TensionHorizontal == null) {
+                        getString(R.string.tension_).plus(" ")
+                            .plus(
+                                orderDetail?.StringDetails?.get(0)?.TensionVertical?.split(" ")
+                                    ?.get(0)
+                                    ?.trim()
+                            )
+                            .plus(" Kg")
+                    } else {
+                        getString(R.string.tension_vertical_).plus(" ")
+                            .plus(
+                                orderDetail?.StringDetails?.get(0)?.TensionVertical?.split(" ")
+                                    ?.get(0)
+                                    ?.trim()
+                            )
+                            .plus(" Kg").plus(" ").plus(getString(R.string.and))
+                            .plus(" ")
+                            .plus(getString(R.string.tension_horizontal_)).plus(" ")
+                            .plus(
+                                orderDetail?.StringDetails?.get(0)?.TensionHorizontal?.split(" ")
+                                    ?.get(0)?.trim()
+                            ).plus(" Kg")
                     }
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .show()
-            }
 
-            binding.tilExpressDelivery.setEndIconOnClickListener {
-                binding.atlExpressDelivery.performClick()
-            }
 
-            binding.atlExpressDelivery.setOnClickListener {
-                binding.tilExpressDelivery.clearFocus()
-                val picker = NumberPicker(context)
-                picker.minValue = 0
-                picker.maxValue = ExpressDayList.size - 1
-                picker.displayedValues = ExpressDayList
-                picker.value = ExpressDayList.indexOf(binding.atlExpressDelivery.text.toString())
-                picker.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
-                val layout = FrameLayout(requireContext())
-                layout.addView(
-                    picker, FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.WRAP_CONTENT,
-                        FrameLayout.LayoutParams.WRAP_CONTENT,
-                        Gravity.CENTER
-                    )
-                )
+                var deliveryPrice = orderDetail?.OrderDetails?.DeliveryCharges ?: 0.0
+                var servicePrice =
+                    orderDetail?.OrderServiceandStringCharge?.CustomerServicePrice ?: 0.0
+                var stringPrice =
+                    orderDetail?.OrderServiceandStringCharge?.CustomerStringPrice ?: 0.0
+                var total = orderDetail?.OrderDetails?.TotalPrice ?: 0.0
 
-                AlertDialog.Builder(context)
-                    .setView(layout)
-                    .setTitle(getString(R.string.select_days))
-                    .setPositiveButton(
-                        android.R.string.ok
-                    ) { _: DialogInterface?, i: Int ->
-                        binding.atlExpressDelivery.setText(ExpressDayList[picker.value])
+                var priceDisplay: String? = null
+
+                if (total > 0.0) {
+                    var sb = StringBuilder()
+                    if (stringPrice > 0.0 || orderDetail?.StringDetails?.get(0)?.IsShopPurchased == true) {
+                        sb.append(DecimalFormat("0.00").format(stringPrice))
+                            .append(getString(R.string.euro)).append(" +")
                     }
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .show()
+                    if (servicePrice > 0.0) {
+                        sb.append(DecimalFormat("0.00").format(servicePrice))
+                            .append(getString(R.string.euro)).append(" +")
+                    }
+                    if (deliveryPrice > 0.0) {
+                        sb.append(DecimalFormat("0.00").format(deliveryPrice))
+                            .append(getString(R.string.euro))
+                    }
+
+                    if (sb.toString().endsWith("+")) {
+                        val a = sb.substring(0, sb.toString().length - 2)
+                        sb.clear()
+                        sb.append(a)
+                    }
+
+                    var a = 0
+                    if (stringPrice > 0.0 || orderDetail?.StringDetails?.get(0)?.IsShopPurchased == true)
+                        a++
+                    if (servicePrice > 0.0)
+                        a++
+                    if (deliveryPrice > 0.0)
+                        a++
+
+                    priceDisplay =
+                        getString(R.string.payment).plus(" ").plus(sb.toString().trim())
+                            .plus(" = " + DecimalFormat("0.00").format(total))
+                            .plus(getString(R.string.euro))
+
+                    if (a == 1) {
+                        priceDisplay =
+                            getString(R.string.payment).plus(
+                                " " + DecimalFormat("0.00").format(
+                                    total
+                                )
+                            )
+                                .plus(getString(R.string.euro))
+
+                    }
+
+                    if (Locale.getDefault().language == "fr") {
+                        priceDisplay = priceDisplay.replace(".", ",")
+                    }
+                } else
+                    priceDisplay = null
+
+                var stringDetailPrint =
+                    (orderDetail?.StringDetails?.get(0)?.String?.PackagingName?.lowercase(Locale.getDefault())
+                        ?.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+                        ?: "").plus(": ")
+                        .plus(
+                            if (orderDetail?.StringDetails?.get(0)?.IsPersonalString == false) ((orderDetail?.StringDetails?.get(
+                                0
+                            )?.String?.Model ?: "").plus(" (")
+                                .plus(orderDetail?.StringDetails?.get(0)?.String?.Brand ?: "")
+                                .plus(")")) else
+                                (getString(R.string.personal_string_string).plus(
+                                    if (orderDetail?.StringDetails?.get(0)?.String?.Brand.equals(
+                                            getString(R.string.don_t_know)
+                                        ) || orderDetail?.StringDetails?.get(0)?.String?.Model.equals(
+                                            getString(R.string.don_t_know)
+                                        ) || orderDetail?.StringDetails?.get(0)?.String?.Length.equals(
+                                            getString(R.string.don_t_know)
+                                        ) || orderDetail?.StringDetails?.get(0)?.String?.Color.equals(
+                                            getString(R.string.don_t_know)
+                                        ) || orderDetail?.StringDetails?.get(0)?.String?.Jauge.equals(
+                                            getString(R.string.don_t_know)
+                                        ) ||
+                                        orderDetail?.StringDetails?.get(0)?.String?.Brand.equals(
+                                            getString(R.string.not_found)
+                                        ) || orderDetail?.StringDetails?.get(0)?.String?.Model.equals(
+                                            getString(R.string.not_found)
+                                        ) || orderDetail?.StringDetails?.get(0)?.String?.Length.equals(
+                                            getString(R.string.not_found)
+                                        ) || orderDetail?.StringDetails?.get(0)?.String?.Color.equals(
+                                            getString(R.string.not_found)
+                                        ) || orderDetail?.StringDetails?.get(0)?.String?.Jauge.equals(
+                                            getString(R.string.not_found)
+                                        )
+                                    )
+                                        (" (" + getString(R.string.don_t_know) + ")")
+                                    else
+                                        (" (${orderDetail?.StringDetails?.get(0)?.String?.Model ?: ""} (${
+                                            orderDetail?.StringDetails?.get(
+                                                0
+                                            )?.String?.Brand ?: ""
+                                        }))")
+                                ))
+                        )
+
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.receipt_printing),
+                    Toast.LENGTH_LONG
+                ).show()
+                var printerReturn = getAsyncEscPosPrinter(
+                    requireContext(),
+                    "#${orderDetail?.OrderDetails?.OrderID}", orderDateTime,
+                    deliveryDateTime1.plus(": ").plus(deliveryDateTime),
+                    if (total == 0.0) "" else priceDisplay,
+                    binding.tvOrderDetailCustomerName.text.toString(),
+                    getString(R.string.racket_title).plus(": ").plus(
+                        (orderDetail?.RacketDetails?.Brand ?: "")
+                    ).plus(" ")
+                        .plus(orderDetail?.RacketDetails?.Range ?: "").plus(" ")
+                        .plus(" ").plus(orderDetail?.RacketDetails?.Modele ?: "")
+                        .plus(" ").plus(orderDetail?.RacketDetails?.Version ?: "")
+                        .plus(" ")
+                        .plus(if (orderDetail?.RacketDetails?.Weight == null) null else " (${orderDetail?.RacketDetails?.Weight?.toInt()} GR)"),
+                    stringDetailPrint,
+                    orderDetail?.StringDetails?.get(0)?.String?.Jauge ?: "",
+                    orderDetail?.StringDetails?.get(0)?.String?.Color ?: "",
+                    tensionDisplay,
+                    getString(R.string.receipt_title),
+                    orderDetail?.OrderDetails?.OrderFrom ?: 0,
+                    orderDetail?.OrderDetails?.ClientAdminAppOrderFor ?: 16,
+                    orderDetail?.CustomerDetails?.Initial ?: 1,
+                    orderDetail?.CustomerDetails?.Fname,
+                    orderDetail?.CustomerDetails?.EmailAddress
+                )
+
+                Timer().schedule(5000) {
+                    printerReturn.disconnectPrinter()
+                }
             }
 
-            binding.btnShopTimeChargeTiming.setOnClickListener {
-                progressDialogShopTimingHoliday_1.setMessage("Updating")
-                progressDialogShopTimingHoliday_1.show()
+            binding.btnOrderDetailStringReminderEmail.setOnClickListener {
+                when {
+                    orderDetail?.CustomerDetails?.EmailAddress == null -> {
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.email_not_found),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                    orderDetail?.CustomerDetails?.IsSubscribed != true -> {
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.email_not_subscribed),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                    else -> {
+                        if (checkInternetConnection(requireContext())) {
+                            progressDialog = ProgressDialog(requireContext())
+                            progressDialog.setCancelable(false)
+                            progressDialog.setMessage(requireContext().resources.getString(R.string.loading))
+                            progressDialog.show()
 
-                binding.btnShopTimeChargeTiming.isEnabled = false
-
-                var shopTimingUpdateList = arrayListOf<ShopTimingList_Update_Pojo>()
-                shopTimingUpdateList.clear()
-
-                shopTimingUpdateList.add(
-                    ShopTimingList_Update_Pojo(
-                        binding.atlShopTimingCloseTimeSunday.text.toString(),
-                        shopTimingList[0].ID,
-                        binding.checkboxSunday.isChecked,
-                        binding.atlShopTimingOpenTimeSunday.text.toString(),
-                        shopTimingList[0].WeekDay,
-                        getPreference(requireContext(), "RoleAssignmentID").toInt()
-                    )
-                )
-                shopTimingUpdateList.add(
-                    ShopTimingList_Update_Pojo(
-                        binding.atlShopTimingCloseTimeMonday.text.toString(),
-                        shopTimingList[1].ID,
-                        binding.checkboxMonday.isChecked,
-                        binding.atlShopTimingOpenTimeMonday.text.toString(),
-                        shopTimingList[1].WeekDay,
-                        getPreference(requireContext(), "RoleAssignmentID").toInt()
-                    )
-                )
-                shopTimingUpdateList.add(
-                    ShopTimingList_Update_Pojo(
-                        binding.atlShopTimingCloseTimeTuesday.text.toString(),
-                        shopTimingList[2].ID,
-                        binding.checkboxTuesday.isChecked,
-                        binding.atlShopTimingOpenTimeTuesday.text.toString(),
-                        shopTimingList[2].WeekDay,
-                        getPreference(requireContext(), "RoleAssignmentID").toInt()
-                    )
-                )
-                shopTimingUpdateList.add(
-                    ShopTimingList_Update_Pojo(
-                        binding.atlShopTimingCloseTimeWednesday.text.toString(),
-                        shopTimingList[3].ID,
-                        binding.checkboxWednesday.isChecked,
-                        binding.atlShopTimingOpenTimeWednesday.text.toString(),
-                        shopTimingList[3].WeekDay,
-                        getPreference(requireContext(), "RoleAssignmentID").toInt()
-                    )
-                )
-                shopTimingUpdateList.add(
-                    ShopTimingList_Update_Pojo(
-                        binding.atlShopTimingCloseTimeThursday.text.toString(),
-                        shopTimingList[4].ID,
-                        binding.checkboxThursday.isChecked,
-                        binding.atlShopTimingOpenTimeThursday.text.toString(),
-                        shopTimingList[4].WeekDay,
-                        getPreference(requireContext(), "RoleAssignmentID").toInt()
-                    )
-                )
-                shopTimingUpdateList.add(
-                    ShopTimingList_Update_Pojo(
-                        binding.atlShopTimingCloseTimeFriday.text.toString(),
-                        shopTimingList[5].ID,
-                        binding.checkboxFriday.isChecked,
-                        binding.atlShopTimingOpenTimeFriday.text.toString(),
-                        shopTimingList[5].WeekDay,
-                        getPreference(requireContext(), "RoleAssignmentID").toInt()
-                    )
-                )
-                shopTimingUpdateList.add(
-                    ShopTimingList_Update_Pojo(
-                        binding.atlShopTimingCloseTimeSaturday.text.toString(),
-                        shopTimingList[6].ID,
-                        binding.checkboxSaturday.isChecked,
-                        binding.atlShopTimingOpenTimeSaturday.text.toString(),
-                        shopTimingList[6].WeekDay,
-                        getPreference(requireContext(), "RoleAssignmentID").toInt()
-                    )
-                )
-
+                            binding.btnOrderDetailStringReminderEmail.isEnabled = false
+                            getShopTimingDetails()
+                        } else
+                            Toast.makeText(
+                                requireContext(),
+                                getString(R.string.no_internet_connection),
+                                Toast.LENGTH_LONG
+                            ).show()
+                    }
+                }
+            }
+            
+            binding.btnOrderDetailStringCompleteOrder.setOnClickListener {
                 if (checkInternetConnection(requireContext())) {
-                    updateShopTiming(shopTimingUpdateList)
+                    if (navController.currentDestination?.id == R.id.qrcodeCustomerOrderDetailFragment)
+                        navController.navigate(R.id.action_qrcodeCustomerOrderDetailFragment_to_qrcodeCustomerOrderCompleteFragment)
                 } else
                     Toast.makeText(
                         requireContext(),
@@ -578,479 +605,126 @@ class ShopTimingHolidayFragment : Fragment() {
                     ).show()
             }
 
-            binding.tilHolidayDate.setEndIconOnClickListener {
-                binding.atlHolidayDate.performClick()
-            }
-
-            binding.atlHolidayDate.setOnClickListener {
-                hideSoftKeyboard(requireActivity())
-                binding.tilHolidayDate.clearFocus()
-                binding.atlHolidayDate.clearFocus()
-                binding.atlHolidayDate.text = null
-
-                val c = Calendar.getInstance()
-                val year = c.get(Calendar.YEAR)
-                val month = c.get(Calendar.MONTH)
-                val day = c.get(Calendar.DAY_OF_MONTH)
-
-                val dpd = DatePickerDialog(
-                    requireActivity(),
-                    { view, year, monthOfYear, dayOfMonth ->
-                        holidayDate = "$year-${
-                            java.lang.String.format(
-                                "%02d",
-                                monthOfYear + 1
-                            )
-                        }-${java.lang.String.format("%02d", dayOfMonth)}"
-
-                        var dateFound: Boolean? = false
-                        for (h in holidayListing) {
-                            if (h.HolidayDate.equals(holidayDate)) {
-                                dateFound = true
-                                break
-                            }
-                        }
-
-                        if (!dateFound!!) {
-                            binding.tilHolidayDate.isErrorEnabled = false
-                            binding.atlHolidayDate.setText("" + dayOfMonth + " " + DateFormatSymbols.getInstance().months[monthOfYear] + " " + year)
-                        } else {
-                            Toast.makeText(
-                                requireContext(),
-                                requireContext().resources.getText(R.string.not_apply_holiday),
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                    }, year, month, day
+            btn_order_detail_state_change.setOnClickListener {
+                stateChangeDialog.show(
+                    (requireContext() as AppCompatActivity).supportFragmentManager,
+                    "Racket State Change Dialog"
                 )
-                val cal = Calendar.getInstance()
-                cal.add(Calendar.DAY_OF_YEAR, 1)
-                dpd.datePicker.minDate = cal.timeInMillis
-                dpd.show()
             }
-
-            binding.ivHolidayOk.setOnClickListener {
-                var nameFound = false
-                when {
-                    binding.atlHolidayTitle.text.isEmpty() -> {
-                        binding.tilHolidayTitle.isErrorEnabled = true
-                        binding.tilHolidayTitle.error = getString(R.string.holiday_name_is_missing)
-//                        val dr = context?.getDrawable(R.drawable.ic_error)
-//                        dr?.setBounds(0, 0, dr.intrinsicWidth, dr.intrinsicHeight)
-//                        txt_holiday_date.setError(getString(R.string.holiday_date_is_missing), dr)
-                    }
-                    binding.atlHolidayDate.text.isEmpty() -> {
-                        binding.tilHolidayDate.isErrorEnabled = true
-                        binding.tilHolidayDate.error = getString(R.string.holiday_date_is_missing)
-//                        val dr = context?.getDrawable(R.drawable.ic_error)
-//                        dr?.setBounds(0, 0, dr.intrinsicWidth, dr.intrinsicHeight)
-//                        txt_holiday_title.setError(getString(R.string.holiday_name_is_missing), dr)
-                    }
-                    else -> {
-                        progressDialogShopTimingHoliday_2.setMessage("Adding New Holiday")
-
-                        for (i in holidayListing) {
-                            if (i.HolidayName?.equals(binding.atlHolidayTitle.text.toString()) == true) {
-                                nameFound = true
-                                break
-                            }
-                        }
-
-                        if (!nameFound) {
-                            callAddShopHolidayFunction(requireContext())
-                            binding.ivHolidayOk.isEnabled = false
-                            binding.tilHolidayTitle.isErrorEnabled = false
-                            binding.tilHolidayDate.isErrorEnabled = false
-                            binding.tvShopTimingAddHoliday.visibility = VISIBLE
-                            binding.vShopTimingDimBackground?.visibility = GONE
-                            binding.cvShopTimingCard?.visibility = GONE
-                            hideSoftKeyboard(requireActivity())
-                        } else {
-                            binding.tilHolidayTitle.isErrorEnabled = true
-                            binding.tilHolidayTitle.error = getString(R.string.holiday_name_found)
-                        }
-                    }
-                }
-            }
-
-            binding.btnRacketStateSave.setOnClickListener {
-                when {
-                    binding.atlMonthsReminder.text?.isEmpty() == true -> {
-                        binding.tilMonthReminder.isErrorEnabled = true
-                        binding.tilMonthReminder.error = getString(R.string.required_field)
-                    }
-                    else -> {
-                        progressDialogShopTimingHoliday_1.show()
-
-                        binding.btnRacketStateSave.isEnabled = false
-                        binding.tilMonthReminder.isErrorEnabled = false
-
-                        racketStateChangeUpdateBody.FrequencyInMonth =
-                            binding.atlMonthsReminder.text.toString().toInt()
-
-                        hideSoftKeyboard(requireActivity())
-                        callUpdateRacketStateMonthValue(requireContext())
-
-                        viewModelShopTimingNHoliday.updateSkipDayList(
-                            getPreference(requireContext(), "shopTokenId"),
-                            getPreference(requireContext(), "shopId").toInt(),
-                            DataSkip_Update_Input(
-                                skipDateListing.DeliveryID,
-                                binding.atlExpressDelivery.text.toString().toInt(),
-                                binding.atlStandardDelivery.text.toString().toInt(),
-                                getPreference(
-                                    requireContext(),
-                                    "RoleAssignmentID"
-                                ).toInt()
-                            )
-                        )?.observe(
-                            viewLifecycleOwner
-                        ) { response1 ->
-                            if (response1 != null) {
-                                if (response1.ShopID != null) {
-                                    if (response1.ShopID!! == getPreference(
-                                            requireContext(),
-                                            "shopId"
-                                        ).toInt()
-                                    ) {
-                                        binding.btnRacketStateSave.isEnabled = true
-                                        progressDialogShopTimingHoliday_1.dismiss()
-                                        Toast.makeText(
-                                            requireContext(),
-                                            requireContext().resources.getString(R.string.update_successfully),
-                                            Toast.LENGTH_LONG
-                                        ).show()
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (checkInternetConnection(requireContext())) {
-                progressDialogShopTimingHoliday_1.show()
-                viewModelShopTimingNHoliday.getShopTimingList(
-                    getPreference(requireContext(), "shopTokenId"),
-                    getPreference(requireContext(), "shopId").toInt()
-                )?.observe(viewLifecycleOwner) { response ->
-                    if (response != null) {
-                        shopTimingList.clear()
-                        shopTimingList.addAll(response)
-
-                        viewModelShopTimingNHoliday.getSkipDayList(
-                            getPreference(requireContext(), "shopTokenId"),
-                            getPreference(requireContext(), "shopId").toInt()
-                        )?.observe(viewLifecycleOwner) { response1 ->
-                            if (response1 != null) {
-                                skipDateListing = response1
-
-                                binding.atlStandardDelivery.setText(response1.RegularDeliveryDays.toString())
-                                binding.atlExpressDelivery.setText(response1.ExpressDeliveryDays.toString())
-                                progressDialogShopTimingHoliday_1.dismiss()
-                                displayShopTiming()
-                            }
-                        }
-                    }
-                }
-
-                callDefaultRacketStateChangeValue(requireContext())
-            } else
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.no_internet_connection),
-                    Toast.LENGTH_LONG
-                ).show()
         } catch (e: Exception) {
             Log.d("TAG", "onCreateView: $e")
         }
     }
 
-    private fun updateShopTiming(shopTimingUpdateList: ArrayList<ShopTimingList_Update_Pojo>) {
-        progressDialogShopTimingHoliday_1.show()
-        viewModelNew.getShopTimingUpdated_List(
+    private fun getShopTimingDetails() {
+        RetrofitClient.apiInterface.getShopTimingList(
             getPreference(requireContext(), "shopTokenId"),
-            getPreference(requireContext(), "shopId").toInt(),
-            shopTimingUpdateList
-        ).observe(viewLifecycleOwner) { response ->
-            when (response.status) {
-                Status.LOADING -> {
-                    progressDialogShopTimingHoliday_1.show()
-                }
-                Status.ERROR -> {
-                    updateShopTiming(shopTimingUpdateList)
-                }
-                Status.SUCCESS -> {
-                    progressDialogShopTimingHoliday_1.dismiss()
-                    val data = response.data
-
-                    if (data?.ShopID != null) {
-                        if (data.ShopID == getPreference(requireContext(), "shopId")) {
-                            shopTimingList[0].IsOpen = binding.checkboxSunday.isChecked
-                            shopTimingList[1].IsOpen = binding.checkboxMonday.isChecked
-                            shopTimingList[2].IsOpen = binding.checkboxTuesday.isChecked
-                            shopTimingList[3].IsOpen = binding.checkboxWednesday.isChecked
-                            shopTimingList[4].IsOpen = binding.checkboxThursday.isChecked
-                            shopTimingList[5].IsOpen = binding.checkboxFriday.isChecked
-                            shopTimingList[6].IsOpen = binding.checkboxSaturday.isChecked
-
-                            shopTimingList[0].StartTime =
-                                binding.atlShopTimingOpenTimeSunday.text.toString()
-                            shopTimingList[1].StartTime =
-                                binding.atlShopTimingOpenTimeMonday.text.toString()
-                            shopTimingList[2].StartTime =
-                                binding.atlShopTimingOpenTimeTuesday.text.toString()
-                            shopTimingList[3].StartTime =
-                                binding.atlShopTimingOpenTimeWednesday.text.toString()
-                            shopTimingList[4].StartTime =
-                                binding.atlShopTimingOpenTimeThursday.text.toString()
-                            shopTimingList[5].StartTime =
-                                binding.atlShopTimingOpenTimeFriday.text.toString()
-                            shopTimingList[6].StartTime =
-                                binding.atlShopTimingOpenTimeSaturday.text.toString()
-
-                            shopTimingList[0].EndTime =
-                                binding.atlShopTimingCloseTimeSunday.text.toString()
-                            shopTimingList[1].EndTime =
-                                binding.atlShopTimingCloseTimeMonday.text.toString()
-                            shopTimingList[2].EndTime =
-                                binding.atlShopTimingCloseTimeTuesday.text.toString()
-                            shopTimingList[3].EndTime =
-                                binding.atlShopTimingCloseTimeWednesday.text.toString()
-                            shopTimingList[4].EndTime =
-                                binding.atlShopTimingCloseTimeThursday.text.toString()
-                            shopTimingList[5].EndTime =
-                                binding.atlShopTimingCloseTimeFriday.text.toString()
-                            shopTimingList[6].EndTime =
-                                binding.atlShopTimingCloseTimeSaturday.text.toString()
-
-                            displayShopTiming()
-                            Toast.makeText(
-                                requireContext(),
-                                requireContext().resources.getString(R.string.update_successfully),
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private fun callUpdateRacketStateMonthValue(context: Context) {
-        viewModelNew.updateRacketStateChangeValue(
-            getPreference(context, "shopTokenId"),
-            getPreference(context, "shopId").toInt(), racketStateChangeUpdateBody
-        ).observe(viewLifecycleOwner) {
-            it?.let { response ->
-                when (response.status) {
-                    Status.ERROR -> {
-                        callDefaultRacketStateChangeValue(context)
-                    }
-                    Status.LOADING -> {
-                    }
-                    Status.SUCCESS -> {
-                        response.data?.let { output ->
-//                            btn_racket_state_save.isEnabled = true
-                            Toast.makeText(
-                                context,
-                                context.getString(R.string.update_successfully),
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private fun callAddShopHolidayFunction(context: Context) {
-        viewModelNew.add_ShopHoliday(
-            getPreference(context, "shopTokenId"),
-            getPreference(context, "shopId").toInt(),
-            Add_Holiday_Pojo(
-                binding.atlHolidayTitle.text.toString(), holidayDate.toString(),
-                getPreference(context, "RoleAssignmentID").toInt(), null
-            )
-        ).observe(viewLifecycleOwner) {
-            when (it.status) {
-                Status.LOADING -> {
-                    progressDialogShopTimingHoliday_1.show()
-                }
-                Status.ERROR -> {
-                    callAddShopHolidayFunction(requireContext())
-                }
-                Status.SUCCESS -> {
-                    progressDialogShopTimingHoliday_1.dismiss()
-
-                    val response = it.data
-
-                    if (response != null) {
-                        if (response.ShopHolidayID != null) {
-                            Toast.makeText(
-                                context,
-                                context.resources.getString(R.string.holiday_added),
-                                Toast.LENGTH_LONG
-                            ).show()
-                            iv_holiday_ok.isEnabled = true
-                            holidayDate = null
-
-                            binding.atlHolidayTitle.text = null
-                            binding.atlHolidayDate.text = null
-
-                            callShopHolidayListing(
-                                getPreference(context, "shopTokenId"),
-                                getPreference(context, "shopId").toInt()
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    fun callShopHolidayListing(shopTokenId: String, ShopId: Int) {
-        if (checkInternetConnection(requireContext())) {
-            progressDialogShopTimingHoliday_2.show()
-            viewModelShopTimingNHoliday.getShopHolidayList(
-                shopTokenId, ShopId
-            )
-                ?.observe(viewLifecycleOwner) { response ->
-                    if (response != null) {
-                        holidayListing.clear()
-                        holidayListing.addAll(response)
-                        displayHolidayListing()
-
-                        progressDialogShopTimingHoliday_2.dismiss()
-                    }
-                }
-        } else
-            Toast.makeText(
-                requireContext(),
-                getString(R.string.no_internet_connection),
-                Toast.LENGTH_LONG
-            ).show()
-    }
-
-    private fun displayHolidayListing() {
-        if (checkInternetConnection(requireContext())) {
-            v_shop_timing_holiday_view_2.visibility = GONE
-
-            if (holidayListing.size > 0) {
-                holidayAdapter = HolidayManagementAdapter(requireContext())
-
-                if (MainActivity.fixedOrientation == 7)
-                    ev_holiday_list.layoutManager = LinearLayoutManager(context)
-                else
-                    ev_holiday_list.layoutManager =
-                        GridLayoutManager(context, 2, RecyclerView.VERTICAL, false)
-
-                ev_holiday_list.adapter?.notifyDataSetChanged()
-                ev_holiday_list.adapter = holidayAdapter
-
-                tv_no_holiday.visibility = View.GONE
-                ev_holiday_list.visibility = View.VISIBLE
-            } else {
-                tv_no_holiday.visibility = View.VISIBLE
-                ev_holiday_list.visibility = View.GONE
-            }
-        } else
-            Toast.makeText(
-                requireContext(),
-                getString(R.string.no_internet_connection),
-                Toast.LENGTH_LONG
-            ).show()
-    }
-
-    private fun openDialogForTiming(title: String, textview_time: TextView) {
-        val picker = NumberPicker(context)
-        picker.minValue = 0
-        picker.maxValue = timingList.size - 1
-        picker.displayedValues = timingList
-        picker.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
-        val layout = FrameLayout(requireContext())
-        layout.addView(
-            picker, FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                Gravity.CENTER
-            )
+            getPreference(requireContext(), "shopId").toInt()
         )
-        picker.value = timingList.indexOf(textview_time.text.toString())
+            .enqueue(object : Callback<ArrayList<ShopTimingList_Pojo>> {
+                override fun onFailure(call: Call<ArrayList<ShopTimingList_Pojo>>, t: Throwable) {
+                    Log.v("DEBUG : ", t.message.toString())
 
-        AlertDialog.Builder(context)
-            .setView(layout)
-            .setTitle(title)
-            .setPositiveButton(
-                android.R.string.ok
-            ) { dialogInterface: DialogInterface?, i: Int ->
-                textview_time.text = timingList[picker.value]
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
+                    binding.btnOrderDetailStringReminderEmail.isEnabled = true
+                }
+
+                override fun onResponse(
+                    call: Call<ArrayList<ShopTimingList_Pojo>>,
+                    response: Response<ArrayList<ShopTimingList_Pojo>>
+                ) {
+                    Log.v("DEBUG : ", response.body().toString())
+
+                    if (response.isSuccessful) {
+                        val data = response.body()
+                        if (data != null) {
+                            shopTimingList.clear()
+                            shopTimingList.addAll(data)
+
+                            var shopTiming =
+                                mergeShopTimingFunction(requireContext(), shopTimingList)
+                            shopTiming = shopTiming.replace("<br>\n", ", ")
+                            shopTiming =
+                                if (shopTiming.endsWith(", ")) shopTiming.removeSuffix(", ") else shopTiming
+
+                            callEmailSendAPI(shopTiming)
+                        }
+                    } else
+                        getShopTimingDetails()
+                }
+            })
     }
 
-    private fun displayShopTiming() {
-        binding.checkboxSunday.isChecked = shopTimingList[0].IsOpen!!
-        binding.checkboxMonday.isChecked = shopTimingList[1].IsOpen!!
-        binding.checkboxTuesday.isChecked = shopTimingList[2].IsOpen!!
-        binding.checkboxWednesday.isChecked = shopTimingList[3].IsOpen!!
-        binding.checkboxThursday.isChecked = shopTimingList[4].IsOpen!!
-        binding.checkboxFriday.isChecked = shopTimingList[5].IsOpen!!
-        binding.checkboxSaturday.isChecked = shopTimingList[6].IsOpen!!
+    private fun callEmailSendAPI(shopTiming: String) {
+        val racketDisplay = (orderDetail?.RacketDetails?.Brand ?: "").plus(" ")
+            .plus(orderDetail?.RacketDetails?.Range ?: "").plus(" ")
+            .plus(orderDetail?.RacketDetails?.Modele ?: "").plus(" ")
+            .plus(orderDetail?.RacketDetails?.Version ?: "").plus(" ")
+            .plus(if (orderDetail?.RacketDetails?.Weight == null) "" else "(${orderDetail?.RacketDetails?.Weight}GR)")
+        val tensionDisplay = if (binding.tvOrderDetailStringTension.visibility == VISIBLE)
+            binding.tvOrderDetailStringTension.text.toString()
+        else
+            "${binding.tvOrderDetailStringTensionVertical.text} ${getString(R.string.and)} ${binding.tvOrderDetailStringTensionHorizontal.text}"
+        val stringDisplay =
+            orderDetail?.StringDetails!![0].String.Brand + " " + orderDetail?.StringDetails!![0].String.Model +
+                    (if (orderDetail?.StringDetails!![0].IsPersonalString) " (${getString(R.string.personal_string_string).uppercase()})" else "")
 
-        binding.atlShopTimingOpenTimeSunday.setText(shopTimingList[0].StartTime)
-        binding.atlShopTimingOpenTimeMonday.setText(shopTimingList[1].StartTime)
-        binding.atlShopTimingOpenTimeTuesday.setText(shopTimingList[2].StartTime)
-        binding.atlShopTimingOpenTimeWednesday.setText(shopTimingList[3].StartTime)
-        binding.atlShopTimingOpenTimeThursday.setText(shopTimingList[4].StartTime)
-        binding.atlShopTimingOpenTimeFriday.setText(shopTimingList[5].StartTime)
-        binding.atlShopTimingOpenTimeSaturday.setText(shopTimingList[6].StartTime)
+        var resendEmailData = ResendEmailData(
+            orderDetail?.CustomerDetails?.CustomerShopID,
+            true,
+            orderDetail?.StringDetails?.get(0)?.StringFinished,
+            orderDetail?.StringDetails?.get(0)?.Service?.ServiceFinished,
+            getPreference(requireContext(), "shopId").toInt(),
+            orderDetail?.CustomerDetails?.EmailAddress,
+            binding.tvOrderDetailCustomerName.text.toString(),
+            racketDisplay,
+            tensionDisplay,
+            orderDetail?.StringDetails?.get(0)?.String?.Jauge,
+            stringDisplay,
+            orderDetail?.StringerDetail?.get(0)?.Name ?: "-",
+            shopTiming,
+            orderDetail?.StringDetails?.get(0)?.Service?.ServiceMasterID
+        )
 
-        binding.atlShopTimingCloseTimeSunday.setText(shopTimingList[0].EndTime)
-        binding.atlShopTimingCloseTimeMonday.setText(shopTimingList[1].EndTime)
-        binding.atlShopTimingCloseTimeTuesday.setText(shopTimingList[2].EndTime)
-        binding.atlShopTimingCloseTimeWednesday.setText(shopTimingList[3].EndTime)
-        binding.atlShopTimingCloseTimeThursday.setText(shopTimingList[4].EndTime)
-        binding.atlShopTimingCloseTimeFriday.setText(shopTimingList[5].EndTime)
-        binding.atlShopTimingCloseTimeSaturday.setText(shopTimingList[6].EndTime)
+        RetrofitClient.apiInterface.resendCompletedOrderEmail(
+            getPreference(requireContext(), "shopTokenId"),
+            getPreference(requireContext(), "shopId").toInt(), resendEmailData
+        )
+            .enqueue(object : Callback<ResendEmailData_Output> {
+                override fun onFailure(call: Call<ResendEmailData_Output>, t: Throwable) {
+                    Log.v("DEBUG : ", t.message.toString())
 
-        v_shop_timing_holiday_view_1.visibility = GONE
-        btn_shop_time_charge_timing.isEnabled = true
-    }
+                    binding.btnOrderDetailStringReminderEmail.isEnabled = true
+                }
 
-    private fun callDefaultRacketStateChangeValue(context: Context) {
-        if (checkInternetConnection(context)) {
-            viewModelNew.getRacketStateChangeValue(
-                getPreference(context, "shopTokenId"),
-                getPreference(context, "shopId").toInt()
-            ).observe(viewLifecycleOwner) {
-                it?.let { response ->
-                    when (response.status) {
-                        Status.ERROR -> {
-                            callDefaultRacketStateChangeValue(context)
-                        }
-                        Status.LOADING -> {
-                        }
-                        Status.SUCCESS -> {
-                            response.data?.let { output ->
-                                binding.atlMonthsReminder.setText(output.FrequencyInMonth.toString())
-                                racketStateChangeUpdateBody = RacketStateChangeUpdateBody(
-                                    output.FrequencyInMonth,
-                                    output.RacketStatsFrequencyID,
-                                    getPreference(requireContext(), "RoleAssignmentID").toInt()
-                                )
+                override fun onResponse(
+                    call: Call<ResendEmailData_Output>,
+                    response: Response<ResendEmailData_Output>
+                ) {
+                    Log.v("DEBUG : ", response.body().toString())
+                    binding.btnOrderDetailStringReminderEmail.isEnabled = true
+
+                    if (response.isSuccessful) {
+                        val data = response.body()
+                        if (data != null) {
+                            progressDialog.dismiss()
+                            if (data.emailSent == true) {
+                                Toast.makeText(
+                                    requireContext(),
+                                    getString(R.string.msg_email_sent_successfully),
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            } else {
+                                Toast.makeText(
+                                    requireContext(),
+                                    getString(R.string.email_sent_failed),
+                                    Toast.LENGTH_LONG
+                                ).show()
                             }
                         }
-                    }
+                    } else
+                        callEmailSendAPI(shopTiming)
                 }
-            }
-        } else
-            Toast.makeText(
-                context,
-                getString(R.string.no_internet_connection),
-                Toast.LENGTH_LONG
-            ).show()
+            })
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -1064,4 +738,5 @@ class ShopTimingHolidayFragment : Fragment() {
 
         menu.clear()
     }
+
 }
