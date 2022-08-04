@@ -1,1228 +1,506 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.fragments.ShopTimingHolidayFragment">
-
-    <View
-        android:id="@+id/v_shop_timing_holiday_view_1"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginEnd="1dp"
-        android:background="@color/white"
-        android:elevation="17dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/guideline14"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <View
-        android:id="@+id/v_shop_timing_holiday_view_2"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="1dp"
-        android:background="@color/white"
-        android:elevation="8dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/guideline14"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline14"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.5" />
-
-    <View
-        android:id="@+id/view"
-        android:layout_width="2dp"
-        android:layout_height="0dp"
-        android:layout_margin="4dp"
-        android:background="@color/colorAccent"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/guideline14"
-        app:layout_constraintStart_toStartOf="@+id/guideline14"
-        app:layout_constraintTop_toTopOf="parent" />
+    android:background="@color/white"
+    android:fillViewport="true"
+    tools:context=".view.fragments.QRCodeCustomerOrderDetailFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/tabLayout"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_percent="0.2">
+        android:paddingLeft="8dp"
+        android:paddingTop="8dp"
+        android:paddingRight="8dp"
+        app:layout_constraintEnd_toStartOf="@+id/tv_order_detail_customer_name"
+        app:layout_constraintStart_toStartOf="@+id/tv_order_detail_customer_name">
 
-        <View
-            android:id="@+id/view_holiday"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginHorizontal="32dp"
-            android:layout_marginTop="56dp"
-            android:background="?attr/selectableItemBackground"
-            android:elevation="4dp"
-            android:foreground="@drawable/text_view_yellow_square_border_focused"
-            app:layout_constraintBottom_toTopOf="@id/view_timing"
-            app:layout_constraintEnd_toEndOf="@id/guideline3"
-            app:layout_constraintStart_toStartOf="parent"
+        <ImageView
+            android:id="@+id/iv_order_detail_order_complete"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_margin="8dp"
+            android:src="@drawable/ic_order_done"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            android:id="@+id/iv_holiday"
+            android:id="@+id/iv_order_detail_order_complete_tag"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:scaleType="center"
-            android:src="@drawable/ic_calendar_checked_large"
-            app:layout_constraintBottom_toTopOf="@id/holiday_tv"
-            app:layout_constraintEnd_toEndOf="@id/view_holiday"
-            app:layout_constraintStart_toStartOf="@id/view_holiday"
-            app:layout_constraintTop_toTopOf="@id/view_holiday"
-            app:layout_constraintVertical_chainStyle="packed"
-            app:tint="@color/colorAccent" />
+            android:layout_height="0dp"
+            android:elevation="8dp"
+            android:src="@drawable/annule_large"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/tv_order_detail_payment_detail"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/iv_order_detail_racket_image" />
 
         <TextView
-            android:id="@+id/holiday_tv"
-            android:layout_width="0dp"
+            android:id="@+id/tv_order_detail_customer_name"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/shop_time_title"
-            android:textAppearance="?android:textAppearanceLarge"
-            android:textColor="@color/colorAccent"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="16dp"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/black"
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@id/view_holiday"
-            app:layout_constraintEnd_toEndOf="@id/view_holiday"
-            app:layout_constraintStart_toStartOf="@id/view_holiday"
-            app:layout_constraintTop_toBottomOf="@id/iv_holiday" />
-
-        <View
-            android:id="@+id/view_timing"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginVertical="56dp"
-            android:background="?attr/selectableItemBackground"
-            android:elevation="4dp"
-            android:foreground="@drawable/text_view_yellow_square_border"
-            android:visibility="visible"
-            app:layout_constraintBottom_toTopOf="@id/view_config"
-            app:layout_constraintEnd_toEndOf="@id/view_holiday"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="@id/view_holiday"
-            app:layout_constraintTop_toBottomOf="@id/view_holiday" />
-
-        <ImageView
-            android:id="@+id/iv_timings"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:background="?attr/selectableItemBackground"
-            android:padding="8dp"
-            android:scaleType="center"
-            android:src="@drawable/ic_clock"
-            app:layout_constraintBottom_toTopOf="@id/timings_tv"
-            app:layout_constraintEnd_toEndOf="@id/view_timing"
-            app:layout_constraintStart_toStartOf="@id/view_timing"
-            app:layout_constraintTop_toTopOf="@id/view_timing"
-            app:layout_constraintVertical_chainStyle="packed"
-            app:tint="@color/colorAccent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Test 123" />
 
         <TextView
-            android:id="@+id/timings_tv"
+            android:id="@+id/tv_order_detail_customer_email"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/holiday_title_1"
-            android:textAppearance="?android:textAppearanceLarge"
-            android:textColor="@color/colorAccent"
-            android:textStyle="normal"
-            app:layout_constraintBottom_toBottomOf="@id/view_timing"
-            app:layout_constraintEnd_toEndOf="@id/view_timing"
-            app:layout_constraintStart_toStartOf="@id/view_timing"
-            app:layout_constraintTop_toBottomOf="@id/iv_timings" />
-
-        <View
-            android:id="@+id/view_config"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="56dp"
-            android:background="?attr/selectableItemBackground"
-            android:elevation="4dp"
-            android:foreground="@drawable/text_view_yellow_square_border"
-            android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@id/view_holiday"
-            app:layout_constraintStart_toStartOf="@id/view_holiday"
-            app:layout_constraintTop_toBottomOf="@id/view_timing" />
-
-        <ImageView
-            android:id="@+id/iv_config"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:scaleType="center"
-            android:src="@drawable/ic_setting"
-            app:layout_constraintBottom_toTopOf="@id/others_tv"
-            app:layout_constraintEnd_toEndOf="@id/view_config"
-            app:layout_constraintStart_toStartOf="@id/view_config"
-            app:layout_constraintTop_toTopOf="@id/view_config"
-            app:layout_constraintVertical_chainStyle="packed"
-            app:tint="@color/colorAccent" />
+            android:layout_marginEnd="24dp"
+            android:textAlignment="textStart"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/tv_order_detail_customer_name"
+            app:layout_constraintTop_toBottomOf="@id/tv_order_detail_customer_name"
+            tools:text="Email: test123@gmail.com" />
 
         <TextView
-            android:id="@+id/others_tv"
+            android:id="@+id/tv_order_detail_customer_phone"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/other_1"
-            android:textAppearance="?android:textAppearanceLarge"
-            android:textColor="@color/colorAccent"
-            android:textStyle="normal"
-            app:layout_constraintBottom_toBottomOf="@id/view_config"
-            app:layout_constraintEnd_toEndOf="@id/view_config"
-            app:layout_constraintStart_toStartOf="@id/view_config"
-            app:layout_constraintTop_toBottomOf="@id/iv_config" />
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            app:layout_constraintStart_toStartOf="@+id/tv_order_detail_customer_email"
+            app:layout_constraintTop_toBottomOf="@id/tv_order_detail_customer_email"
+            tools:text="Phone: 12 34 56 78 90" />
 
         <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline3"
+            android:id="@+id/guideline26"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="1.0" />
+            app:layout_constraintGuide_percent="0.5" />
+
+        <ImageView
+            android:id="@+id/iv_order_detail_racket_image"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_marginVertical="4dp"
+            android:layout_marginStart="4dp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="@id/tv_order_detail_qr_code_detail"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tv_order_detail_racket_mark"
+            app:layout_constraintVertical_bias="0.5"
+            tools:src="@drawable/ic_clock" />
+
+        <TextView
+            android:id="@+id/tv_order_detail_racket_mark"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="50dp"
+            android:textAllCaps="true"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/black"
+            android:visibility="visible"
+            app:layout_constraintStart_toEndOf="@id/iv_order_detail_racket_image"
+            app:layout_constraintTop_toTopOf="@+id/v_order_detail_section"
+            tools:text="yonex" />
+
+        <TextView
+            android:id="@+id/tv_order_detail_racket_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="8dp"
+            android:textAllCaps="true"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/black"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="@id/btn_order_detail_state_change"
+            app:layout_constraintStart_toStartOf="@id/tv_order_detail_racket_mark"
+            app:layout_constraintTop_toBottomOf="@id/tv_order_detail_racket_mark"
+            tools:text="racket v core 100 flame 2017 (300 GR)" />
+
+        <TextView
+            android:id="@+id/tv_order_detail_racket_sleeve_size"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="@id/tv_order_detail_racket_title"
+            app:layout_constraintStart_toStartOf="@id/tv_order_detail_racket_title"
+            app:layout_constraintTop_toBottomOf="@id/tv_order_detail_racket_title"
+            tools:text="Sleeve Size" />
+
+        <TextView
+            android:id="@+id/tv_order_detail_racket_year"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="@+id/tv_order_detail_racket_title"
+            app:layout_constraintStart_toStartOf="@+id/tv_order_detail_racket_mark"
+            app:layout_constraintTop_toBottomOf="@id/tv_order_detail_racket_sleeve_size"
+            tools:text="2018" />
+
+        <TextView
+            android:id="@+id/tv_order_detail_store_bought"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="@+id/tv_order_detail_racket_title"
+            app:layout_constraintStart_toStartOf="@+id/tv_order_detail_racket_mark"
+            app:layout_constraintTop_toBottomOf="@id/tv_order_detail_racket_year"
+            tools:text="Purchase from store? : Yes" />
+
+        <TextView
+            android:id="@+id/tv_order_detail_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:visibility="visible"
+            app:layout_constraintStart_toStartOf="@+id/tv_order_detail_racket_mark"
+            app:layout_constraintTop_toBottomOf="@id/tv_order_detail_store_bought"
+            tools:text="State: ABIMEE" />
+
+        <TextView
+            android:id="@+id/tv_order_detail_state_not_found"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/not_found"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/red"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintStart_toEndOf="@id/tv_order_detail_state"
+            app:layout_constraintTop_toBottomOf="@id/tv_order_detail_store_bought"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <TextView
+            android:id="@+id/tv_order_detail_qr_code_detail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:visibility="visible"
+            app:layout_constraintStart_toStartOf="@+id/tv_order_detail_racket_mark"
+            app:layout_constraintTop_toBottomOf="@id/tv_order_detail_state"
+            tools:text="QR-Code: FR_001_00017" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier_state_vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:barrierDirection="end"
+            app:constraint_referenced_ids="tv_order_detail_state_not_found, tv_order_detail_qr_code_detail"
+            tools:layout_editor_absoluteX="8dp"
+            tools:layout_editor_absoluteY="8dp" />
+
+        <Button
+            android:id="@+id/btn_order_detail_state_change"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="18dp"
+            android:background="@drawable/button_background"
+            android:paddingHorizontal="24dp"
+            android:paddingVertical="8dp"
+            android:text="@string/changeRacketTitle"
+            android:textAllCaps="true"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="@id/guideline26"
+            app:layout_constraintTop_toTopOf="@id/tv_order_detail_state" />
+
+        <!--        <androidx.constraintlayout.widget.Barrier-->
+        <!--            android:id="@+id/barrier_state"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:visibility="gone"-->
+        <!--            app:barrierDirection="bottom"-->
+        <!--            app:constraint_referenced_ids="tv_order_detail_qr_code_detail, btn_order_detail_state_change"-->
+        <!--            tools:layout_editor_absoluteX="8dp"-->
+        <!--            tools:layout_editor_absoluteY="111dp" />-->
+
+        <TextView
+            android:id="@+id/tv_order_detail_payment_detail"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="8dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/red"
+            android:textStyle="bold"
+            android:visibility="visible"
+            app:layout_constraintVertical_bias="0.8"
+            app:layout_constraintBottom_toTopOf="@id/tv_order_detail_delivery_detail"
+            app:layout_constraintEnd_toStartOf="@id/guideline26"
+            app:layout_constraintStart_toStartOf="@id/btn_order_detail_string_print"
+            app:layout_constraintTop_toBottomOf="@id/btn_order_detail_state_change"
+            app:layout_constraintVertical_chainStyle="packed"
+            tools:text="Montant: $0.00" />
+
+        <TextView
+            android:id="@+id/tv_order_detail_delivery_detail"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="8dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@id/btn_order_detail_string_print"
+            app:layout_constraintEnd_toEndOf="@+id/tv_order_detail_payment_detail"
+            app:layout_constraintStart_toStartOf="@id/tv_order_detail_payment_detail"
+            app:layout_constraintTop_toBottomOf="@id/tv_order_detail_payment_detail"
+            tools:text="Livraison: MERCREDI, 17 aout 2022 apres 10h" />
+
+        <View
+            android:id="@+id/v_order_detail_section"
+            android:layout_width="1dp"
+            android:layout_height="0dp"
+            android:layout_marginVertical="18dp"
+            android:background="@color/colorAccent"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@id/btn_order_detail_string_print"
+            app:layout_constraintEnd_toEndOf="@id/guideline26"
+            app:layout_constraintStart_toStartOf="@id/guideline26"
+            app:layout_constraintTop_toBottomOf="@+id/tv_order_detail_customer_phone" />
+
+        <ImageView
+            android:id="@+id/iv_order_detail_string_image"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_marginStart="16dp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_order_detail_racket_image"
+            app:layout_constraintStart_toEndOf="@id/guideline26"
+            app:layout_constraintTop_toTopOf="@+id/iv_order_detail_racket_image"
+            app:layout_constraintVertical_bias="0.0"
+            tools:src="@drawable/ic_calendar" />
+
+        <ImageView
+            android:id="@+id/iv_order_detail_string_finish"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:elevation="8dp"
+            android:src="@drawable/string_finished_tag"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="@id/iv_order_detail_string_image"
+            app:layout_constraintEnd_toEndOf="@id/iv_order_detail_string_image"
+            app:layout_constraintStart_toStartOf="@id/iv_order_detail_string_image"
+            app:layout_constraintTop_toTopOf="@id/iv_order_detail_string_image" />
+
+        <TextView
+            android:id="@+id/tv_order_detail_string_cordage_perso"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:text="@string/personal_string_string"
+            android:textAllCaps="true"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv_order_detail_string_image"
+            app:layout_constraintTop_toTopOf="@+id/tv_order_detail_racket_mark" />
+
+        <TextView
+            android:id="@+id/tv_order_detail_string_mark"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="4dp"
+            android:textAllCaps="true"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/black"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv_order_detail_string_image"
+            app:layout_constraintTop_toTopOf="@+id/tv_order_detail_racket_mark"
+            app:layout_goneMarginTop="8dp"
+            tools:text="Luxilon" />
+
+        <TextView
+            android:id="@+id/tv_order_detail_string_model"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textAllCaps="true"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/black"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="@id/tv_order_detail_string_mark"
+            app:layout_constraintStart_toStartOf="@id/tv_order_detail_string_mark"
+            app:layout_constraintTop_toBottomOf="@id/tv_order_detail_string_mark"
+            tools:text="Boninr big banger allu power rough (200 Metres)" />
+
+        <TextView
+            android:id="@+id/tv_order_detail_string_jauge"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:visibility="visible"
+            app:layout_constraintEnd_toStartOf="@id/tv_order_detail_string_color"
+            app:layout_constraintStart_toStartOf="@+id/tv_order_detail_string_model"
+            app:layout_constraintTop_toBottomOf="@id/tv_order_detail_string_model"
+            tools:text="Juage: 1.25MM" />
+
+        <TextView
+            android:id="@+id/tv_order_detail_string_color"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="@id/tv_order_detail_string_model"
+            app:layout_constraintStart_toEndOf="@+id/tv_order_detail_string_jauge"
+            app:layout_constraintTop_toTopOf="@+id/tv_order_detail_string_jauge"
+            tools:text="Couleur: GRIS" />
+
+        <TextView
+            android:id="@+id/tv_order_detail_string_tension"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="@id/tv_order_detail_string_jauge"
+            app:layout_constraintStart_toStartOf="@id/tv_order_detail_string_jauge"
+            app:layout_constraintTop_toBottomOf="@id/tv_order_detail_string_color"
+            tools:text="" />
+
+        <TextView
+            android:id="@+id/tv_order_detail_string_tension_vertical"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/tv_order_detail_string_mark"
+            app:layout_constraintTop_toBottomOf="@id/tv_order_detail_string_tension"
+            tools:text="Tension Montant: 25.0KG" />
+
+        <TextView
+            android:id="@+id/tv_order_detail_string_tension_horizontal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="@+id/tv_order_detail_string_color"
+            app:layout_constraintStart_toStartOf="@id/tv_order_detail_string_mark"
+            app:layout_constraintTop_toBottomOf="@id/tv_order_detail_string_tension_vertical"
+            tools:text="Tension Travers: 24.0KG" />
+
+        <TextView
+            android:id="@+id/tv_order_detail_string_pose_counter"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@id/btn_order_detail_string_print"
+            app:layout_constraintEnd_toEndOf="@+id/tv_order_detail_string_tension_horizontal"
+            app:layout_constraintStart_toStartOf="@+id/tv_order_detail_string_tension_vertical"
+            app:layout_constraintTop_toBottomOf="@id/tv_order_detail_string_tension_horizontal"
+            app:layout_constraintVertical_bias="0.0"
+            tools:text="Poses restantes: 1.0" />
+
+        <TextView
+            android:id="@+id/tv_order_detail_string_stringer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@id/btn_order_detail_string_print"
+            app:layout_constraintEnd_toEndOf="@id/tv_order_detail_string_mark"
+            app:layout_constraintStart_toStartOf="@id/tv_order_detail_string_mark"
+            app:layout_constraintTop_toBottomOf="@id/tv_order_detail_string_pose_counter"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <Button
+            android:id="@+id/btn_order_detail_string_print"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/button_background"
+            android:paddingStart="32dp"
+            android:paddingEnd="32dp"
+            android:text="@string/print_receipt"
+            android:textAllCaps="true"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btn_order_detail_string_reminder_email"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_chainStyle="spread_inside"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_goneMarginBottom="16dp" />
+
+        <Button
+            android:id="@+id/btn_order_detail_string_reminder_email"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/button_background"
+            android:paddingStart="32dp"
+            android:paddingEnd="32dp"
+            android:text="@string/resend_email"
+            android:textAllCaps="true"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btn_order_detail_string_completeOrder"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_chainStyle="spread_inside"
+            app:layout_constraintStart_toEndOf="@id/btn_order_detail_string_print"
+            app:layout_constraintWidth_percent="0.3"
+            app:layout_goneMarginBottom="16dp" />
+
+        <Button
+            android:id="@+id/btn_order_detail_string_completeOrder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/button_background"
+            android:paddingStart="32dp"
+            android:paddingEnd="32dp"
+            android:text="@string/click_to_complete"
+            android:textAllCaps="true"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/btn_order_detail_string_reminder_email" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <ScrollView
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:fillViewport="true"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/tabLayout"
-        app:layout_constraintTop_toTopOf="@id/tabLayout">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <androidx.constraintlayout.widget.Group
-                android:id="@+id/group_holidays"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                app:constraint_referenced_ids="btn_shop_time_charge_timing, tv, tv2, tv3, tv4, tv5, tv6, tv7, checkbox_sunday, checkbox_monday, checkbox_tuesday, checkbox_wednesday, checkbox_thursday, checkbox_friday, checkbox_saturday, view1, view2, view3, view4,view5,view6,view7, tv_weekday_1,tv_weekday_2, tv_weekday_3, tv_weekday_4, tv_weekday_5, tv_weekday_6, tv_weekday_7, atl_shop_timing_open_time_sunday, atl_shop_timing_open_time_monday, atl_shop_timing_open_time_tuesday, atl_shop_timing_open_time_wednesday, atl_shop_timing_open_time_thursday, atl_shop_timing_open_time_friday, atl_shop_timing_open_time_saturday, atl_shop_timing_close_time_sunday, atl_shop_timing_close_time_saturday, atl_shop_timing_close_time_monday, atl_shop_timing_close_time_tuesday, atl_shop_timing_close_time_wednesday, atl_shop_timing_close_time_thursday, atl_shop_timing_close_time_friday" />
-
-            <View
-                android:id="@+id/view1"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginHorizontal="18dp"
-                android:layout_marginTop="60dp"
-                android:layout_marginBottom="-4dp"
-                android:background="@drawable/search_view_background"
-                android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="@id/checkbox_sunday"
-                app:layout_constraintEnd_toEndOf="@id/guideline17"
-                app:layout_constraintStart_toStartOf="@id/guideline16"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/tv_weekday_1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="48dp"
-                android:background="@drawable/custom_label_textinputlayout"
-                android:paddingHorizontal="6dp"
-                android:text="@string/weekday_sunday"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/grey"
-                android:visibility="visible"
-                app:layout_constraintStart_toStartOf="@id/view1"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <CheckBox
-                android:id="@+id/checkbox_sunday"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/black"
-                app:layout_constraintBottom_toBottomOf="@id/view1"
-                app:layout_constraintStart_toStartOf="@id/view1"
-                app:layout_constraintTop_toBottomOf="@id/tv_weekday_1" />
-
-            <TextView
-                android:id="@+id/atl_shop_timing_open_time_sunday"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:paddingHorizontal="24dp"
-                android:paddingVertical="8dp"
-                android:singleLine="true"
-                android:text="10.00"
-                android:textAlignment="center"
-                android:textAppearance="?android:textAppearanceLarge"
-                android:textColor="@color/black"
-                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
-                app:drawableTint="@color/gray"
-                app:layout_constraintBottom_toBottomOf="@id/checkbox_sunday"
-                app:layout_constraintEnd_toStartOf="@id/tv"
-                app:layout_constraintHorizontal_chainStyle="spread_inside"
-                app:layout_constraintStart_toEndOf="@id/checkbox_sunday"
-                app:layout_constraintTop_toTopOf="@+id/checkbox_sunday" />
-
-            <TextView
-                android:id="@+id/tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:text="to"
-                android:textAlignment="center"
-                android:textAppearance="?android:textAppearanceMedium"
-                android:textColor="@color/black"
-                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_sunday"
-                app:layout_constraintEnd_toStartOf="@id/atl_shop_timing_close_time_sunday"
-                app:layout_constraintStart_toEndOf="@id/atl_shop_timing_open_time_sunday"
-                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_sunday" />
-
-            <TextView
-                android:id="@+id/atl_shop_timing_close_time_sunday"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:paddingHorizontal="24dp"
-                android:paddingVertical="8dp"
-                android:singleLine="true"
-                android:text="19.00"
-                android:textAlignment="center"
-                android:textAppearance="?android:textAppearanceLarge"
-                android:textColor="@color/black"
-                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
-                app:drawableTint="@color/gray"
-                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_sunday"
-                app:layout_constraintEnd_toEndOf="@id/view1"
-                app:layout_constraintStart_toEndOf="@id/tv"
-                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_sunday" />
-
-            <View
-                android:id="@+id/view2"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="-4dp"
-                android:background="@drawable/search_view_background"
-                android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="@id/checkbox_monday"
-                app:layout_constraintEnd_toEndOf="@id/view1"
-                app:layout_constraintStart_toStartOf="@id/view1"
-                app:layout_constraintTop_toBottomOf="@id/view1" />
-
-            <TextView
-                android:id="@+id/tv_weekday_2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/custom_label_textinputlayout"
-                android:paddingHorizontal="6dp"
-                android:text="@string/weekday_monday"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/grey"
-                android:visibility="visible"
-                app:layout_constraintStart_toStartOf="@id/view2"
-                app:layout_constraintTop_toBottomOf="@id/view1" />
-
-            <CheckBox
-                android:id="@+id/checkbox_monday"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/black"
-                app:layout_constraintBottom_toBottomOf="@id/view2"
-                app:layout_constraintStart_toStartOf="@id/view2"
-                app:layout_constraintTop_toBottomOf="@id/tv_weekday_2" />
-
-            <TextView
-                android:id="@+id/atl_shop_timing_open_time_monday"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:paddingHorizontal="24dp"
-                android:paddingVertical="8dp"
-                android:singleLine="true"
-                android:text="10.00"
-                android:textAlignment="center"
-                android:textAppearance="?android:textAppearanceLarge"
-                android:textColor="@color/black"
-                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
-                app:drawableTint="@color/gray"
-                app:layout_constraintBottom_toBottomOf="@id/checkbox_monday"
-                app:layout_constraintEnd_toStartOf="@id/tv2"
-                app:layout_constraintHorizontal_chainStyle="spread_inside"
-                app:layout_constraintStart_toEndOf="@id/checkbox_monday"
-                app:layout_constraintTop_toTopOf="@+id/checkbox_monday" />
-
-            <TextView
-                android:id="@+id/tv2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:text="to"
-                android:textAlignment="center"
-                android:textAppearance="?android:textAppearanceMedium"
-                android:textColor="@color/black"
-                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_monday"
-                app:layout_constraintEnd_toStartOf="@id/atl_shop_timing_close_time_monday"
-                app:layout_constraintStart_toEndOf="@id/atl_shop_timing_open_time_monday"
-                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_monday" />
-
-            <TextView
-                android:id="@+id/atl_shop_timing_close_time_monday"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:paddingHorizontal="24dp"
-                android:paddingVertical="8dp"
-                android:singleLine="true"
-                android:text="19.00"
-                android:textAlignment="center"
-                android:textAppearance="?android:textAppearanceLarge"
-                android:textColor="@color/black"
-                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
-                app:drawableTint="@color/gray"
-                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_monday"
-                app:layout_constraintEnd_toEndOf="@id/view2"
-                app:layout_constraintStart_toEndOf="@id/tv2"
-                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_monday" />
-
-            <View
-                android:id="@+id/view3"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="-4dp"
-                android:background="@drawable/search_view_background"
-                android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="@id/checkbox_tuesday"
-                app:layout_constraintEnd_toEndOf="@id/view1"
-                app:layout_constraintStart_toStartOf="@id/view1"
-                app:layout_constraintTop_toBottomOf="@id/view2" />
-
-            <TextView
-                android:id="@+id/tv_weekday_3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/custom_label_textinputlayout"
-                android:paddingHorizontal="6dp"
-                android:text="@string/weekday_tuesday"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/grey"
-                android:visibility="visible"
-                app:layout_constraintStart_toStartOf="@id/view3"
-                app:layout_constraintTop_toBottomOf="@id/view2" />
-
-            <CheckBox
-                android:id="@+id/checkbox_tuesday"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/black"
-                app:layout_constraintBottom_toBottomOf="@id/view3"
-                app:layout_constraintStart_toStartOf="@id/view3"
-                app:layout_constraintTop_toBottomOf="@id/tv_weekday_3" />
-
-            <TextView
-                android:id="@+id/atl_shop_timing_open_time_tuesday"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:paddingHorizontal="24dp"
-                android:paddingVertical="8dp"
-                android:singleLine="true"
-                android:text="10.00"
-                android:textAlignment="center"
-                android:textAppearance="?android:textAppearanceLarge"
-                android:textColor="@color/black"
-                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
-                app:drawableTint="@color/gray"
-                app:layout_constraintBottom_toBottomOf="@id/checkbox_tuesday"
-                app:layout_constraintEnd_toStartOf="@id/tv3"
-                app:layout_constraintHorizontal_chainStyle="spread_inside"
-                app:layout_constraintStart_toEndOf="@id/checkbox_tuesday"
-                app:layout_constraintTop_toTopOf="@+id/checkbox_tuesday" />
-
-            <TextView
-                android:id="@+id/tv3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:text="to"
-                android:textAlignment="center"
-                android:textAppearance="?android:textAppearanceMedium"
-                android:textColor="@color/black"
-                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_tuesday"
-                app:layout_constraintEnd_toStartOf="@id/atl_shop_timing_close_time_tuesday"
-                app:layout_constraintStart_toEndOf="@id/atl_shop_timing_open_time_tuesday"
-                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_tuesday" />
-
-            <TextView
-                android:id="@+id/atl_shop_timing_close_time_tuesday"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:paddingHorizontal="24dp"
-                android:paddingVertical="8dp"
-                android:singleLine="true"
-                android:text="19.00"
-                android:textAlignment="center"
-                android:textAppearance="?android:textAppearanceLarge"
-                android:textColor="@color/black"
-                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
-                app:drawableTint="@color/gray"
-                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_tuesday"
-                app:layout_constraintEnd_toEndOf="@id/view3"
-                app:layout_constraintStart_toEndOf="@id/tv3"
-                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_tuesday" />
-
-            <View
-                android:id="@+id/view4"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="-4dp"
-                android:background="@drawable/search_view_background"
-                android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="@id/checkbox_wednesday"
-                app:layout_constraintEnd_toEndOf="@id/view1"
-                app:layout_constraintStart_toStartOf="@id/view1"
-                app:layout_constraintTop_toBottomOf="@id/view3" />
-
-            <TextView
-                android:id="@+id/tv_weekday_4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/custom_label_textinputlayout"
-                android:paddingHorizontal="6dp"
-                android:text="@string/weekday_wednesday"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/grey"
-                android:visibility="visible"
-                app:layout_constraintStart_toStartOf="@id/view4"
-                app:layout_constraintTop_toBottomOf="@id/view3" />
-
-            <CheckBox
-                android:id="@+id/checkbox_wednesday"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/black"
-                app:layout_constraintBottom_toBottomOf="@id/view4"
-                app:layout_constraintStart_toStartOf="@id/view4"
-                app:layout_constraintTop_toBottomOf="@id/tv_weekday_4" />
-
-            <TextView
-                android:id="@+id/atl_shop_timing_open_time_wednesday"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:paddingHorizontal="24dp"
-                android:paddingVertical="8dp"
-                android:singleLine="true"
-                android:text="10.00"
-                android:textAlignment="center"
-                android:textAppearance="?android:textAppearanceLarge"
-                android:textColor="@color/black"
-                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
-                app:drawableTint="@color/gray"
-                app:layout_constraintBottom_toBottomOf="@id/checkbox_wednesday"
-                app:layout_constraintEnd_toStartOf="@id/tv4"
-                app:layout_constraintHorizontal_chainStyle="spread_inside"
-                app:layout_constraintStart_toEndOf="@id/checkbox_wednesday"
-                app:layout_constraintTop_toTopOf="@+id/checkbox_wednesday" />
-
-            <TextView
-                android:id="@+id/tv4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:text="to"
-                android:textAlignment="center"
-                android:textAppearance="?android:textAppearanceMedium"
-                android:textColor="@color/black"
-                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_wednesday"
-                app:layout_constraintEnd_toStartOf="@id/atl_shop_timing_close_time_wednesday"
-                app:layout_constraintStart_toEndOf="@id/atl_shop_timing_open_time_wednesday"
-                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_wednesday" />
-
-            <TextView
-                android:id="@+id/atl_shop_timing_close_time_wednesday"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:paddingHorizontal="24dp"
-                android:paddingVertical="8dp"
-                android:singleLine="true"
-                android:text="19.00"
-                android:textAlignment="center"
-                android:textAppearance="?android:textAppearanceLarge"
-                android:textColor="@color/black"
-                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
-                app:drawableTint="@color/gray"
-                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_wednesday"
-                app:layout_constraintEnd_toEndOf="@id/view4"
-                app:layout_constraintStart_toEndOf="@id/tv4"
-                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_wednesday" />
-
-            <View
-                android:id="@+id/view5"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="-4dp"
-                android:background="@drawable/search_view_background"
-                android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="@id/checkbox_thursday"
-                app:layout_constraintEnd_toEndOf="@id/view1"
-                app:layout_constraintStart_toStartOf="@id/view1"
-                app:layout_constraintTop_toBottomOf="@id/view4" />
-
-            <TextView
-                android:id="@+id/tv_weekday_5"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/custom_label_textinputlayout"
-                android:paddingHorizontal="6dp"
-                android:text="@string/weekday_thursday"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/grey"
-                android:visibility="visible"
-                app:layout_constraintStart_toStartOf="@id/view5"
-                app:layout_constraintTop_toBottomOf="@id/view4" />
-
-            <CheckBox
-                android:id="@+id/checkbox_thursday"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/black"
-                app:layout_constraintBottom_toBottomOf="@id/view5"
-                app:layout_constraintStart_toStartOf="@id/view5"
-                app:layout_constraintTop_toBottomOf="@id/tv_weekday_5" />
-
-            <TextView
-                android:id="@+id/atl_shop_timing_open_time_thursday"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:paddingHorizontal="24dp"
-                android:paddingVertical="8dp"
-                android:singleLine="true"
-                android:text="10.00"
-                android:textAlignment="center"
-                android:textAppearance="?android:textAppearanceLarge"
-                android:textColor="@color/black"
-                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
-                app:drawableTint="@color/gray"
-                app:layout_constraintBottom_toBottomOf="@id/checkbox_thursday"
-                app:layout_constraintEnd_toStartOf="@id/tv5"
-                app:layout_constraintHorizontal_chainStyle="spread_inside"
-                app:layout_constraintStart_toEndOf="@id/checkbox_thursday"
-                app:layout_constraintTop_toTopOf="@+id/checkbox_thursday" />
-
-            <TextView
-                android:id="@+id/tv5"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:text="to"
-                android:textAlignment="center"
-                android:textAppearance="?android:textAppearanceMedium"
-                android:textColor="@color/black"
-                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_thursday"
-                app:layout_constraintEnd_toStartOf="@id/atl_shop_timing_close_time_thursday"
-                app:layout_constraintStart_toEndOf="@id/atl_shop_timing_open_time_thursday"
-                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_thursday" />
-
-            <TextView
-                android:id="@+id/atl_shop_timing_close_time_thursday"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:paddingHorizontal="24dp"
-                android:paddingVertical="8dp"
-                android:singleLine="true"
-                android:text="19.00"
-                android:textAlignment="center"
-                android:textAppearance="?android:textAppearanceLarge"
-                android:textColor="@color/black"
-                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
-                app:drawableTint="@color/gray"
-                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_thursday"
-                app:layout_constraintEnd_toEndOf="@id/view5"
-                app:layout_constraintStart_toEndOf="@+id/tv5"
-                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_thursday" />
-
-            <View
-                android:id="@+id/view6"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="-4dp"
-                android:background="@drawable/search_view_background"
-                android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="@id/checkbox_friday"
-                app:layout_constraintEnd_toEndOf="@id/view1"
-                app:layout_constraintStart_toStartOf="@id/view1"
-                app:layout_constraintTop_toBottomOf="@id/view5" />
-
-            <TextView
-                android:id="@+id/tv_weekday_6"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/custom_label_textinputlayout"
-                android:paddingHorizontal="6dp"
-                android:text="@string/weekday_friday"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/grey"
-                android:visibility="visible"
-                app:layout_constraintStart_toStartOf="@id/view6"
-                app:layout_constraintTop_toBottomOf="@id/view5" />
-
-            <CheckBox
-                android:id="@+id/checkbox_friday"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/black"
-                app:layout_constraintBottom_toBottomOf="@id/view6"
-                app:layout_constraintStart_toStartOf="@id/view6"
-                app:layout_constraintTop_toBottomOf="@id/tv_weekday_6" />
-
-            <TextView
-                android:id="@+id/atl_shop_timing_open_time_friday"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:paddingHorizontal="24dp"
-                android:paddingVertical="8dp"
-                android:singleLine="true"
-                android:text="10.00"
-                android:textAlignment="center"
-                android:textAppearance="?android:textAppearanceLarge"
-                android:textColor="@color/black"
-                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
-                app:drawableTint="@color/gray"
-                app:layout_constraintBottom_toBottomOf="@id/checkbox_friday"
-                app:layout_constraintEnd_toStartOf="@id/tv6"
-                app:layout_constraintHorizontal_chainStyle="spread_inside"
-                app:layout_constraintStart_toEndOf="@id/checkbox_friday"
-                app:layout_constraintTop_toTopOf="@+id/checkbox_friday" />
-
-            <TextView
-                android:id="@+id/tv6"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:text="to"
-                android:textAlignment="center"
-                android:textAppearance="?android:textAppearanceMedium"
-                android:textColor="@color/black"
-                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_friday"
-                app:layout_constraintEnd_toStartOf="@id/atl_shop_timing_close_time_friday"
-                app:layout_constraintStart_toEndOf="@id/atl_shop_timing_open_time_friday"
-                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_friday" />
-
-            <TextView
-                android:id="@+id/atl_shop_timing_close_time_friday"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:paddingHorizontal="24dp"
-                android:paddingVertical="8dp"
-                android:singleLine="true"
-                android:text="19.00"
-                android:textAlignment="center"
-                android:textAppearance="?android:textAppearanceLarge"
-                android:textColor="@color/black"
-                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
-                app:drawableTint="@color/gray"
-                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_friday"
-                app:layout_constraintEnd_toEndOf="@id/view6"
-                app:layout_constraintStart_toEndOf="@id/tv6"
-                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_friday" />
-
-            <View
-                android:id="@+id/view7"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="-4dp"
-                android:background="@drawable/search_view_background"
-                android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="@id/checkbox_saturday"
-                app:layout_constraintEnd_toEndOf="@id/view1"
-                app:layout_constraintStart_toStartOf="@id/view1"
-                app:layout_constraintTop_toBottomOf="@id/view6" />
-
-            <TextView
-                android:id="@+id/tv_weekday_7"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/custom_label_textinputlayout"
-                android:paddingHorizontal="6dp"
-                android:text="@string/weekday_saturday"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/grey"
-                android:visibility="visible"
-                app:layout_constraintStart_toStartOf="@id/view7"
-                app:layout_constraintTop_toBottomOf="@id/view6" />
-
-            <CheckBox
-                android:id="@+id/checkbox_saturday"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/black"
-                app:layout_constraintBottom_toBottomOf="@id/view7"
-                app:layout_constraintStart_toStartOf="@id/view7"
-                app:layout_constraintTop_toBottomOf="@id/tv_weekday_7" />
-
-            <TextView
-                android:id="@+id/atl_shop_timing_open_time_saturday"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:paddingHorizontal="24dp"
-                android:paddingVertical="8dp"
-                android:singleLine="true"
-                android:text="10.00"
-                android:textAlignment="center"
-                android:textAppearance="?android:textAppearanceLarge"
-                android:textColor="@color/black"
-                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
-                app:drawableTint="@color/gray"
-                app:layout_constraintBottom_toBottomOf="@id/checkbox_saturday"
-                app:layout_constraintEnd_toStartOf="@id/tv7"
-                app:layout_constraintHorizontal_chainStyle="spread_inside"
-                app:layout_constraintStart_toEndOf="@id/checkbox_saturday"
-                app:layout_constraintTop_toTopOf="@id/checkbox_saturday" />
-
-            <TextView
-                android:id="@+id/tv7"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:text="to"
-                android:textAlignment="center"
-                android:textAppearance="?android:textAppearanceMedium"
-                android:textColor="@color/black"
-                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_saturday"
-                app:layout_constraintEnd_toStartOf="@id/atl_shop_timing_close_time_saturday"
-                app:layout_constraintStart_toEndOf="@id/atl_shop_timing_open_time_saturday"
-                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_saturday" />
-
-            <TextView
-                android:id="@+id/atl_shop_timing_close_time_saturday"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:paddingHorizontal="24dp"
-                android:paddingVertical="8dp"
-                android:singleLine="true"
-                android:text="19.00"
-                android:textAlignment="center"
-                android:textAppearance="?android:textAppearanceLarge"
-                android:textColor="@color/black"
-                app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24"
-                app:drawableTint="@color/gray"
-                app:layout_constraintBottom_toBottomOf="@id/atl_shop_timing_open_time_saturday"
-                app:layout_constraintEnd_toEndOf="@id/view7"
-                app:layout_constraintStart_toEndOf="@id/tv7"
-                app:layout_constraintTop_toTopOf="@id/atl_shop_timing_open_time_saturday" />
-
-            <Button
-                android:id="@+id/btn_shop_time_charge_timing"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="16dp"
-                android:background="@drawable/button_background"
-                android:elevation="16dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:text="@string/save_change"
-                android:textAllCaps="true"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/black"
-                android:textStyle="bold"
-                android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="@id/view1"
-                app:layout_constraintStart_toStartOf="@id/view1"
-                app:layout_constraintTop_toBottomOf="@id/view7" />
-
-            <androidx.constraintlayout.widget.Group
-                android:id="@+id/group_others"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                app:constraint_referenced_ids="v15, v16, v17, v18, tv31, textView24, til_standard_delivery, til_express_delivery, til_month_reminder, btn_racket_state_save" />
-
-            <View
-                android:id="@+id/v16"
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="4dp"
-                android:background="@color/gray"
-                app:layout_constraintBottom_toBottomOf="@id/textView24"
-                app:layout_constraintEnd_toStartOf="@+id/guideline18"
-                app:layout_constraintStart_toEndOf="@id/textView24"
-                app:layout_constraintTop_toTopOf="@id/textView24" />
-
-            <TextView
-                android:id="@+id/textView24"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:gravity="center"
-                android:text="@string/skip_day_title"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/black"
-                android:textStyle="italic"
-                app:layout_constraintEnd_toStartOf="@+id/guideline18"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <View
-                android:id="@+id/v15"
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="8dp"
-                android:background="@color/gray"
-                app:layout_constraintBottom_toBottomOf="@id/textView24"
-                app:layout_constraintEnd_toStartOf="@id/textView24"
-                app:layout_constraintStart_toStartOf="@id/til_standard_delivery"
-                app:layout_constraintTop_toTopOf="@id/textView24" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_standard_delivery"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="12dp"
-                android:layout_marginTop="16dp"
-                app:boxStrokeColor="@color/grey"
-                app:endIconTint="@color/grey"
-                app:hintTextAppearance="?android:textAppearanceSmall"
-                app:hintTextColor="@color/grey"
-                app:layout_constraintEnd_toStartOf="@+id/guideline18"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/textView24"
-                app:prefixText="@string/standard_d">
-
-                <AutoCompleteTextView
-                    android:id="@+id/atl_standard_delivery"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/standard_display"
-                    android:inputType="none"
-                    android:paddingEnd="24dp"
-                    android:singleLine="true"
-                    android:textAlignment="textEnd"
-                    android:textAppearance="?android:textAppearanceMedium"
-                    android:textColor="@color/black"
-                    android:textColorHint="@color/gray"
-                    tools:text="1" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_express_delivery"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:boxStrokeColor="@color/grey"
-                app:endIconTint="@color/grey"
-                app:hintTextAppearance="?android:textAppearanceSmall"
-                app:hintTextColor="@color/grey"
-                app:layout_constraintEnd_toEndOf="@+id/til_standard_delivery"
-                app:layout_constraintStart_toStartOf="@+id/til_standard_delivery"
-                app:layout_constraintTop_toBottomOf="@id/til_standard_delivery"
-                app:prefixText="@string/standard_d">
-
-                <AutoCompleteTextView
-                    android:id="@+id/atl_express_delivery"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/express"
-                    android:inputType="none"
-                    android:paddingEnd="24dp"
-                    android:singleLine="true"
-                    android:textAlignment="textEnd"
-                    android:textAppearance="?android:textAppearanceMedium"
-                    android:textColor="@color/black"
-                    android:textColorHint="@color/gray"
-                    tools:text="0" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <View
-                android:id="@+id/v17"
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:background="@color/gray"
-                app:layout_constraintBottom_toBottomOf="@id/tv31"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/tv31"
-                app:layout_constraintTop_toTopOf="@id/tv31" />
-
-            <TextView
-                android:id="@+id/tv31"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/racket_state_change_title"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/black"
-                android:textStyle="italic"
-                android:visibility="visible"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/guideline18"
-                app:layout_constraintTop_toTopOf="@+id/textView24" />
-
-            <View
-                android:id="@+id/v18"
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:background="@color/gray"
-                app:layout_constraintBottom_toBottomOf="@id/tv31"
-                app:layout_constraintEnd_toStartOf="@id/tv31"
-                app:layout_constraintStart_toEndOf="@+id/v16"
-                app:layout_constraintTop_toTopOf="@id/tv31" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_month_reminder"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                app:boxStrokeColor="@color/gray"
-                app:boxStrokeWidthFocused="1dp"
-                app:endIconTint="@color/grey"
-                app:hintTextAppearance="?android:textAppearanceSmall"
-                app:hintTextColor="@color/grey"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/guideline18"
-                app:layout_constraintTop_toBottomOf="@id/tv31">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/atl_months_reminder"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:digits="0123456789"
-                    android:hint="@string/titleMonth"
-                    android:imeOptions="actionDone"
-                    android:inputType="number|phone"
-                    android:maxLength="2"
-                    android:paddingEnd="52dp"
-                    android:singleLine="true"
-                    android:textAlignment="textEnd"
-                    android:textAppearance="?android:textAppearanceMedium"
-                    android:textColor="@color/black"
-                    android:textColorHint="@color/gray"
-                    tools:text="0" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <Button
-                android:id="@+id/btn_racket_state_save"
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
-                android:layout_marginTop="24dp"
-                android:background="@drawable/button_background"
-                android:paddingHorizontal="18dp"
-                android:text="@string/save_changes"
-                android:textAppearance="?android:textAppearanceMedium"
-                android:textColor="@color/white"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="@id/til_month_reminder"
-                app:layout_constraintTop_toBottomOf="@id/til_month_reminder" />
-
-            <TextView
-                android:id="@+id/tv_shop_timing_add_holiday"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="8dp"
-                android:background="?attr/selectableItemBackground"
-                android:drawablePadding="6dp"
-                android:elevation="16dp"
-                android:padding="8dp"
-                android:text="@string/add_holiday"
-                android:textAppearance="?android:textAppearanceMedium"
-                android:textColor="@color/black"
-                android:visibility="gone"
-                app:drawableStartCompat="@drawable/ic_add_holiday"
-                app:drawableTint="@color/black"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <androidx.constraintlayout.widget.Group
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                app:constraint_referenced_ids="til_holiday_date, til_holiday_title, iv_holiday_ok" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_holiday_title"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="24dp"
-                app:boxStrokeColor="@color/gray"
-                app:endIconMode="none"
-                app:hintTextAppearance="?android:textAppearanceSmall"
-                app:hintTextColor="@color/gray"
-                app:layout_constraintEnd_toStartOf="@id/til_holiday_date"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <AutoCompleteTextView
-                    android:id="@+id/atl_holiday_title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/holidays_title"
-                    android:inputType="textCapWords"
-                    android:singleLine="true"
-                    android:textAppearance="?android:textAppearanceMedium"
-                    android:textColor="@color/black"
-                    android:textColorHint="@color/gray" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_holiday_date"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                app:boxStrokeColor="@color/gray"
-                app:hintTextAppearance="?android:textAppearanceSmall"
-                app:hintTextColor="@color/gray"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/til_holiday_title"
-                app:layout_constraintTop_toTopOf="@id/til_holiday_title">
-
-                <AutoCompleteTextView
-                    android:id="@+id/atl_holiday_date"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/holiday_date"
-                    android:inputType="textCapWords"
-                    android:singleLine="true"
-                    android:textAppearance="?android:textAppearanceMedium"
-                    android:textColor="@color/black"
-                    android:textColorHint="@color/gray" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <TextView
-                android:id="@+id/iv_holiday_ok"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/button_background"
-                android:drawablePadding="12dp"
-                android:paddingVertical="12dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="24dp"
-                android:text="@string/save_changes"
-                android:textAlignment="center"
-                android:textAppearance="?android:textAppearanceMedium"
-                android:textColor="@color/black"
-                android:textStyle="bold"
-                android:visibility="visible"
-                app:drawableStartCompat="@drawable/ic_add_holiday"
-                app:drawableTint="@color/black"
-                app:layout_constraintEnd_toEndOf="@id/til_holiday_date"
-                app:layout_constraintTop_toBottomOf="@id/til_holiday_date" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/ev_holiday_list"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginVertical="8dp"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="@id/til_holiday_date"
-                app:layout_constraintStart_toStartOf="@id/til_holiday_title"
-                app:layout_constraintTop_toBottomOf="@id/iv_holiday_ok" />
-
-            <TextView
-                android:id="@+id/tv_no_holiday"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_margin="8dp"
-                android:gravity="center"
-                android:text="@string/holiday_not_found"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/black"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="@id/til_holiday_date"
-                app:layout_constraintStart_toStartOf="@id/til_holiday_title"
-                app:layout_constraintTop_toBottomOf="@id/iv_holiday_ok" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline16"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.2" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline17"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.7" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline18"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.5" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </ScrollView>
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>
